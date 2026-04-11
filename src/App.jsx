@@ -45,33 +45,30 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 body{background:var(--bg);transition:background .2s}
 
 /* ── Onboarding ── */
-.ob-s1,.ob-s2,.ob-s3{position:absolute;inset:0;display:none}
-.ob-s1.active{display:block;background:var(--paper)}
-.ob-s2.active{display:block;background:#FFFDFA}
-.ob-s3.active{display:block;background:#4F5E2E}
-.ob-s1 h1,.ob-s1 p{margin:0;font-weight:inherit}
-.ob-s1-wordmark{position:absolute;top:30.1%;left:50%;transform:translateX(-50%);width:min(100%,calc(100vw - 24px));font-family:var(--brand);font-size:clamp(88px,25vw,92px);line-height:1.2;color:var(--ink);text-transform:uppercase;text-align:center}
-.ob-s1-tagline{position:absolute;top:54.1%;left:50%;transform:translateX(-50%);width:min(36rem,calc(100% - 30px));box-sizing:border-box;font-family:var(--brand);font-size:clamp(22px,4vw,30px);line-height:1.51;color:var(--ink);text-transform:uppercase;text-align:center}
-.ob-s1-cta,.ob-s2-cta{position:absolute;top:83%;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);font-family:var(--sans);font-size:30px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;padding:10px 20px;min-height:44px}
-.ob-s1-cta:active,.ob-s2-cta:active{opacity:.5}
+.ob-s1,.ob-s2{position:absolute;inset:0;display:none}
+.ob-s1.active{display:block;background:#4F5E2E}
+.ob-s2.active{display:block;background:#4F5E2E}
 
-/* Step 2 — Paper */
+/* Step 1 — Name (Sage) */
+.ob-s1 h2{margin:0;font-weight:inherit}
+.ob-s1-hed{position:absolute;top:40.5%;left:45px;right:45px;font-family:var(--brand);font-size:27px;line-height:1.51;color:#FFFDFA;text-transform:uppercase;text-align:center}
+.ob-s1-in{position:absolute;top:52.5%;left:44px;right:44px;background:none;border:none;border-bottom:4px solid #0C0C0C;font-family:var(--sans);font-size:20px;font-weight:300;color:#FFFDFA;padding:0 0 8px;outline:none;-webkit-appearance:none;border-radius:0}
+.ob-s1-in::placeholder{color:rgba(255,253,250,0.35)}
+.ob-s1-hint{position:absolute;top:57.4%;left:44px;font-family:Inconsolata,monospace;font-weight:400;font-size:14px;line-height:1.51;color:#0C0C0C}
+.ob-s1-cta{position:absolute;top:86.4%;left:50%;transform:translateX(-50%);width:150px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
+.ob-s1-cta:active{opacity:.5}
+.ob-s1-trail{position:absolute;top:14%;left:50%;transform:translateX(-50%);opacity:0.6;pointer-events:none}
+
+/* Step 2 — Day One (Sage) */
 .ob-s2 h2{margin:0;font-weight:inherit}
-.ob-s2-hed{position:absolute;top:36.6%;left:15px;right:15px;font-family:var(--brand);font-size:clamp(22px,7.8vw,36px);line-height:1.3;color:var(--ink);text-transform:uppercase;text-align:center;white-space:nowrap}
-.ob-s2-in{position:absolute;top:50.7%;left:44px;right:44px;background:none;border:none;border-bottom:4px solid var(--ink);font-family:var(--sans);font-size:20px;font-weight:300;color:var(--ink);padding:0 0 8px;outline:none;-webkit-appearance:none;border-radius:0}
-.ob-s2-in::placeholder{color:rgba(28,25,22,0.25)}
-.ob-s2-hint{position:absolute;top:56.6%;left:51px;font-family:var(--brand);font-size:14px;color:var(--ink);opacity:0.45}
-
-/* Step 3 — Sage */
-.ob-s3 h2{margin:0;font-weight:inherit}
-.ob-s3-daynum{position:absolute;top:29.8%;left:15px;right:15px;font-family:var(--brand);font-size:92px;line-height:1.2;color:var(--paper);text-transform:uppercase;text-align:center}
-.ob-s3-sub{position:absolute;top:45.6%;left:15px;right:15px;font-family:var(--brand);font-size:27px;line-height:1.51;color:var(--paper);text-transform:uppercase;text-align:center}
-.ob-s3-cta{position:absolute;top:83%;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);font-family:var(--brand);font-size:30px;line-height:1.51;color:var(--paper);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;padding:10px 20px;min-height:44px}
-.ob-s3-cta:active{opacity:.5}
-.ob-s3-cta:disabled{opacity:.35;cursor:default}
+.ob-s2-daynum{position:absolute;top:27.3%;left:32px;right:32px;font-family:var(--brand);font-size:92px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center}
+.ob-s2-trail{position:absolute;top:42.6%;left:50%;transform:translateX(-50%);pointer-events:none}
+.ob-s2-cta{position:absolute;top:61.5%;left:50%;transform:translateX(-50%);width:197px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
+.ob-s2-cta:active{opacity:.5}
+.ob-s2-cta:disabled{opacity:.35;cursor:default}
 
 /* ── Splash ── */
-.pj-splash{position:fixed;inset:0;background:#FFFDFA;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;display:flex;align-items:center;justify-content:center}
+.pj-splash{position:fixed;inset:0;background:#1C1916;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;display:flex;align-items:center;justify-content:center}
 .pj-splash.fading{opacity:0}
 @keyframes splashLogoIn{from{opacity:0;transform:scale(0.82)}to{opacity:1;transform:scale(1)}}
 .splash-logo{animation:splashLogoIn 0.6s cubic-bezier(0.2,0,0,1) both}
@@ -157,15 +154,28 @@ body{background:var(--bg);transition:background .2s}
 .month-section{margin-bottom:8px}
 .month-section-label{padding:18px 20px 6px;font-family:var(--sans);font-size:16px;font-weight:400;letter-spacing:.01em;color:var(--text)}
 
-/* ── Bottom tab bar (mobile only) ── */
-.pj-bottom-nav{position:fixed;bottom:0;left:0;right:0;box-sizing:content-box;height:60px;padding-bottom:env(safe-area-inset-bottom);background:var(--bg);border-top:1px solid var(--border);display:flex;justify-content:space-around;align-items:center;z-index:100}
-.pj-nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:none;border:none;cursor:pointer;color:var(--text-3);transition:color .15s;height:60px;padding:0}
-.pj-nb.on{color:var(--accent)}
-.pj-nb svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* ── Bottom tab bar (mobile only) — hidden, kept for desktop ── */
+.pj-bottom-nav{display:none!important}
+.pj-nb{display:none}
+
+/* ── Today Sheet ── */
+.today-sheet{position:fixed;inset:0;z-index:50;background:#F0EEEA}
+.today-sheet-tray{position:absolute;top:39px;left:0;right:0;bottom:0;background:#FFFDFA;border-radius:16px 16px 0 0;box-shadow:0 -6px 16px -8px rgba(0,0,0,0.1)}
+.today-sheet-dismiss{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#F0EEEA;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1;padding:0}
+.today-sheet-dismiss:active{opacity:.6}
+.today-sheet-prompt-lbl{position:absolute;top:283px;left:0;right:0;font-family:Inconsolata,monospace;font-weight:500;font-size:14px;color:#4F5E2E;text-align:center;letter-spacing:0.04em}
+.today-sheet-prompt-txt{position:absolute;top:306px;left:44px;right:44px;font-family:var(--sans);font-size:15px;color:var(--text);line-height:1.6;font-weight:300;text-align:center}
+.today-sheet-skel{position:absolute;background:#EBEBEB;border-radius:85px;height:13px}
+.today-sheet-btns{position:absolute;bottom:calc(48px + env(safe-area-inset-bottom));left:0;right:0;display:flex;align-items:center;justify-content:center}
+.today-sheet-cam{display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;transition:opacity .15s,transform .1s}
+.today-sheet-cam:active{opacity:.75;transform:scale(0.92)}
+.today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
+.today-sheet-icon-btn:active{opacity:.4}
+@media(min-width:640px){.today-sheet{display:none}}
 
 
 /* ── Day detail ── */
-.pj-main-inner{flex:1;padding:0 20px 96px}
+.pj-main-inner{flex:1;padding:0 20px 40px}
 @media(min-width:640px){.pj-main-inner{padding:20px 20px 48px}}
 .dv-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
 .dv-nav{display:flex;align-items:center}
@@ -230,14 +240,8 @@ body{background:var(--bg);transition:background .2s}
 .prompt-lbl{font-family:var(--sans);font-size:12px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;font-weight:500}
 .prompt-txt{font-family:var(--sans);font-size:15px;color:var(--text);line-height:1.6;font-weight:300}
 
-/* ── Camera button — fixed, 50% overlapping tab bar ── */
-.camera-btn{position:fixed;bottom:27px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;width:66px;height:66px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;transition:opacity .15s,transform .1s;z-index:200}
-.camera-btn:active{opacity:.75;transform:translateX(-50%) scale(0.92)}
-.camera-btn:disabled{cursor:default}
-@media(min-width:640px){.camera-btn{display:none}}
-/* Push tab labels to sides so camera button doesn't overlap them */
-.pj-nb:first-child{padding-right:36px}
-.pj-nb:last-child{padding-left:36px}
+/* ── Camera button — desktop only ── */
+.camera-btn{display:none}
 
 /* ── Weekly theme card ── */
 .theme-card{margin:12px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;overflow:hidden}
@@ -326,20 +330,20 @@ body{background:var(--bg);transition:background .2s}
 
 /* ── Login ── */
 .pj-login{position:fixed;inset:0;background:var(--paper)}
-.login-logo{display:none}
-.login-name{position:absolute;top:27.3%;left:0;right:0;font-family:var(--brand);font-size:clamp(96px,25vw,120px);line-height:1.2;color:var(--ink);text-transform:uppercase;text-align:center}
+.login-logo{position:absolute;top:10.3%;left:50%;transform:translateX(-50%);width:80px;height:80px}
+.login-name{display:none}
 .login-sub{display:none}
 .login-fields{display:contents}
-.login-field-lbl{position:absolute;left:45px;font-family:var(--brand);font-size:16px;line-height:1.51;color:var(--ink)}
+.login-field-lbl{position:absolute;left:45px;font-family:Inconsolata,monospace;font-weight:600;font-size:16px;line-height:1.51;color:var(--ink)}
 .login-in{position:absolute;left:45px;right:45px;background:none;border:none;border-bottom:4px solid var(--ink);font-family:var(--sans);font-size:20px;font-weight:300;color:var(--ink);padding:0 0 8px;outline:none;-webkit-appearance:none;border-radius:0}
 .login-in::placeholder{color:rgba(28,25,22,0.2)}
-.login-btn{position:absolute;top:69.7%;left:0;right:0;font-family:var(--brand);font-size:20px;line-height:1.51;color:var(--accent);background:none;border:none;cursor:pointer;text-align:center;transition:opacity .15s;padding:0}
+.login-btn{position:absolute;top:60.9%;left:50%;transform:translateX(-50%);width:150px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;transition:opacity .15s;padding:0;white-space:nowrap}
 .login-btn:active{opacity:0.5}
 .login-btn:disabled{opacity:.3;cursor:default}
-.forgot-link{position:absolute;top:91.7%;left:0;right:0;font-family:var(--brand);font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;padding:0}
+.forgot-link{position:absolute;top:88.5%;left:0;right:0;font-family:Inconsolata,monospace;font-weight:600;font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;padding:0}
 .forgot-link:active{opacity:0.4}
 .login-footer{display:contents}
-.login-err{position:absolute;top:67%;left:45px;right:45px;font-family:var(--sans);font-size:10px;color:#B03030;letter-spacing:.04em}
+.login-err{position:absolute;top:68%;left:45px;right:45px;font-family:var(--sans);font-size:10px;color:#B03030;letter-spacing:.04em}
 
 /* ── Settings sheet ── */
 .settings-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;display:flex;align-items:flex-end;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -550,11 +554,10 @@ export default function App() {
   }, []);
 
   // ── Onboarding ──
-  const [onboardingStep, setOnboardingStep] = useState(null); // null | 1 | 2 | 3
+  const [onboardingStep, setOnboardingStep] = useState(null); // null | 1 | 2
 
   const syncObColor = (step) => {
-    const colors = { 1: '#FFFDFA', 2: '#FFFDFA', 3: '#4F5E2E' };
-    const color = step ? (colors[step] ?? '#FFFDFA') : '#FFFDFA';
+    const color = step ? '#4F5E2E' : '#FFFDFA';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
     document.documentElement.style.background = color;
     document.body.style.background = color;
@@ -594,6 +597,7 @@ export default function App() {
   const [newPwVal,     setNewPwVal]     = useState('');
   const [resetBusy,    setResetBusy]    = useState(false);
   const [accessView,   setAccessView]   = useState(false); // false | 'form' | 'success'
+  const [showLanding,  setShowLanding]  = useState(true);
   const [reqName,      setReqName]      = useState('');
   const [reqEmail,     setReqEmail]     = useState('');
   const [reqNote,      setReqNote]      = useState('');
@@ -601,7 +605,8 @@ export default function App() {
   const [reqErr,       setReqErr]       = useState(null);
 
   // ── Navigation state ──
-  const [activeTab,     setActiveTab]     = useState('today');
+  const [activeTab,     setActiveTab]     = useState('month');
+  const [showTodaySheet, setShowTodaySheet] = useState(true);
   const [cm, setCm] = useState(TM);
   const [cy, setCy] = useState(TY);
   const [sel,        setSel]        = useState(todayStr);
@@ -637,6 +642,7 @@ export default function App() {
   const [reviewBuilding,setReviewBuilding]=useState(false);
   const fileRef        = useRef(null);
   const cameraRef      = useRef(null);
+  const folderRef      = useRef(null);
   const captionRef     = useRef(null);
   const lbTouchRef     = useRef(null);
   const swipeTouchRef  = useRef(null);
@@ -673,8 +679,8 @@ export default function App() {
   // handle the case where iOS resets the bar after the app is backgrounded/foregrounded.
   const applyStatusBarColor = useCallback(()=>{
     let color;
-    if (!splashDone)            color = '#FFFDFA';
-    else if (onboardingStep)    color = ({1:'#FFFDFA',2:'#FFFDFA',3:'#4F5E2E'})[onboardingStep] ?? '#FFFDFA';
+    if (!splashDone)            color = '#1C1916';
+    else if (onboardingStep)    color = '#4F5E2E';
     else if (!authed)           color = '#FFFDFA';
     else if (weekReview)        color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
     else                        color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
@@ -844,6 +850,7 @@ export default function App() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setSettingsOpen(false);
+    setShowLanding(true);
   };
 
   const [pwNew,         setPwNew]         = useState('');
@@ -1099,13 +1106,13 @@ export default function App() {
 
   const splash = !splashDone && (
     <div className={`pj-splash${splashFading?' fading':''}`}>
-      <svg className="splash-logo" width="150" height="150" viewBox="0 0 150 150" fill="none">
-        <path d="M11.2715 106.647C11.2716 124.365 25.6348 138.728 43.3525 138.728H62.333C65.4455 138.728 67.9688 141.252 67.9688 144.364C67.9688 147.477 65.4455 150 62.333 150H43.3525C19.5966 150 0.303705 130.892 0.00366211 107.208L0 106.647V87.667C0 84.5545 2.52321 82.0312 5.63576 82.0312C8.7483 82.0312 11.2715 84.5545 11.2715 87.667V106.647Z" fill="black"/>
-        <path d="M150 106.647L149.996 107.208C149.699 130.706 130.706 149.699 107.208 149.996L106.647 150H87.667C84.5545 150 82.0312 147.477 82.0312 144.364C82.0312 141.252 84.5545 138.728 87.667 138.728H106.647C124.365 138.728 138.728 124.365 138.728 106.647V87.667C138.728 84.5545 141.252 82.0312 144.364 82.0312C147.477 82.0312 150 84.5545 150 87.667V106.647Z" fill="black"/>
-        <path d="M67.9688 5.63576C67.9688 8.7483 65.4455 11.2715 62.333 11.2715H43.3525C25.6348 11.2716 11.2716 25.6348 11.2715 43.3525V62.333C11.2715 65.4455 8.7483 67.9688 5.63576 67.9688C2.52321 67.9688 0 65.4455 0 62.333V43.3525C4.83256e-05 19.4096 19.4096 5.07358e-05 43.3525 0H62.333C65.4455 0 67.9688 2.52321 67.9688 5.63576Z" fill="black"/>
-        <path d="M107.208 0.00366211C130.892 0.303702 150 19.5966 150 43.3525V62.333C150 65.4455 147.477 67.9688 144.364 67.9688C141.252 67.9688 138.728 65.4455 138.728 62.333V43.3525C138.728 25.6348 124.365 11.2716 106.647 11.2715H87.667C84.5545 11.2715 82.0312 8.7483 82.0312 5.63576C82.0312 2.52321 84.5545 0 87.667 0H106.647L107.208 0.00366211Z" fill="black"/>
-        <path d="M107.208 0.00366211C130.892 0.303702 150 19.5966 150 43.3525V62.333C150 65.4455 147.477 67.9688 144.364 67.9688C141.252 67.9688 138.728 65.4455 138.728 62.333V43.3525C138.728 25.6348 124.365 11.2716 106.647 11.2715H87.667C84.5545 11.2715 82.0312 8.7483 82.0312 5.63576C82.0312 2.52321 84.5545 0 87.667 0H106.647L107.208 0.00366211Z" fill="#E34822"/>
-        <path d="M79.0104 115.671C71.0927 115.441 62.9312 112.611 57.7619 108.287C55.036 106.063 52.8696 103.952 50.9748 101.694C49.6673 100.236 49.6341 99.4132 50.6814 97.8602C52.3881 95.4564 54.1058 93.327 55.6906 91.3402C56.2226 90.7693 56.749 90.0614 57.026 90.0502C57.4416 90.0334 58.0233 90.6967 58.7381 91.2172C59.3198 91.8805 59.9015 92.5437 60.4778 93.0698C61.3476 93.9962 62.356 94.9169 63.3644 95.8376C66.3895 98.5998 71.6586 101.958 75.997 102.882C76.4181 103.002 77.1162 103.111 77.6703 103.089L77.8088 103.083C81.4048 102.801 85.8653 99.8741 86.2534 95.7381C86.5638 93.116 86.2038 91.0704 85.0348 89.6067C81.8158 85.4789 77.2448 82.2297 72.962 79.2436C70.6792 77.6876 68.3965 76.1315 66.3908 74.5643L66.2468 74.4328C63.5208 72.2079 60.9224 69.7032 58.1632 66.6556C54.1021 62.2871 52.6728 57.8124 53.5762 52.6941C55.3997 42.8691 61.5282 36.5786 71.5793 34.6622C72.6819 34.4804 73.7846 34.2985 74.8927 34.2538C75.0312 34.2482 75.3083 34.2371 75.4468 34.2315C80.018 34.047 84.6389 35.0967 89.5867 37.3692C92.8446 39.0233 95.2603 40.4366 97.4045 41.9982C98.701 43.182 99.4323 44.1139 99.4711 45.0738C99.5043 45.8965 99.1274 46.8731 98.058 47.8777C97.6591 48.3058 97.3986 48.7284 96.9997 49.1565C95.8028 50.4409 94.6114 51.8624 93.1264 52.8837C92.3119 53.3287 91.7689 53.6253 91.3533 53.642C90.7992 53.6644 90.2341 53.4125 89.5194 52.892C87.6577 51.4563 85.9291 49.8779 84.35 48.5681C81.7682 46.4748 78.8371 46.0437 75.9171 45.8868C75.6401 45.898 75.5015 45.9036 75.2245 45.9148L75.086 45.9204C72.4541 46.0266 69.6005 47.5152 68.0434 50.1875C66.4697 52.4486 66.7244 55.3225 68.5194 58.5464C71.0569 62.9764 75.6112 65.8142 79.4841 68.9542L79.6281 69.0858C80.631 69.8694 81.4897 70.5214 82.487 71.1679C83.3458 71.82 84.1991 72.335 85.0634 73.1241C86.6369 74.2968 88.3545 75.6009 89.9225 76.6364L90.6428 77.2941C95.0752 80.5488 97.8731 84.5563 99.3411 89.9909C101.452 97.597 99.0799 104.148 92.1147 110.335C88.4909 113.365 84.2631 115.184 79.0104 115.671Z" fill="black"/>
+      <svg className="splash-logo" width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M107.208 0.00366211C130.892 0.303702 150 19.5966 150 43.3525V62.333C150 65.4455 147.477 67.9688 144.364 67.9688C141.252 67.9688 138.728 65.4455 138.728 62.333V43.3525C138.728 25.6348 124.365 11.2716 106.647 11.2715H87.667C84.5545 11.2715 82.0312 8.7483 82.0312 5.63576C82.0312 2.52321 84.5545 0 87.667 0H106.647L107.208 0.00366211Z" fill="#4F5E2E"/>
+        <path d="M11.2715 106.647C11.2716 124.365 25.6348 138.728 43.3525 138.728H62.333C65.4455 138.728 67.9688 141.252 67.9688 144.364C67.9688 147.477 65.4455 150 62.333 150H43.3525C19.5966 150 0.303705 130.892 0.00366211 107.208L0 106.647V87.667C0 84.5545 2.52321 82.0312 5.63576 82.0312C8.7483 82.0312 11.2715 84.5545 11.2715 87.667V106.647Z" fill="#F5F1EB"/>
+        <path d="M150 106.647L149.996 107.208C149.699 130.706 130.706 149.699 107.208 149.996L106.647 150H87.667C84.5545 150 82.0312 147.477 82.0312 144.364C82.0312 141.252 84.5545 138.728 87.667 138.728H106.647C124.365 138.728 138.728 124.365 138.728 106.647V87.667C138.728 84.5545 141.252 82.0312 144.364 82.0312C147.477 82.0312 150 84.5545 150 87.667V106.647Z" fill="#F5F1EB"/>
+        <path d="M67.9688 5.63576C67.9688 8.7483 65.4455 11.2715 62.333 11.2715H43.3525C25.6348 11.2716 11.2716 25.6348 11.2715 43.3525V62.333C11.2715 65.4455 8.7483 67.9688 5.63576 67.9688C2.52321 67.9688 0 65.4455 0 62.333V43.3525C4.83256e-05 19.4096 19.4096 5.07358e-05 43.3525 0H62.333C65.4455 0 67.9688 2.52321 67.9688 5.63576Z" fill="#F5F1EB"/>
+        <path d="M79.0104 115.671C71.0927 115.441 62.9312 112.611 57.7619 108.287C55.036 106.063 52.8696 103.952 50.9748 101.694C49.6673 100.236 49.6341 99.4132 50.6814 97.8602C52.3881 95.4564 54.1058 93.327 55.6906 91.3402C56.2226 90.7693 56.749 90.0614 57.026 90.0502C57.4416 90.0334 58.0233 90.6967 58.7381 91.2172C59.3198 91.8805 59.9015 92.5437 60.4778 93.0698C61.3476 93.9962 62.356 94.9169 63.3644 95.8376C66.3895 98.5998 71.6586 101.958 75.997 102.882C76.4181 103.002 77.1162 103.111 77.6703 103.089L77.8088 103.083C81.4048 102.801 85.8653 99.8741 86.2534 95.7381C86.5638 93.116 86.2038 91.0704 85.0348 89.6067C81.8158 85.4789 77.2448 82.2297 72.962 79.2436C70.6792 77.6876 68.3965 76.1315 66.3908 74.5643L66.2468 74.4328C63.5208 72.2079 60.9224 69.7032 58.1632 66.6556C54.1021 62.2871 52.6728 57.8124 53.5762 52.6941C55.3997 42.8691 61.5282 36.5786 71.5793 34.6622C72.6819 34.4804 73.7846 34.2985 74.8927 34.2538C75.0312 34.2482 75.3083 34.2371 75.4468 34.2315C80.018 34.047 84.6389 35.0967 89.5867 37.3692C92.8446 39.0233 95.2603 40.4366 97.4045 41.9982C98.701 43.182 99.4324 44.1139 99.4711 45.0737C99.5043 45.8965 99.1274 46.8731 98.058 47.8777C97.6591 48.3058 97.3986 48.7284 96.9996 49.1565C95.8028 50.4409 94.6114 51.8624 93.1264 52.8838C92.3119 53.3287 91.7689 53.6253 91.3533 53.642C90.7992 53.6644 90.2341 53.4125 89.5194 52.892C87.6577 51.4563 85.9291 49.8779 84.35 48.5681C81.7682 46.4748 78.8371 46.0437 75.9171 45.8868C75.6401 45.898 75.5015 45.9036 75.2245 45.9148L75.086 45.9204C72.4541 46.0266 69.6005 47.5152 68.0434 50.1875C66.4697 52.4486 66.7244 55.3225 68.5194 58.5464C71.0569 62.9764 75.6112 65.8142 79.4841 68.9542L79.6281 69.0858C80.631 69.8694 81.4897 70.5214 82.4871 71.1679C83.3458 71.82 84.1991 72.335 85.0634 73.1242C86.6369 74.2968 88.3545 75.6009 89.9225 76.6364L90.6428 77.2941C95.0752 80.5488 97.8731 84.5563 99.3411 89.9909C101.452 97.597 99.0799 104.148 92.1147 110.335C88.4909 113.365 84.2631 115.184 79.0104 115.671Z" fill="#F5F1EB"/>
+        <path d="M107.208 0.00366211C130.892 0.303702 150 19.5966 150 43.3525V62.333C150 65.4455 147.477 67.9688 144.364 67.9688C141.252 67.9688 138.728 65.4455 138.728 62.333V43.3525C138.728 25.6348 124.365 11.2716 106.647 11.2715H87.667C84.5545 11.2715 82.0312 8.7483 82.0312 5.63576C82.0312 2.52321 84.5545 0 87.667 0H106.647L107.208 0.00366211Z" fill="#4F5E2E"/>
       </svg>
     </div>
   );
@@ -1113,27 +1120,23 @@ export default function App() {
   if (checking) return splash || null;
 
   if (onboardingStep) {
-    const obBg = {1:'#FFFDFA',2:'#FFFDFA',3:'#4F5E2E'}[onboardingStep] ?? '#FFFDFA';
     return (
-      <div style={{position:'fixed',inset:0,background:obBg}}>
+      <div style={{position:'fixed',inset:0,background:'#4F5E2E'}}>
         <section className={`ob-s1${onboardingStep===1?' active':''}`} aria-labelledby="ob-s1-title">
-          <h1 id="ob-s1-title" className="ob-s1-wordmark">Scout</h1>
-          <p className="ob-s1-tagline">One Frame.<br/>Everyday.</p>
-          <button type="button" className="ob-s1-cta" onClick={() => { syncObColor(2); setOnboardingStep(2); }} aria-label="Continue to next step">NEXT --&gt;</button>
+          <img src="/trail.svg" className="ob-s1-trail" alt="" aria-hidden="true" />
+          <h2 id="ob-s1-title" className="ob-s1-hed">What's your name, Scout?</h2>
+          <input className="ob-s1-in" type="text" placeholder="Your name"
+            value={onboardingName} onChange={e => setOnboardingName(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { setOnboardingStep(2); } }}
+            autoComplete="given-name" />
+          <div className="ob-s1-hint">*Optional</div>
+          <button type="button" className="ob-s1-cta" onClick={() => setOnboardingStep(2)}>NEXT</button>
         </section>
         <section className={`ob-s2${onboardingStep===2?' active':''}`} aria-labelledby="ob-s2-title">
-          <h2 id="ob-s2-title" className="ob-s2-hed">What's your name?</h2>
-          <input className="ob-s2-in" type="text" placeholder="Your name"
-            value={onboardingName} onChange={e => setOnboardingName(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { syncObColor(3); setOnboardingStep(3); } }}
-            autoComplete="given-name" />
-          <div className="ob-s2-hint">*Optional</div>
-          <button type="button" className="ob-s2-cta" onClick={() => { syncObColor(3); setOnboardingStep(3); }} aria-label="Continue to next step">NEXT --&gt;</button>
-        </section>
-        <section className={`ob-s3${onboardingStep===3?' active':''}`} aria-labelledby="ob-s3-title">
-          <h2 id="ob-s3-title" className="ob-s3-daynum">Day One</h2>
-          <button type="button" className="ob-s3-cta" onClick={finishOnboarding} disabled={onboardingBusy}>
-            {onboardingBusy ? 'Setting up…' : 'START SHOOTING -->'}
+          <h2 id="ob-s2-title" className="ob-s2-daynum">Day One!</h2>
+          <img src="/trail.svg" className="ob-s2-trail" alt="" aria-hidden="true" />
+          <button type="button" className="ob-s2-cta" onClick={finishOnboarding} disabled={onboardingBusy}>
+            {onboardingBusy ? 'Setting up…' : 'START SHOOTING'}
           </button>
         </section>
       </div>
@@ -1142,10 +1145,10 @@ export default function App() {
 
   if (forgotView === 'set') return (
     <form className="pj-login" onSubmit={handleSetNewPassword} data-theme={theme}>
-      <div className="login-name">Scout</div>
+      <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
       <div className="login-fields">
-        <div className="login-field-lbl" style={{top:'47.6%'}}>New Password</div>
-        <input className="login-in" type="password" value={newPwVal} style={{top:'50.7%'}}
+        <div className="login-field-lbl" style={{top:'37.1%'}}>NEW PASSWORD</div>
+        <input className="login-in" type="password" value={newPwVal} style={{top:'41%'}}
           onChange={e=>setNewPwVal(e.target.value)} placeholder="" autoComplete="new-password" />
         {resetMsg && <div className={resetMsg.ok ? '' : 'login-err'} style={resetMsg.ok?{fontFamily:'var(--sans)',fontSize:12,color:'var(--accent)',marginTop:8}:{}}>{resetMsg.text}</div>}
         <button className="login-btn" type="submit" disabled={resetBusy || !newPwVal}>
@@ -1156,35 +1159,49 @@ export default function App() {
     </form>
   );
 
+  if (!authed && showLanding) return (
+    <>
+      {splash}
+      <div style={{position:'fixed',inset:0,background:'#0C0C0C',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:0}}>
+        <img src="/scout-lockup.svg" alt="Scout" style={{width:150,marginBottom:80}} />
+        <button
+          type="button"
+          onClick={()=>setShowLanding(false)}
+          style={{width:150,height:51,background:'#222222',border:'none',borderRadius:4,cursor:'pointer',fontFamily:'var(--brand)',fontSize:20,color:'#FFFDFA',letterSpacing:'0.01em'}}
+        >SIGN IN &gt;</button>
+        <button
+          type="button"
+          onClick={()=>{ setShowLanding(false); setAccessView('form'); }}
+          style={{position:'absolute',bottom:80,fontFamily:'Inconsolata, monospace',fontWeight:600,fontSize:16,color:'#F5F1EB',background:'none',border:'none',cursor:'pointer',letterSpacing:'0.05em'}}
+        >REQUEST ACCESS</button>
+      </div>
+    </>
+  );
+
   if (!authed) return (
     <>
       {splash}
       {accessView === 'success' ? (
         <div className="pj-login" data-theme={theme}>
-          <div className="login-name">Scout</div>
-          <div className="login-fields">
-            <div className="login-ok" style={{marginTop:20}}>
-              <strong>You're on the list.</strong><br/>
-              We'll be in touch with access soon.
-            </div>
+          <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
+          <div style={{position:'absolute',top:'37.7%',left:0,right:0,fontFamily:'Inconsolata,monospace',fontWeight:400,fontSize:16,lineHeight:1.7,color:'#000000',textAlign:'center'}}>
+            You're on the list!<br/>We'll be in touch soon.
           </div>
-          <div className="login-footer">
-            <button type="button" className="forgot-link" onClick={()=>{ setAccessView(false); setReqName(''); setReqEmail(''); setReqNote(''); }}>
-              Back to sign in
-            </button>
-          </div>
+          <button type="button" className="login-btn" onClick={()=>{ setAccessView(false); setReqName(''); setReqEmail(''); setReqNote(''); }}>
+            BACK
+          </button>
         </div>
       ) : accessView === 'form' ? (
         <form className="pj-login" onSubmit={handleRequestAccess} data-theme={theme}>
-          <div className="login-name">Scout</div>
+          <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
           <div className="login-fields">
-            <div className="login-field-lbl" style={{top:'47.6%'}}>EMAIL</div>
-            <input className="login-in" type="email" value={reqEmail} style={{top:'54.1%'}}
+            <div className="login-field-lbl" style={{top:'37.1%'}}>EMAIL</div>
+            <input className="login-in" type="email" value={reqEmail} style={{top:'41%'}}
               onChange={e=>{setReqEmail(e.target.value);setReqErr(null);}}
               placeholder="" autoComplete="email" />
-            {reqErr && <div className="login-err" style={{padding:0}}>{reqErr}</div>}
+            {reqErr && <div className="login-err">{reqErr}</div>}
             <button className="login-btn" type="submit" disabled={reqBusy || !reqEmail.trim()}>
-              {reqBusy ? 'Submitting…' : 'REQUEST ACCESS -->'}
+              {reqBusy ? 'Submitting…' : 'REQUEST ACCESS >'}
             </button>
           </div>
           <div className="login-footer">
@@ -1195,37 +1212,34 @@ export default function App() {
         </form>
       ) : forgotView === 'request' ? (
         <form className="pj-login" onSubmit={handleForgotRequest} data-theme={theme}>
-          <div className="login-name">Scout</div>
+          <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
           <div className="login-fields">
-            <div className="login-field-lbl" style={{top:'47.6%'}}>EMAIL</div>
-            <input className="login-in" type="email" value={email} style={{top:'50.7%'}}
+            <div className="login-field-lbl" style={{top:'37.1%'}}>EMAIL</div>
+            <input className="login-in" type="email" value={email} style={{top:'41%'}}
               onChange={e=>setEmail(e.target.value)} placeholder="" autoComplete="email" />
-            {resetMsg && <div style={resetMsg.ok?{fontFamily:'var(--sans)',fontSize:12,color:'var(--accent)',position:'absolute',top:'57%',left:45}:{fontFamily:'var(--sans)',fontSize:10,color:'#B03030',position:'absolute',top:'57%',left:45}}>{resetMsg.text}</div>}
+            {resetMsg && <div style={resetMsg.ok?{fontFamily:'var(--sans)',fontSize:12,color:'var(--accent)',position:'absolute',top:'48%',left:45}:{fontFamily:'var(--sans)',fontSize:10,color:'#B03030',position:'absolute',top:'48%',left:45}}>{resetMsg.text}</div>}
             <button className="login-btn" type="submit" disabled={resetBusy || !email}>
-              {resetBusy ? 'Sending…' : 'SEND RESET LINK -->'}
+              {resetBusy ? 'Sending…' : 'RESET >'}
             </button>
           </div>
           <div className="login-footer">
-            <button type="button" className="forgot-link" style={{top:'87.6%'}} onClick={()=>{setForgotView(false);setResetMsg(null);}}>
-              &lt;-- Back to Sign in
+            <button type="button" className="forgot-link" onClick={()=>{setForgotView(false);setResetMsg(null);}}>
+              BACK TO SIGN IN
             </button>
           </div>
         </form>
       ) : (
         <form className="pj-login" onSubmit={handleLogin} data-theme={theme}>
-          <div className="login-name">Scout</div>
-          <button type="button" className="request-link" style={{top:'87.6%'}} onClick={()=>{ setAccessView('form'); setForgotView(false); }}>
-            REQUEST ACCESS
-          </button>
-          <div className="login-field-lbl" style={{top:'47.6%'}}>EMAIL</div>
-          <input className="login-in" type="email" value={email} style={{top:'50.7%'}}
+          <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
+          <div className="login-field-lbl" style={{top:'37.1%'}}>EMAIL</div>
+          <input className="login-in" type="email" value={email} style={{top:'41%'}}
             onChange={e=>setEmail(e.target.value)} placeholder="" autoComplete="email" />
-          <div className="login-field-lbl" style={{top:'58.9%'}}>PASSWORD</div>
-          <input className="login-in" type="password" value={pw} style={{top:'62%'}}
+          <div className="login-field-lbl" style={{top:'48.3%'}}>PASSWORD</div>
+          <input className="login-in" type="password" value={pw} style={{top:'52%'}}
             onChange={e=>setPw(e.target.value)} placeholder="" autoComplete="current-password" />
           {loginErr && <div className="login-err">{loginErr}</div>}
           <button className="login-btn" type="submit" disabled={loginBusy || !email || !pw}>
-            {loginBusy ? 'Signing in…' : 'SIGN IN -->'}
+            {loginBusy ? 'Signing in…' : 'SIGN IN >'}
           </button>
           <button type="button" className="forgot-link" onClick={()=>{setForgotView('request');setResetMsg(null);}}>
             FORGOT PASSWORD?
@@ -1476,25 +1490,50 @@ export default function App() {
         )}
       </main>
 
-      {/* Camera button — layout level so it sits above tab bar stacking context */}
-      {sel===todayStr&&!dayMeta&&!dayLoading&&(
-        <button className="camera-btn" onClick={()=>cameraRef.current?.click()} disabled={busy} aria-label="Take photo">
-          <svg width="88" height="88" viewBox="0 0 88 88" fill="none">
-            <rect width="88" height="88" rx="44" fill="black"/>
-            <rect x="4" y="4" width="80" height="80" rx="40" fill="#E34822" stroke="white" strokeWidth="2"/>
-          </svg>
-        </button>
-      )}
+      {/* Hidden file inputs for sheet */}
+      <input ref={folderRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleFile}/>
 
-      {/* Mobile tab bar */}
-      <div className="pj-bottom-nav">
-        <button className={`pj-nb${activeTab==='today'?' on':''}`} onClick={()=>setActiveTab('today')}>
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10" rx=".5"/></svg>
-        </button>
-        <button className={`pj-nb${activeTab==='month'?' on':''}`} onClick={()=>setActiveTab('month')}>
-          <IcCal/>
-        </button>
-      </div>
+      {/* Today Sheet — mobile only, shows when no photo for today */}
+      {showTodaySheet&&sel===todayStr&&!dayMeta&&!dayLoading&&(
+        <div className="today-sheet">
+          <button className="today-sheet-dismiss" onClick={()=>setShowTodaySheet(false)} aria-label="Dismiss">
+            <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
+              <polyline points="1,1 7,7 13,1" stroke="#0C0C0C" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+          <div className="today-sheet-tray">
+            <div className="today-sheet-prompt-lbl">TODAY'S PROMPT</div>
+            {aiEnabled&&shootPrompt ? (
+              <div className="today-sheet-prompt-txt">{shootPrompt}</div>
+            ) : (
+              <>
+                <div className="today-sheet-skel" style={{position:'absolute',top:'43%',left:43,width:315}}/>
+                <div className="today-sheet-skel" style={{position:'absolute',top:'46%',left:43,width:315}}/>
+                <div className="today-sheet-skel" style={{position:'absolute',top:'49%',left:116,width:168}}/>
+              </>
+            )}
+            <div className="today-sheet-btns">
+              <button className="today-sheet-icon-btn" onClick={()=>fileRef.current?.click()} aria-label="Upload from library">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 13V4M10 4L7 7M10 4L13 7" stroke="#292929" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 14v1a2 2 0 002 2h10a2 2 0 002-2v-1" stroke="#292929" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+              </button>
+              <button className="today-sheet-cam" onClick={()=>cameraRef.current?.click()} disabled={busy} aria-label="Take photo">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                  <rect width="80" height="80" rx="40" fill="#0C0C0C"/>
+                  <rect x="3.64" y="3.64" width="72.73" height="72.73" rx="36.36" fill="#E34822"/>
+                </svg>
+              </button>
+              <button className="today-sheet-icon-btn" onClick={()=>folderRef.current?.click()} aria-label="Browse files">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M2 6a2 2 0 012-2h3.586a1 1 0 01.707.293L9.707 5.707A1 1 0 0010.414 6H16a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" stroke="#292929" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {weekReview&&(()=>{
         const totalDays = photoDates.size; // cumulative photos across all time
