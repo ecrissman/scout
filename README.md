@@ -1,4 +1,4 @@
-# Photo Journal
+# SCOUT
 
 A minimal daily photo journal app — private, PWA-ready, syncs across all your devices.
 
