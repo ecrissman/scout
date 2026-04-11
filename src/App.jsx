@@ -7,16 +7,6 @@ import { supabase } from './supabase.js';
 // Mark standalone PWA mode before first paint so CSS can target it
 if (window.navigator.standalone) document.documentElement.classList.add('pwa');
 
-// One-time migration: rename old Sightful localStorage keys to Scout
-(() => {
-  [['scout-theme-pref','scout-theme-pref'],['scout-ai-enabled','scout-ai-enabled'],['scout-onboarded','scout-onboarded']]
-    .forEach(([o,n])=>{ const v=localStorage.getItem(o); if(v!==null&&localStorage.getItem(n)===null) localStorage.setItem(n,v); localStorage.removeItem(o); });
-  Object.keys(localStorage).filter(k=>k.startsWith('scout-reviewed-')).forEach(k=>{
-    const n=k.replace('scout-reviewed-','scout-reviewed-');
-    if(localStorage.getItem(n)===null) localStorage.setItem(n,localStorage.getItem(k));
-    localStorage.removeItem(k);
-  });
-})();
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wdth,wght@75..125,200..900&display=swap');
@@ -26,7 +16,7 @@ const CSS = `
   --bg:#FFFDFA;--bg-secondary:#F0EEEA;--surface:#F0EEEA;
   --border:#E3E1DD;
   --text:#1C1916;--text-2:#8C857C;--text-3:#B5AFA9;
-  --accent:#E34822;--accent-fg:#FFFDFA;
+  --accent:#4F5E2E;--accent-fg:#FFFDFA;
   --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:#E3E1DD;
   --brand:'Flapjack','Inconsolata',system-ui,sans-serif;
@@ -37,7 +27,7 @@ const CSS = `
   --bg:#0C0C0C;--bg-secondary:#2E2C2B;--surface:#2E2C2B;
   --border:rgba(245,241,235,0.10);
   --text:#FFFDFA;--text-2:rgba(245,241,235,0.60);--text-3:rgba(245,241,235,0.30);
-  --accent:#E34822;--accent-fg:#FFFDFA;
+  --accent:#4F5E2E;--accent-fg:#FFFDFA;
   --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
 }
@@ -57,18 +47,17 @@ body{background:var(--bg);transition:background .2s}
 .ob-s1-hint{position:absolute;top:57.4%;left:44px;font-family:Inconsolata,monospace;font-weight:400;font-size:14px;line-height:1.51;color:#0C0C0C}
 .ob-s1-cta{position:absolute;top:86.4%;left:50%;transform:translateX(-50%);width:150px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
 .ob-s1-cta:active{opacity:.5}
-.ob-s1-trail{position:absolute;top:14%;left:50%;transform:translateX(-50%);opacity:0.6;pointer-events:none}
 
 /* Step 2 — Day One (Sage) */
 .ob-s2 h2{margin:0;font-weight:inherit}
-.ob-s2-daynum{position:absolute;top:27.3%;left:32px;right:32px;font-family:var(--brand);font-size:92px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center}
+.ob-s2-daynum{position:absolute;top:27.3%;left:32px;right:32px;font-family:var(--brand);font-size:88px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center}
 .ob-s2-trail{position:absolute;top:42.6%;left:50%;transform:translateX(-50%);pointer-events:none}
 .ob-s2-cta{position:absolute;top:61.5%;left:50%;transform:translateX(-50%);width:197px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
 .ob-s2-cta:active{opacity:.5}
 .ob-s2-cta:disabled{opacity:.35;cursor:default}
 
 /* ── Splash ── */
-.pj-splash{position:fixed;inset:0;background:#1C1916;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;display:flex;align-items:center;justify-content:center}
+.pj-splash{position:fixed;inset:0;background:#0C0C0C;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;display:flex;align-items:center;justify-content:center}
 .pj-splash.fading{opacity:0}
 @keyframes splashLogoIn{from{opacity:0;transform:scale(0.82)}to{opacity:1;transform:scale(1)}}
 .splash-logo{animation:splashLogoIn 0.6s cubic-bezier(0.2,0,0,1) both}
@@ -84,14 +73,12 @@ body{background:var(--bg);transition:background .2s}
   .pj-main{display:flex;border-left:1px solid var(--border)}
   .pj-layout.month-active .pj-sidebar{display:flex}
   .pj-layout.month-active .pj-main{display:flex}
-  .pj-bottom-nav{display:none!important}
 }
 @media(min-width:1024px){.pj-sidebar{width:300px}}
 
 /* ── Shared header — used by both sidebar (MONTH) and main (TODAY) ── */
-.pj-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
-.pj-wm-name{font-family:var(--brand);font-size:26px;letter-spacing:-0.01em;color:var(--text);line-height:1}
-.settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-end;color:var(--text);padding:0;flex-shrink:0}
+.pj-topbar{display:flex;align-items:center;justify-content:flex-start;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
+.settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;color:var(--text);padding:0;flex-shrink:0}
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 /* TODAY date row — sits below the shared topbar in the main panel */
@@ -100,36 +87,19 @@ body{background:var(--bg);transition:background .2s}
 .today-date-lg{font-family:var(--sans);font-size:17px;font-weight:300;letter-spacing:-0.01em;color:var(--text);line-height:1}
 .today-dow-sm{font-family:var(--sans);font-size:11px;color:var(--text-3);letter-spacing:0.04em;text-transform:uppercase;margin-top:3px}
 .today-date-nav{display:flex;align-items:center;flex-shrink:0}
-.back-to-today{font-family:var(--sans);font-size:10px;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px 8px;letter-spacing:.04em;min-height:36px;display:flex;align-items:center}
-.back-to-today:active{opacity:0.5}
 /* On desktop the sidebar already has the wordmark — hide the mobile brand row in main panel */
 .main-brand-row{display:flex}
 @media(min-width:640px){.main-brand-row{display:none}}
-/* pj-wordmark retained for structure */
-.pj-wordmark{display:flex;flex-direction:column;gap:2px}
 
 /* ── Calendar header ── */
-.pj-cal{display:flex;flex-direction:column;flex:1;min-height:0}
 .cal-head{display:flex;align-items:flex-end;justify-content:space-between;padding:28px 20px 10px;flex-shrink:0}
 .cal-m{font-family:var(--sans);font-size:22px;font-weight:300;letter-spacing:-0.01em;line-height:1;color:var(--text)}
 .cal-y{font-family:var(--sans);font-size:12px;color:var(--text-3);font-weight:400;margin-top:8px;letter-spacing:0.01em}
-.cal-ctrl{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.cal-arrows{display:flex;align-items:center}
-.cal-count{font-family:var(--sans);font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums;text-align:center;padding:0 20px 10px;letter-spacing:0.03em}
 .arr{background:none;border:none;padding:8px;margin:0;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;opacity:0.75}
 .arr:active{opacity:0.3;transform:scale(0.9)}
 .arr:disabled{opacity:.2;cursor:default}
-.today-link{font-family:var(--sans);font-size:10px;color:var(--accent);letter-spacing:.06em;background:none;border:none;cursor:pointer;font-weight:500;padding:2px 0;opacity:0.9}
-.today-link:active{opacity:0.4}
 .forgot-link{font-family:var(--brand);font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;padding:2px 0;text-align:center}
 .forgot-link:active{opacity:0.4}
-.login-ta{font-family:var(--sans);font-size:14px;letter-spacing:.02em;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:11px 20px;width:200px;outline:none;transition:border-color .15s;border-radius:6px;margin-bottom:8px;resize:none;line-height:1.5}
-.login-ta:focus{border-color:var(--accent)}
-.login-ta::placeholder{color:var(--text-3)}
-.login-ok{font-family:var(--sans);font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;max-width:220px;margin-bottom:24px}
-.login-ok strong{color:var(--text);font-weight:500}
-.request-link{position:absolute;left:0;right:0;font-family:var(--brand);font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;padding:0}
-.request-link:active{opacity:0.4}
 
 /* ── Day-of-week labels ── */
 .cal-wds{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 18px;flex-shrink:0}
@@ -147,26 +117,25 @@ body{background:var(--bg);transition:background .2s}
 .cc img{width:100%;height:100%;object-fit:cover;display:block;border-radius:2px}
 .cn{position:absolute;bottom:3px;right:4px;font-family:var(--sans);font-size:9px;line-height:1;color:var(--text-3);font-variant-numeric:tabular-nums;font-weight:400}
 .cc.filled .cn{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.7)}
-.cal-stat{font-family:var(--sans);font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums;padding:8px 20px 4px;text-align:right;flex-shrink:0}
 
 /* ── Month scroll view ── */
 .month-scroll{flex:1;overflow-y:auto;padding-bottom:76px}
 .month-section{margin-bottom:8px}
 .month-section-label{padding:18px 20px 6px;font-family:var(--sans);font-size:16px;font-weight:400;letter-spacing:.01em;color:var(--text)}
 
-/* ── Bottom tab bar (mobile only) — hidden, kept for desktop ── */
-.pj-bottom-nav{display:none!important}
-.pj-nb{display:none}
-
 /* ── Today Sheet ── */
-.today-sheet{position:fixed;inset:0;z-index:50;background:#F0EEEA}
-.today-sheet-tray{position:absolute;top:39px;left:0;right:0;bottom:0;background:#FFFDFA;border-radius:16px 16px 0 0;box-shadow:0 -6px 16px -8px rgba(0,0,0,0.1)}
-.today-sheet-dismiss{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#F0EEEA;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1;padding:0}
+@keyframes sheetSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.today-sheet{position:fixed;inset:0;z-index:50;background:#FFFDFA;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);animation:sheetSlideUp 0.38s cubic-bezier(0.32,0.72,0,1);transition:transform 0.36s cubic-bezier(0.32,0.72,0,1)}
+.today-sheet.is-closing{transform:translateY(100%)}
+.today-sheet-tray{flex:1;display:flex;flex-direction:column;overflow-y:auto}
+.today-sheet-topbar{display:flex;align-items:center;justify-content:center;padding:16px 20px;flex-shrink:0}
+.today-sheet-dismiss{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#F0EEEA;border:none;cursor:pointer;padding:0;flex-shrink:0}
 .today-sheet-dismiss:active{opacity:.6}
-.today-sheet-prompt-lbl{position:absolute;top:283px;left:0;right:0;font-family:Inconsolata,monospace;font-weight:500;font-size:14px;color:#4F5E2E;text-align:center;letter-spacing:0.04em}
-.today-sheet-prompt-txt{position:absolute;top:306px;left:44px;right:44px;font-family:var(--sans);font-size:15px;color:var(--text);line-height:1.6;font-weight:300;text-align:center}
-.today-sheet-skel{position:absolute;background:#EBEBEB;border-radius:85px;height:13px}
-.today-sheet-btns{position:absolute;bottom:calc(48px + env(safe-area-inset-bottom));left:0;right:0;display:flex;align-items:center;justify-content:center}
+.today-sheet-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 44px}
+.today-sheet-prompt-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:#4F5E2E;text-align:center;letter-spacing:0.06em;margin-bottom:14px}
+.today-sheet-prompt-txt{font-family:var(--sans);font-size:16px;color:var(--text);line-height:1.65;font-weight:300;text-align:center}
+.today-sheet-skel{background:#EBEBEB;border-radius:85px;height:12px;margin:5px auto;display:block}
+.today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
 .today-sheet-cam{display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;transition:opacity .15s,transform .1s}
 .today-sheet-cam:active{opacity:.75;transform:scale(0.92)}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
@@ -177,8 +146,6 @@ body{background:var(--bg);transition:background .2s}
 /* ── Day detail ── */
 .pj-main-inner{flex:1;padding:0 20px 40px}
 @media(min-width:640px){.pj-main-inner{padding:20px 20px 48px}}
-.dv-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
-.dv-nav{display:flex;align-items:center}
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:100;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
 .lightbox img{max-width:95vw;max-height:95vh;object-fit:contain;cursor:default;display:block}
 .lb-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.5;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
@@ -188,11 +155,6 @@ body{background:var(--bg);transition:background .2s}
 .lb-nav svg{width:12px;height:20px}
 .lb-prev{left:12px}.lb-next{right:12px}
 .lb-info{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-family:var(--sans);font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.05em;white-space:nowrap;pointer-events:none}
-.dv-back{width:44px;height:44px;border:none;background:none;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
-.dv-back:active{opacity:0.3;transform:scale(0.9)}
-@media(min-width:640px){.dv-back{display:none}}
-.dv-date{font-family:var(--sans);font-size:26px;font-weight:300;line-height:1.3;color:var(--text);letter-spacing:-0.02em}
-.dv-dow{font-family:var(--sans);font-size:12px;color:var(--text-3);letter-spacing:0.03em;margin-top:2px;text-transform:uppercase;font-weight:400}
 
 /* ── Photo area ── */
 .photo-wrap{width:100%;background:#FFFFFF;padding:12px 11px 11px;box-shadow:0 0 12px 0 rgba(0,0,0,0.16);position:relative;box-sizing:border-box}
@@ -206,6 +168,21 @@ body{background:var(--bg);transition:background .2s}
 [data-theme="dark"] .photo-overlay-btn{background:rgba(40,40,40,0.82)}
 [data-theme="dark"] .photo-overlay-btn svg{stroke:#FFF}
 [data-theme="dark"] .photo-overlay-btn.danger svg{stroke:#FF6B6B}
+[data-theme="dark"] .today-sheet{background:#0C0C0C}
+[data-theme="dark"] .today-sheet-tray{background:#0C0C0C}
+[data-theme="dark"] .today-sheet-dismiss{background:#2E2C2B}
+[data-theme="dark"] .today-sheet-skel{background:#2E2C2B}
+[data-theme="dark"] .today-sheet-icon-btn{opacity:0.6}
+[data-theme="dark"] .today-sheet-icon-btn svg line,[data-theme="dark"] .today-sheet-icon-btn svg path{stroke:#FFFDFA}
+[data-theme="dark"] .nav-panel{background:#0C0C0C;box-shadow:6px 0 16px -8px rgba(0,0,0,0.5)}
+[data-theme="dark"] .nav-panel-item{color:#FFFDFA}
+[data-theme="dark"] .nav-panel-signout{background:#FFFDFA;color:#0C0C0C}
+[data-theme="dark"] .nav-panel-backdrop{background:rgba(0,0,0,0.45)}
+[data-theme="dark"] .grids-page{background:#0C0C0C}
+[data-theme="dark"] .grids-header{border-color:rgba(255,255,255,0.08)}
+[data-theme="dark"] .grids-cell{background:#2E2C2B}
+[data-theme="dark"] .grids-empty-lbl{color:var(--sage)}
+[data-theme="dark"] .grids-empty svg{opacity:0.3}
 .upload-zone{aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;border:1px dashed var(--border);background:var(--bg-secondary);transition:opacity .15s}
 .upload-zone:active{opacity:0.65}
 .up-icon svg{width:20px;height:20px;stroke:var(--text-3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -232,16 +209,6 @@ body{background:var(--bg);transition:background .2s}
 .cap-acc:active{opacity:0.7}
 .cap-dis{background:none;border:1px solid var(--border);color:var(--text-3);font-family:var(--sans);font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:6px 12px;cursor:pointer;border-radius:6px;min-height:36px}
 .cap-dis:active{opacity:0.6}
-
-/* ── Skill card — removed ── */
-
-/* ── Today prompt ── */
-.prompt-block{padding:24px 0;border-top:1px solid var(--border)}
-.prompt-lbl{font-family:var(--sans);font-size:12px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;font-weight:500}
-.prompt-txt{font-family:var(--sans);font-size:15px;color:var(--text);line-height:1.6;font-weight:300}
-
-/* ── Camera button — desktop only ── */
-.camera-btn{display:none}
 
 /* ── Weekly theme card ── */
 .theme-card{margin:12px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;overflow:hidden}
@@ -272,12 +239,12 @@ body{background:var(--bg);transition:background .2s}
 /* Phase 1: Milestone full-screen */
 .review-milestone{position:fixed;inset:0;background:#E2B554;z-index:900;animation:reviewIn .35s ease both}
 .review-ms-body{display:contents}
-.review-ms-num{position:absolute;top:33.7%;left:15px;right:15px;font-family:var(--brand);font-size:200px;line-height:1.2;color:var(--ink);text-transform:uppercase;text-align:center}
-.review-ms-unit{position:absolute;top:53.3%;left:15px;right:15px;font-family:var(--brand);font-size:56px;line-height:1.2;color:var(--ink);text-transform:uppercase;text-align:center}
-.review-ms-msg{position:absolute;top:26.8%;left:15px;right:15px;font-family:var(--brand);font-size:27px;line-height:1.51;color:var(--ink);text-transform:uppercase;text-align:center}
-.review-ms-next{position:absolute;top:83%;left:0;right:0;display:flex;justify-content:center}
-.review-ms-next-btn{font-family:var(--sans);font-size:30px;font-weight:600;color:var(--ink);background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
-.review-ms-next-btn:active{opacity:.5}
+.review-ms-num{position:absolute;top:27.2%;left:15px;right:15px;font-family:var(--brand);font-size:200px;line-height:1.2;color:var(--ink);text-transform:uppercase;text-align:center}
+.review-ms-unit{position:absolute;top:51.2%;left:15px;right:15px;font-family:var(--brand);font-size:56px;line-height:1.2;color:var(--ink);text-transform:uppercase;text-align:center}
+.review-ms-msg{position:absolute;top:23.9%;left:15px;right:15px;font-family:var(--brand);font-size:27px;line-height:1.51;color:var(--ink);text-transform:uppercase;text-align:center}
+.review-ms-next{position:absolute;top:86.4%;left:0;right:0;display:flex;justify-content:center}
+.review-ms-next-btn{width:150px;height:51px;background:#222222;border:none;border-radius:4px;cursor:pointer;font-family:var(--brand);font-size:20px;color:#FFFDFA;letter-spacing:0.01em;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center}
+.review-ms-next-btn:active{opacity:.7}
 /* Phase 2: Grid */
 .review-backdrop{position:fixed;inset:0;background:#0C0C0C;z-index:900;display:flex;flex-direction:column;animation:reviewIn .25s ease both}
 .review-header{padding:calc(env(safe-area-inset-top) + 8px) 8px 0;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch}
@@ -323,16 +290,9 @@ body{background:var(--bg);transition:background .2s}
 .week-chip-sub{font-family:var(--sans);font-size:11px;color:rgba(28,25,22,0.55);margin-top:2px}
 .week-chip-arr{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.1em;color:var(--ink);flex-shrink:0;opacity:0.6}
 
-/* ── Empty state ── */
-.empty-day{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-height:300px;gap:8px}
-.empty-day svg{width:40px;height:40px;stroke:var(--text-3);fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;margin-bottom:4px;opacity:0.4}
-.empty-lbl{font-family:var(--sans);font-size:10px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase}
-
 /* ── Login ── */
 .pj-login{position:fixed;inset:0;background:var(--paper)}
 .login-logo{position:absolute;top:10.3%;left:50%;transform:translateX(-50%);width:80px;height:80px}
-.login-name{display:none}
-.login-sub{display:none}
 .login-fields{display:contents}
 .login-field-lbl{position:absolute;left:45px;font-family:Inconsolata,monospace;font-weight:600;font-size:16px;line-height:1.51;color:var(--ink)}
 .login-in{position:absolute;left:45px;right:45px;background:none;border:none;border-bottom:4px solid var(--ink);font-family:var(--sans);font-size:20px;font-weight:300;color:var(--ink);padding:0 0 8px;outline:none;-webkit-appearance:none;border-radius:0}
@@ -374,10 +334,6 @@ body{background:var(--bg);transition:background .2s}
 .settings-seg-btn.active{background:var(--text);color:var(--bg);font-weight:500}
 .settings-seg-btn:active:not(.active){opacity:0.5}
 
-/* ── Shoot button (subdued) ── */
-.shoot-btn{display:block;width:100%;max-width:420px;margin:16px auto 0;padding:14px 20px;background:var(--surface);color:var(--text-2);border:none;border-radius:100px;font-size:13px;font-weight:400;font-family:var(--sans);letter-spacing:0.04em;text-transform:uppercase;cursor:pointer;transition:opacity .15s,transform .1s;text-align:center}
-.shoot-btn:active{opacity:.65;transform:scale(0.98)}
-
 /* ── Settings toggle ── */
 .ai-toggle{width:51px;height:31px;border-radius:16px;border:none;cursor:pointer;transition:background .25s;position:relative;flex-shrink:0;padding:0}
 .ai-toggle.on{background:var(--accent)}
@@ -385,6 +341,40 @@ body{background:var(--bg);transition:background .2s}
 .ai-toggle-thumb{position:absolute;top:2px;width:27px;height:27px;border-radius:50%;background:#FFFFFF;box-shadow:0 1px 4px rgba(0,0,0,0.25);transition:left .25s;pointer-events:none}
 .ai-toggle.on .ai-toggle-thumb{left:22px}
 .ai-toggle.off .ai-toggle-thumb{left:2px}
+
+/* ── Nav panel (left slide-in) ── */
+@keyframes navPanelIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@keyframes navPanelOut{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+.nav-panel-backdrop{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.18)}
+.nav-panel{position:fixed;left:0;top:0;bottom:0;width:189px;z-index:201;background:#FFFDFA;box-shadow:6px 0 16px -8px rgba(0,0,0,0.08);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);animation:navPanelIn 0.32s cubic-bezier(0.32,0.72,0,1)}
+.nav-panel.is-closing{animation:navPanelOut 0.28s cubic-bezier(0.32,0.72,0,1) forwards}
+.nav-panel-header{display:flex;align-items:center;padding:14px 21px;position:relative;flex-shrink:0}
+.nav-panel-wordmark{position:absolute;left:67px;right:0;text-align:left;font-family:var(--brand);font-size:30px;line-height:1.2;color:var(--sage);pointer-events:none;letter-spacing:0.01em}
+.nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1}
+.nav-panel-close:active{opacity:.5}
+.nav-panel-nav{display:flex;flex-direction:column;gap:24px;padding:32px 21px 0;flex:1}
+.nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:Inconsolata,monospace;font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
+.nav-panel-item:active{opacity:.4}
+.nav-panel-footer{padding:0 21px calc(32px);flex-shrink:0}
+.nav-panel-signout{width:109px;height:36px;background:#0C0C0C;border:none;border-radius:3px;cursor:pointer;font-family:var(--brand);font-size:16px;color:#FFFDFA;letter-spacing:0.02em;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.nav-panel-signout:active{opacity:.7}
+
+/* ── Grids page ── */
+@keyframes gridsPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes gridsPageOut{from{transform:translateX(0)}to{transform:translateX(100%)}}
+.grids-page{position:fixed;inset:0;z-index:150;background:#FFFDFA;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);animation:gridsPageIn 0.32s cubic-bezier(0.32,0.72,0,1)}
+.grids-page.is-closing{animation:gridsPageOut 0.28s cubic-bezier(0.32,0.72,0,1) forwards}
+.grids-header{display:flex;align-items:center;padding:14px 20px;flex-shrink:0;gap:8px}
+.grids-back{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--text);-webkit-tap-highlight-color:transparent}
+.grids-back:active{opacity:.4}
+.grids-title{font-family:Inconsolata,monospace;font-weight:500;font-size:14px;letter-spacing:0.06em;color:#0C0C0C}
+.grids-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;overflow-y:auto;flex:1;align-content:start}
+.grids-cell{position:relative;aspect-ratio:1;overflow:hidden;cursor:pointer;background:var(--surface)}
+.grids-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.grids-cell-date{position:absolute;bottom:4px;right:5px;font-family:Inconsolata,monospace;font-size:11px;font-weight:500;color:#FFFDFA;text-shadow:0 1px 3px rgba(0,0,0,0.5);line-height:1}
+.grids-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 48px;gap:12px}
+.grids-empty-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;letter-spacing:0.06em;color:#4F5E2E}
+.grids-empty-sub{font-family:var(--sans);font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;font-weight:300}
 `;
 
 (() => {
@@ -420,7 +410,6 @@ const getWeekDates = (dateStr) => {
     return dk(dd.getFullYear(), dd.getMonth(), dd.getDate());
   });
 };
-const WEEK_DAYS_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 const CONGRATS_MSGS = [
   'Seven days. Seven frames.',
   'Full week. You showed up.',
@@ -464,41 +453,11 @@ const stripFeedback = (text) => {
 };
 
 // ── Icons ──
-const IcCal    = ()=><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="1"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>;
-const IcYear   = ()=><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx=".5"/><rect x="14" y="3" width="7" height="7" rx=".5"/><rect x="3" y="14" width="7" height="7" rx=".5"/><rect x="14" y="14" width="7" height="7" rx=".5"/></svg>;
 const IcUpload = ()=><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
-const IcMenu = ()=><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
+const IcHamburger = ()=><svg width="20" height="14" viewBox="0 0 20 14" fill="none"><line x1="0" y1="1" x2="20" y2="1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><line x1="0" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><line x1="0" y1="13" x2="20" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>;
 const ChevLeft  = ()=><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M8 1L1 7.5L8 14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const ChevRight = ()=><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M1 1L8 7.5L1 14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const IcBulb = ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 1 5 11.93V17H7v-3.07A7 7 0 0 1 12 2z"/></svg>;
-
-const StillIcon = ({size=44, theme='light'}) => {
-  const fg = theme==='dark' ? '#FFFFFF' : '#1C1C1C';
-  const acc = fg;
-  return (
-    <svg width={size} height={size} viewBox="0 0 52 52" fill="none">
-      <rect x="8" y="8" width="36" height="36" rx="3" stroke={fg} strokeWidth="1.5"/>
-      <rect x="13" y="13" width="26" height="26" rx="1.5" stroke={acc} strokeWidth="0.75"/>
-      <line x1="8"  y1="26" x2="13" y2="26" stroke={fg} strokeWidth="1.5"/>
-      <line x1="39" y1="26" x2="44" y2="26" stroke={fg} strokeWidth="1.5"/>
-      <line x1="26" y1="8"  x2="26" y2="13" stroke={fg} strokeWidth="1.5"/>
-      <line x1="26" y1="39" x2="26" y2="44" stroke={fg} strokeWidth="1.5"/>
-    </svg>
-  );
-};
-
-function weatherCodeDesc(code) {
-  if (code === 0) return 'Clear';
-  if (code <= 3) return 'Partly cloudy';
-  if (code <= 9) return 'Overcast';
-  if (code <= 49) return 'Foggy';
-  if (code <= 59) return 'Drizzle';
-  if (code <= 69) return 'Rain';
-  if (code <= 79) return 'Snow';
-  if (code <= 84) return 'Rain showers';
-  if (code <= 94) return 'Thunderstorm';
-  return 'Stormy';
-}
 
 function AuthImage({ src, alt, ...props }) {
   const [blobSrc, setBlobSrc] = useState(null);
@@ -583,6 +542,8 @@ export default function App() {
 
   // ── Settings ──
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [accountOpen,  setAccountOpen]  = useState(false);
+  const [supportOpen,  setSupportOpen]  = useState(false);
 
   // ── Auth ──
   const [authed,      setAuthed]      = useState(false);
@@ -598,15 +559,18 @@ export default function App() {
   const [resetBusy,    setResetBusy]    = useState(false);
   const [accessView,   setAccessView]   = useState(false); // false | 'form' | 'success'
   const [showLanding,  setShowLanding]  = useState(true);
-  const [reqName,      setReqName]      = useState('');
   const [reqEmail,     setReqEmail]     = useState('');
-  const [reqNote,      setReqNote]      = useState('');
   const [reqBusy,      setReqBusy]      = useState(false);
   const [reqErr,       setReqErr]       = useState(null);
 
   // ── Navigation state ──
   const [activeTab,     setActiveTab]     = useState('month');
   const [showTodaySheet, setShowTodaySheet] = useState(true);
+  const [sheetClosing, setSheetClosing] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelClosing, setPanelClosing] = useState(false);
+  const [gridsOpen, setGridsOpen] = useState(false);
+  const [gridsClosing, setGridsClosing] = useState(false);
   const [cm, setCm] = useState(TM);
   const [cy, setCy] = useState(TY);
   const [sel,        setSel]        = useState(todayStr);
@@ -627,7 +591,6 @@ export default function App() {
   const [captionSuggestLoad, setCaptionSuggestLoad] = useState(false);
   const [shootPrompt,        setShootPrompt]        = useState(null);
   const [promptLoading,      setPromptLoading]      = useState(false);
-  const [shootCardShown,     setShootCardShown]     = useState(false);
   const [photoVer,           setPhotoVer]           = useState(()=>Date.now());
 
   const [lightboxOpen,  setLightboxOpen]  = useState(false);
@@ -642,7 +605,6 @@ export default function App() {
   const [reviewBuilding,setReviewBuilding]=useState(false);
   const fileRef        = useRef(null);
   const cameraRef      = useRef(null);
-  const folderRef      = useRef(null);
   const captionRef     = useRef(null);
   const lbTouchRef     = useRef(null);
   const swipeTouchRef  = useRef(null);
@@ -679,16 +641,18 @@ export default function App() {
   // handle the case where iOS resets the bar after the app is backgrounded/foregrounded.
   const applyStatusBarColor = useCallback(()=>{
     let color;
-    if (!splashDone)            color = '#1C1916';
+    if (!splashDone)            color = '#0C0C0C';
+    else if (showLanding)       color = '#0C0C0C';
     else if (onboardingStep)    color = '#4F5E2E';
     else if (!authed)           color = '#FFFDFA';
+    else if (showTodaySheet)    color = '#FFFDFA';
     else if (weekReview)        color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
     else                        color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = color;
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
-  }, [splashDone, onboardingStep, authed, weekReview, reviewPhase, theme]);
+  }, [splashDone, onboardingStep, authed, showLanding, showTodaySheet, weekReview, reviewPhase, theme]);
 
   useLayoutEffect(()=>{ applyStatusBarColor(); }, [applyStatusBarColor]);
 
@@ -722,7 +686,7 @@ export default function App() {
     listYear(TY).then(dates => {
       const dateSet = new Set(dates);
       setPhotoDates(dateSet);
-      setActiveTab(dateSet.has(todayStr) ? 'month' : 'today');
+      setActiveTab('month');
     });
     if (aiEnabled) getTheme().then(t => { if (t?.theme) setWeekTheme(t); });
   }, [authed]);
@@ -737,7 +701,7 @@ export default function App() {
       const imgs = await Promise.all(weekReview.dates.map(async (date) => {
         if (!photoDates.has(date)) return { date, url: null, w: 4, h: 3 };
         try {
-          const r = await fetch(thumbUrl(date), { headers: { Authorization: `Bearer ${token}` } });
+          const r = await fetch(fullUrl(date), { headers: { Authorization: `Bearer ${token}` } });
           if (!r.ok) return { date, url: null, w: 4, h: 3 };
           const blob = await r.blob();
           const url = URL.createObjectURL(blob);
@@ -775,7 +739,6 @@ export default function App() {
     if (sel !== todayStr) {
       setShootPrompt(null);
       setPromptLoading(false);
-      setShootCardShown(false);
       promptFiredRef.current = false;
     }
     setLocationName(null);
@@ -892,7 +855,12 @@ export default function App() {
     setSel(dateStr);
     setCm(p.m);
     setCy(p.y);
-    setActiveTab('today');
+    if (dateStr === todayStr && !photoDates.has(dateStr)) {
+      // Today with no photo: stay on month, show the tray
+      setShowTodaySheet(true);
+    } else {
+      setActiveTab('today');
+    }
   };
 
   const handleFile = async (e) => {
@@ -936,9 +904,29 @@ export default function App() {
     date.setDate(date.getDate() + dir);
     const newSel = dk(date.getFullYear(), date.getMonth(), date.getDate());
     if (newSel > todayStr) return;
+    // Navigating forward to today with no photo → show the tray, stay on month
+    if (newSel === todayStr && !photoDates.has(newSel)) {
+      setSel(newSel);
+      setActiveTab('month');
+      setShowTodaySheet(true);
+      return;
+    }
     setSel(newSel);
     setCm(date.getMonth());
     setCy(date.getFullYear());
+  };
+
+  const dismissTodaySheet = () => {
+    setSheetClosing(true);
+    setTimeout(() => { setShowTodaySheet(false); setSheetClosing(false); }, 360);
+  };
+  const dismissPanel = () => {
+    setPanelClosing(true);
+    setTimeout(() => { setPanelOpen(false); setPanelClosing(false); }, 300);
+  };
+  const dismissGrids = () => {
+    setGridsClosing(true);
+    setTimeout(() => { setGridsOpen(false); setGridsClosing(false); }, 300);
   };
 
   const handleCaptionSuggest = async () => {
@@ -1072,7 +1060,6 @@ export default function App() {
   }, [caption]);
 
   const handleGetPrompt = async () => {
-    setShootCardShown(true);
     setPromptLoading(true);
     const data = await getTodayPrompt(sel);
     if (data?.prompt) setShootPrompt(data.prompt);
@@ -1090,12 +1077,7 @@ export default function App() {
     return [...Array.from({length:fd},(_,i)=>({ghost:true,i})), ...Array.from({length:dim},(_,i)=>({d:i+1}))];
   };
 
-  const monthFilled = [...photoDates].filter(k=>k.startsWith(`${cy}-${String(cm+1).padStart(2,'0')}`)).length;
-  const dimMonth    = new Date(cy,cm+1,0).getDate();
-  const isLeap      = (TY%4===0&&TY%100!==0)||TY%400===0;
-  const daysInYear  = isLeap ? 366 : 365;
   const {strip, camera} = formatExif(dayMeta?.exif);
-  const skill      = sel ? getSkill(sel) : null;
   const selParsed  = sel ? parseDate(sel) : null;
 
   const lbSorted  = [...photoDates].sort();
@@ -1123,7 +1105,6 @@ export default function App() {
     return (
       <div style={{position:'fixed',inset:0,background:'#4F5E2E'}}>
         <section className={`ob-s1${onboardingStep===1?' active':''}`} aria-labelledby="ob-s1-title">
-          <img src="/trail.svg" className="ob-s1-trail" alt="" aria-hidden="true" />
           <h2 id="ob-s1-title" className="ob-s1-hed">What's your name, Scout?</h2>
           <input className="ob-s1-in" type="text" placeholder="Your name"
             value={onboardingName} onChange={e => setOnboardingName(e.target.value)}
@@ -1187,7 +1168,7 @@ export default function App() {
           <div style={{position:'absolute',top:'37.7%',left:0,right:0,fontFamily:'Inconsolata,monospace',fontWeight:400,fontSize:16,lineHeight:1.7,color:'#000000',textAlign:'center'}}>
             You're on the list!<br/>We'll be in touch soon.
           </div>
-          <button type="button" className="login-btn" onClick={()=>{ setAccessView(false); setReqName(''); setReqEmail(''); setReqNote(''); }}>
+          <button type="button" className="login-btn" onClick={()=>{ setAccessView(false); setReqEmail(''); }}>
             BACK
           </button>
         </div>
@@ -1249,12 +1230,6 @@ export default function App() {
     </>
   );
 
-  const chevLeft = (
-    <svg width="10" height="17" viewBox="0 0 10 17" fill="none">
-      <polyline points="9,1 1,8.5 9,16" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-
   return (
     <>
     {splash}
@@ -1263,9 +1238,8 @@ export default function App() {
       <aside className="pj-sidebar">
         {/* Topbar — wordmark + settings. On desktop: always visible. On mobile: MONTH tab only. */}
         <div className="pj-topbar">
-          <div className="pj-wm-name">Scout</div>
-          <button className="settings-btn" onClick={()=>setSettingsOpen(true)} aria-label="Settings">
-            <IcMenu/>
+          <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu">
+            <IcHamburger/>
           </button>
         </div>
 
@@ -1358,23 +1332,15 @@ export default function App() {
       >
         {/* Row 1: brand row — visible on mobile only, hidden on desktop since sidebar has it */}
         <div className="pj-topbar main-brand-row">
-          <div className="pj-wm-name">Scout</div>
-          <button className="settings-btn icon-btn" onClick={()=>setSettingsOpen(true)} aria-label="Settings"><IcMenu/></button>
+          <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu"><IcHamburger/></button>
         </div>
 
-        {/* Today with no photo: only show centered prompt */}
-        {sel===todayStr&&!dayMeta ? (
-          <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'0 32px 96px',textAlign:'center'}}>
-            {aiEnabled&&(shootPrompt||promptLoading)&&(
-              <>
-                <div className="prompt-lbl">Today's prompt</div>
-                <div className="prompt-txt" style={{marginTop:8}}>{promptLoading ? '…' : shootPrompt}</div>
-              </>
-            )}
-            <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleFile}/>
-            <input ref={cameraRef} type="file" accept="image/*" capture="environment" style={{display:'none'}} onChange={handleFile}/>
-          </div>
-        ) : (
+        {/* Hidden file inputs — always present so sheet buttons can trigger them */}
+        <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleFile}/>
+        <input ref={cameraRef} type="file" accept="image/*" capture="environment" style={{display:'none'}} onChange={handleFile}/>
+
+        {/* Today with photo or past day */}
+        {!(sel===todayStr&&!dayMeta) ? (
           <>
             {/* Row 2: date + nav arrows — only shown for past days or today with photo */}
             <div className="today-date-row">
@@ -1383,9 +1349,21 @@ export default function App() {
                 {selParsed&&<div className="today-dow-sm">{WDAYS[new Date(selParsed.y,selParsed.m,selParsed.d).getDay()]} · {selParsed.y}</div>}
               </div>
               <div className="today-date-nav">
-                {dayMeta&&sel===todayStr&&<button className="arr" onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M23,4v6h-6"/><path d="M20.49,15a9,9,0,1,1-2.12-9.36L23,10"/></svg>
-                </button>}
+                {/* Replace photo — only on today with a photo */}
+                {dayMeta&&sel===todayStr&&(
+                  <button className="arr" onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.5 3.5v4h-4"/><path d="M16.5 11a6 6 0 1 1-1.4-6.22L17.5 7.5"/>
+                    </svg>
+                  </button>
+                )}
+                {/* Month view */}
+                <button className="arr" onClick={()=>setActiveTab('month')} aria-label="Month view">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="3" width="16" height="15" rx="1.5"/><path d="M2 7.5h16"/><path d="M6.5 2v2.5M13.5 2v2.5"/>
+                    <rect x="5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="8.75" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="12.5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/>
+                  </svg>
+                </button>
                 <button className="arr" onClick={()=>navigateDay(-1)} aria-label="Previous day"><ChevLeft/></button>
                 <button className="arr" onClick={()=>navigateDay(1)} disabled={sel>=todayStr} aria-label="Next day"><ChevRight/></button>
               </div>
@@ -1430,14 +1408,12 @@ export default function App() {
 
               {/* EXIF + location */}
               {dayMeta&&(
-                <div className="exif-bar" style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:8}}>
-                  <div>
-                    {strip
-                      ? <><div className="exif-v">{strip}</div>{camera&&<div className="exif-c">{camera}</div>}</>
-                      : <div className="exif-e">No camera data</div>
-                    }
-                  </div>
-                  {locationName&&<div className="exif-e" style={{textAlign:'right',flexShrink:0}}>{locationName}</div>}
+                <div className="exif-bar">
+                  {strip
+                    ? <><div className="exif-v">{strip}</div>{camera&&<div className="exif-c">{camera}</div>}</>
+                    : <div className="exif-e">No camera data</div>
+                  }
+                  {locationName&&<div className="exif-e" style={{marginTop:4}}>{locationName}</div>}
                 </div>
               )}
 
@@ -1482,36 +1458,34 @@ export default function App() {
                 </div>
               )}
 
-              {/* Hidden file inputs */}
-              <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleFile}/>
-              <input ref={cameraRef} type="file" accept="image/*" capture="environment" style={{display:'none'}} onChange={handleFile}/>
             </div>
           </>
-        )}
+        ) : null}
       </main>
-
-      {/* Hidden file inputs for sheet */}
-      <input ref={folderRef} type="file" accept="image/*" style={{display:'none'}} onChange={handleFile}/>
 
       {/* Today Sheet — mobile only, shows when no photo for today */}
       {showTodaySheet&&sel===todayStr&&!dayMeta&&!dayLoading&&(
-        <div className="today-sheet">
-          <button className="today-sheet-dismiss" onClick={()=>setShowTodaySheet(false)} aria-label="Dismiss">
-            <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
-              <polyline points="1,1 7,7 13,1" stroke="#0C0C0C" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+        <div className={`today-sheet${sheetClosing?' is-closing':''}`}>
           <div className="today-sheet-tray">
-            <div className="today-sheet-prompt-lbl">TODAY'S PROMPT</div>
-            {aiEnabled&&shootPrompt ? (
-              <div className="today-sheet-prompt-txt">{shootPrompt}</div>
-            ) : (
-              <>
-                <div className="today-sheet-skel" style={{position:'absolute',top:'43%',left:43,width:315}}/>
-                <div className="today-sheet-skel" style={{position:'absolute',top:'46%',left:43,width:315}}/>
-                <div className="today-sheet-skel" style={{position:'absolute',top:'49%',left:116,width:168}}/>
-              </>
-            )}
+            <div className="today-sheet-topbar">
+              <button className="today-sheet-dismiss" onClick={dismissTodaySheet} aria-label="Dismiss">
+                <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
+                  <polyline points="1,1 7,7 13,1" stroke="#0C0C0C" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div className="today-sheet-body">
+              <div className="today-sheet-prompt-lbl">TODAY'S PROMPT</div>
+              {aiEnabled&&shootPrompt&&!promptLoading ? (
+                <div className="today-sheet-prompt-txt">{shootPrompt}</div>
+              ) : (
+                <>
+                  <div className="today-sheet-skel" style={{width:'80%'}}/>
+                  <div className="today-sheet-skel" style={{width:'80%'}}/>
+                  <div className="today-sheet-skel" style={{width:'52%'}}/>
+                </>
+              )}
+            </div>
             <div className="today-sheet-btns">
               <button className="today-sheet-icon-btn" onClick={()=>fileRef.current?.click()} aria-label="Upload from library">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -1522,12 +1496,14 @@ export default function App() {
               <button className="today-sheet-cam" onClick={()=>cameraRef.current?.click()} disabled={busy} aria-label="Take photo">
                 <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
                   <rect width="80" height="80" rx="40" fill="#0C0C0C"/>
-                  <rect x="3.64" y="3.64" width="72.73" height="72.73" rx="36.36" fill="#E34822"/>
+                  <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" fill="#FFFDFA"/>
+                  <rect x="7" y="7" width="66" height="66" rx="33" fill="#E34822"/>
                 </svg>
               </button>
-              <button className="today-sheet-icon-btn" onClick={()=>folderRef.current?.click()} aria-label="Browse files">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M2 6a2 2 0 012-2h3.586a1 1 0 01.707.293L9.707 5.707A1 1 0 0010.414 6H16a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" stroke="#292929" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <button className="today-sheet-icon-btn" onClick={handleGetPrompt} disabled={promptLoading} aria-label="New prompt">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#292929" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 10A7 7 0 1 1 10 3"/>
+                  <path d="M10 1v4l2.5-2L10 1z"/>
                 </svg>
               </button>
             </div>
@@ -1536,17 +1512,16 @@ export default function App() {
       )}
 
       {weekReview&&(()=>{
-        const totalDays = photoDates.size; // cumulative photos across all time
         if (reviewPhase === 'milestone') return (
           <div className="review-milestone">
             <div className="review-ms-body">
               <div className="review-ms-num">7</div>
-              <div className="review-ms-unit">Days</div>
-              <div className="review-ms-msg">Well done!</div>
+              <div className="review-ms-unit">DAYS</div>
+              <div className="review-ms-msg">WELL DONE!</div>
             </div>
             <div className="review-ms-next">
               <button className="review-ms-next-btn" onClick={()=>setReviewPhase('grid')}>
-                NEXT --&gt;
+                NEXT
               </button>
             </div>
           </div>
@@ -1639,13 +1614,74 @@ export default function App() {
       )}
 
       {/* Settings sheet */}
+      {/* ── Nav Panel ── */}
+      {panelOpen&&(
+        <div className="nav-panel-backdrop" onClick={dismissPanel}>
+          <div className={`nav-panel${panelClosing?' is-closing':''}`} onClick={e=>e.stopPropagation()}>
+            <div className="nav-panel-header">
+              <button className="nav-panel-close" onClick={dismissPanel} aria-label="Close menu">
+                <IcHamburger/>
+              </button>
+              <span className="nav-panel-wordmark">SCOUT</span>
+            </div>
+            <nav className="nav-panel-nav">
+              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setGridsOpen(true); },310); }}>YOUR GRIDS</button>
+              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setAccountOpen(true); },310); }}>ACCOUNT</button>
+              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSettingsOpen(true); },310); }}>SETTINGS</button>
+              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSupportOpen(true); },310); }}>SUPPORT</button>
+            </nav>
+            <div className="nav-panel-footer">
+              <button className="nav-panel-signout" onClick={handleSignOut}>SIGN OUT</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Grids Page ── */}
+      {gridsOpen&&(
+        <div className={`grids-page${gridsClosing?' is-closing':''}`}>
+          <div className="grids-header">
+            <button className="grids-back" onClick={dismissGrids} aria-label="Back">
+              <svg width="10" height="17" viewBox="0 0 10 17" fill="none">
+                <polyline points="9,1 1,8.5 9,16" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            <span className="grids-title">YOUR GRIDS</span>
+          </div>
+          {photoDates.size===0 ? (
+            <div className="grids-empty">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#4F5E2E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:0.4}}>
+                <rect x="4" y="8" width="40" height="34" rx="3"/>
+                <circle cx="24" cy="25" r="9"/>
+                <circle cx="24" cy="25" r="4" fill="#4F5E2E" stroke="none" opacity="0.4"/>
+                <path d="M16 8V5M32 8V5"/>
+              </svg>
+              <div className="grids-empty-lbl">NO PHOTOS YET</div>
+              <div className="grids-empty-sub">Start shooting to build your visual archive.</div>
+            </div>
+          ) : (
+            <div className="grids-grid">
+              {[...photoDates].sort().reverse().map(k=>{
+                const p = parseDate(k);
+                return (
+                  <div key={k} className="grids-cell" onClick={()=>{ dismissGrids(); setTimeout(()=>{ setSel(k); setActiveTab('today'); },310); }}>
+                    <AuthImage src={thumbUrl(k)} alt=""/>
+                    <span className="grids-cell-date">{p.d} {MONTHS_S[p.m]}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Settings tray: Appearance + Features ── */}
       {settingsOpen&&(
         <div className="settings-backdrop" onClick={()=>setSettingsOpen(false)}>
           <div className="settings-sheet" onClick={e=>e.stopPropagation()}>
             <div className="settings-handle"/>
             <div className="settings-title">Settings</div>
 
-            {/* Appearance */}
             <div className="settings-section">
               <div className="settings-section-label">Appearance</div>
               <div className="settings-group">
@@ -1653,11 +1689,7 @@ export default function App() {
                   <span className="settings-row-label">Theme</span>
                   <div className="settings-seg">
                     {(['light','system','dark']).map(opt=>(
-                      <button
-                        key={opt}
-                        className={`settings-seg-btn${themePref===opt?' active':''}`}
-                        onClick={()=>setThemePref(opt)}
-                      >
+                      <button key={opt} className={`settings-seg-btn${themePref===opt?' active':''}`} onClick={()=>setThemePref(opt)}>
                         {opt==='light'?'Light':opt==='dark'?'Dark':'System'}
                       </button>
                     ))}
@@ -1666,7 +1698,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Features */}
             <div className="settings-section">
               <div className="settings-section-label">Features</div>
               <div className="settings-group">
@@ -1675,19 +1706,28 @@ export default function App() {
                     <div className="settings-row-label">AI Features</div>
                     <div className="settings-row-sub">Captions, feedback & prompts</div>
                   </div>
-                  <button
-                    className={`ai-toggle${aiEnabled?' on':' off'}`}
-                    onClick={()=>setAiEnabled(v=>!v)}
-                    aria-label={aiEnabled?'Disable AI':'Enable AI'}
-                  ><div className="ai-toggle-thumb"/></button>
+                  <button className={`ai-toggle${aiEnabled?' on':' off'}`} onClick={()=>setAiEnabled(v=>!v)} aria-label={aiEnabled?'Disable AI':'Enable AI'}>
+                    <div className="ai-toggle-thumb"/>
+                  </button>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
 
-            {/* Account */}
+      {/* ── Account tray ── */}
+      {accountOpen&&(
+        <div className="settings-backdrop" onClick={()=>setAccountOpen(false)}>
+          <div className="settings-sheet" onClick={e=>e.stopPropagation()}>
+            <div className="settings-handle"/>
+            <div className="settings-title">Account</div>
+
             <div className="settings-section">
-              <div className="settings-section-label">Account</div>
               <div className="settings-group">
+                <div className="settings-row">
+                  <span className="settings-row-label" style={{fontSize:13,color:'var(--text-2)',fontFamily:'var(--sans)'}}>{userEmail}</span>
+                </div>
                 <button className="settings-row-btn" onClick={()=>{setPwExpanded(v=>!v);setPwMsg(null);}}>
                   <span className="settings-row-label">Change Password</span>
                   <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
@@ -1695,14 +1735,9 @@ export default function App() {
                 {pwExpanded&&(
                   <div className="settings-row" style={{flexDirection:'column',alignItems:'stretch',gap:8,padding:'12px 16px',minHeight:'auto'}}>
                     <div className="settings-pw-row">
-                      <input
-                        className="settings-pw-input"
-                        type="password"
-                        value={pwNew}
+                      <input className="settings-pw-input" type="password" value={pwNew}
                         onChange={e=>{setPwNew(e.target.value);setPwMsg(null);}}
-                        placeholder="New password"
-                        autoComplete="new-password"
-                      />
+                        placeholder="New password" autoComplete="new-password"/>
                       <button type="button" className="settings-pw-submit" onClick={handleChangePassword} disabled={pwChanging||!pwNew}>
                         {pwChanging?'…':'Save'}
                       </button>
@@ -1716,74 +1751,58 @@ export default function App() {
               </div>
             </div>
 
-            {/* Support */}
-            <div className="settings-section">
-              <div className="settings-section-label">Support</div>
-              <div className="settings-group">
-                <a
-                  className="settings-row-btn"
-                  href="mailto:ecrissman@gmail.com?subject=Scout%20Feedback%20%2F%20Feature%20Request"
-                  style={{textDecoration:'none'}}
-                >
-                  <span className="settings-row-label">Feedback & Ideas</span>
-                  <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
-                </a>
-              </div>
-            </div>
-
-            {/* Developer (only for dev account) */}
             {userEmail==='ecrissman@gmail.com'&&(
               <div className="settings-section">
                 <div className="settings-section-label" style={{color:'var(--accent)'}}>Developer</div>
                 <div className="settings-group">
                   <div className="settings-row">
                     <span className="settings-row-label">Delete Mode</span>
-                    <button
-                      className={`ai-toggle${devDeleteMode?' on':' off'}`}
-                      onClick={()=>setDevDeleteMode(v=>!v)}
-                      aria-label="Toggle delete mode"
-                    ><div className="ai-toggle-thumb"/></button>
+                    <button className={`ai-toggle${devDeleteMode?' on':' off'}`} onClick={()=>setDevDeleteMode(v=>!v)} aria-label="Toggle delete mode">
+                      <div className="ai-toggle-thumb"/>
+                    </button>
                   </div>
-                  <button className="settings-row-btn" onClick={()=>{
-                    Object.keys(localStorage).filter(k=>k.startsWith('scout-reviewed-')).forEach(k=>localStorage.removeItem(k));
-                  }}>
+                  <button className="settings-row-btn" onClick={()=>{ Object.keys(localStorage).filter(k=>k.startsWith('scout-reviewed-')).forEach(k=>localStorage.removeItem(k)); }}>
                     <span className="settings-row-label">Reset Week Reviews</span>
                     <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>clears seen flags</span>
                   </button>
-                  <button className="settings-row-btn" onClick={()=>{
-                    localStorage.removeItem('scout-onboarded');
-                    setOnboardingName('');
-                    setOnboardingStep(1);
-                    setSettingsOpen(false);
-                  }}>
+                  <button className="settings-row-btn" onClick={()=>{ localStorage.removeItem('scout-onboarded'); setOnboardingName(''); setOnboardingStep(1); setAccountOpen(false); }}>
                     <span className="settings-row-label">Reset Onboarding</span>
                     <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay first-run flow</span>
                   </button>
-                  <button className="settings-row-btn" onClick={()=>{
-                    const dates = getWeekDates(sel || new Date().toISOString().slice(0,10));
-                    setWeekReview({ dates });
-                    setSettingsOpen(false);
-                  }}>
+                  <button className="settings-row-btn" onClick={()=>{ const dates=getWeekDates(sel||new Date().toISOString().slice(0,10)); setWeekReview({dates}); setAccountOpen(false); }}>
                     <span className="settings-row-label">Show Week Review</span>
                     <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>current week</span>
                   </button>
-                  <button className="settings-row-btn" onClick={()=>{
-                    setSplashDone(false);
-                    setSplashFading(false);
-                    setSettingsOpen(false);
-                    setTimeout(()=>setSplashFading(true), 2200);
-                    setTimeout(()=>setSplashDone(true), 2900);
-                  }}>
+                  <button className="settings-row-btn" onClick={()=>{ setSplashDone(false); setSplashFading(false); setAccountOpen(false); setTimeout(()=>setSplashFading(true),2200); setTimeout(()=>setSplashDone(true),2900); }}>
                     <span className="settings-row-label">Show Splash</span>
                     <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay intro</span>
                   </button>
-                  <div className="settings-row" style={{gap:8}}>
-                    <span className="settings-row-label" style={{fontSize:12,color:'var(--text-3)',fontFamily:'var(--sans)'}}>{userEmail}</span>
-                  </div>
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
 
+      {/* ── Support tray ── */}
+      {supportOpen&&(
+        <div className="settings-backdrop" onClick={()=>setSupportOpen(false)}>
+          <div className="settings-sheet" onClick={e=>e.stopPropagation()}>
+            <div className="settings-handle"/>
+            <div className="settings-title">Support</div>
+
+            <div className="settings-section">
+              <div className="settings-group">
+                <a className="settings-row-btn" href="mailto:eric@scoutphoto.app?subject=Scout%20Feedback%20%2F%20Feature%20Request" style={{textDecoration:'none'}}>
+                  <span className="settings-row-label">Feedback & Ideas</span>
+                  <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
+                </a>
+                <a className="settings-row-btn" href="mailto:eric@scoutphoto.app?subject=Scout%20Bug%20Report" style={{textDecoration:'none'}}>
+                  <span className="settings-row-label">Report a Bug</span>
+                  <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       )}
