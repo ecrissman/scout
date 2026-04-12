@@ -326,7 +326,11 @@ export async function onRequest({ request, env, params }) {
     }
     const aiData = await aiRes.json();
     let themeData;
-    try { themeData = JSON.parse(aiData.content?.[0]?.text ?? '{}'); } catch { themeData = {}; }
+    try {
+      let raw = aiData.content?.[0]?.text ?? '{}';
+      raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+      themeData = JSON.parse(raw);
+    } catch { themeData = {}; }
     if (!themeData.theme) {
       console.error('[theme] Parse failed or missing theme field. Raw:', aiData.content?.[0]?.text);
       return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
