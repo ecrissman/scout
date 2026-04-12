@@ -34,10 +34,9 @@ const CSS = `
 html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
 
 /* ── Onboarding ── */
-.ob-wrap{position:fixed;inset:0;background:#4F5E2E;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px}
-.ob-hed{font-family:var(--brand);font-size:88px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center;margin:0 0 28px}
-.ob-body{font-family:var(--sans);font-size:16px;font-weight:300;line-height:1.7;color:rgba(255,253,250,0.85);text-align:center;margin:0 0 20px}
-.ob-hint{font-family:var(--sans);font-size:15px;font-weight:300;line-height:1.7;color:rgba(255,253,250,0.6);text-align:center;margin:0 0 48px}
+.ob-wrap{position:fixed;inset:0;background:#4F5E2E;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;padding-bottom:12vh}
+.ob-hed{font-family:var(--brand);font-size:56px;line-height:1.05;color:#FFFDFA;text-transform:uppercase;text-align:center;margin:0 0 28px;white-space:nowrap}
+.ob-hint{font-family:var(--sans);font-size:15px;font-weight:300;line-height:1.5;color:rgba(255,253,250,0.6);text-align:center;margin:0 0 48px}
 .ob-cta{width:197px;height:51px;font-family:var(--brand);font-size:20px;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
 .ob-cta:active{opacity:.5}
 
@@ -260,9 +259,9 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .review-action-btn:disabled{opacity:0.4}
 
 /* ── First photo congrats ── */
-.first-photo-modal{position:fixed;inset:0;background:#E34822;z-index:900;animation:reviewIn .35s ease both}
-.fpm-l1{position:absolute;top:32%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center}
-.fpm-l2{position:absolute;top:46%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center}
+.first-photo-modal{position:fixed;inset:0;background:#E2B554;z-index:900;animation:reviewIn .35s ease both}
+.fpm-l1{position:absolute;top:32%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.2;color:#0C0C0C;text-transform:uppercase;text-align:center}
+.fpm-l2{position:absolute;top:46%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.2;color:#0C0C0C;text-transform:uppercase;text-align:center}
 .fpm-cta{position:absolute;top:86%;left:50%;transform:translateX(-50%);width:180px;height:51px;font-family:var(--brand);font-size:20px;color:#FFFDFA;background:#0C0C0C;border:none;border-radius:4px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .fpm-cta:active{opacity:.5}
 
@@ -1194,16 +1193,12 @@ export default function App() {
   if (showOnboarding) {
     return (
       <div className="ob-wrap">
-        <h2 className="ob-hed">Day One.</h2>
-        <p className="ob-body">
-          One photo. Every day.<br/>Over time, a trail.
-        </p>
+        <h2 className="ob-hed">ONE PHOTO<br/>EVERY DAY</h2>
         <p className="ob-hint">
-          A daily trailmarker will be here when you need it.<br/>
-          Follow it, or find your own.
+          Follow your guide or make your own path.
         </p>
         <button type="button" className="ob-cta" onClick={finishOnboarding}>
-          START SHOOTING
+          LET'S GO
         </button>
       </div>
     );
@@ -1508,7 +1503,7 @@ export default function App() {
               {dayMeta&&(
                 <div className="cap-row">
                   <div className="cap-top">
-                    <textarea className="cap-in" placeholder="One line."
+                    <textarea className="cap-in" placeholder="FIELD NOTE"
                       value={caption} rows={1}
                       onChange={e=>{ setCaption(e.target.value); e.target.style.height='auto'; e.target.style.height=e.target.scrollHeight+'px'; }}
                       onBlur={saveCaption} ref={captionRef}/>
@@ -1562,7 +1557,7 @@ export default function App() {
               </button>
             </div>
             <div className="today-sheet-body">
-              <div className="today-sheet-prompt-lbl">TODAY'S TRAIL</div>
+              <div className="today-sheet-prompt-lbl">TODAY'S SHOT</div>
               {aiEnabled&&shootPrompt&&!promptLoading ? (
                 <div className="today-sheet-prompt-txt">{shootPrompt}</div>
               ) : (
@@ -1596,8 +1591,8 @@ export default function App() {
 
       {firstPhotoModal && (
         <div className="first-photo-modal">
-          <div className="fpm-l1">TRAILHEAD</div>
-          <div className="fpm-l2">DISCOVERED.</div>
+          <div className="fpm-l1">FIRST</div>
+          <div className="fpm-l2">FRAME</div>
           <button className="fpm-cta" onClick={() => setFirstPhotoModal(false)}>KEEP GOING</button>
         </div>
       )}
