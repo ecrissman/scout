@@ -386,12 +386,12 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .grids-empty-sub{font-family:var(--sans);font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;font-weight:300}
 .gallery-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
 .gallery-year-header{position:sticky;top:0;z-index:2;background:#FFFDFA;padding:10px 20px 8px;font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;color:var(--text-3);border-bottom:1px solid var(--border)}
-.gallery-month-card{-webkit-tap-highlight-color:transparent}
+.gallery-month-card{-webkit-tap-highlight-color:transparent;padding-bottom:24px}
 .gallery-triptych{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);cursor:pointer}
 .gallery-triptych:active{opacity:0.8}
 .gallery-triptych-cell{aspect-ratio:1;overflow:hidden;background:var(--surface);position:relative}
 .gallery-triptych-cell img{width:100%;height:100%;object-fit:cover;display:block}
-.gallery-month-meta{display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--border);cursor:pointer}
+.gallery-month-meta{display:flex;align-items:center;padding:10px 16px;gap:8px;cursor:pointer}
 .gallery-month-label{font-family:Inconsolata,monospace;font-size:12px;font-weight:500;letter-spacing:0.08em;color:var(--text);flex:1}
 .gallery-month-count{font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--text-3)}
 .gallery-month-chevron{width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--text-3);flex-shrink:0;transition:transform 0.2s}
@@ -1841,10 +1841,10 @@ export default function App() {
                                 return (
                                   <div key={weekStart} className="gallery-strip-row"
                                     onClick={()=>{ setWeekReview({dates}); setReviewPhase('grid'); }}>
-                                    <div className="gallery-strip-cells">
-                                      {dates.map(d=>(
+                                    <div className="gallery-strip-cells" style={{gridTemplateColumns:`repeat(${filledInWeek.length},1fr)`}}>
+                                      {filledInWeek.map(d=>(
                                         <div key={d} className="gallery-strip-cell">
-                                          {datesSet.has(d) && <AuthImage src={thumbUrl(d)} alt=""/>}
+                                          <AuthImage src={thumbUrl(d)} alt=""/>
                                         </div>
                                       ))}
                                     </div>
