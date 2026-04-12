@@ -492,9 +492,9 @@ export default function App() {
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];
 
-  // ── Theme: pref is 'light' | 'dark' | 'system', default 'light' ──
+  // ── Theme: pref is 'light' | 'dark' | 'system', default 'system' ──
   const [themePref, setThemePref] = useState(()=>
-    localStorage.getItem('scout-theme-pref') || 'light'
+    localStorage.getItem('scout-theme-pref') || 'system'
   );
   const [systemTheme, setSystemTheme] = useState(()=>
     window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -1721,7 +1721,7 @@ export default function App() {
                   <div className="settings-seg">
                     {(['light','system','dark']).map(opt=>(
                       <button key={opt} className={`settings-seg-btn${themePref===opt?' active':''}`} onClick={()=>setThemePref(opt)}>
-                        {opt==='light'?'Light':opt==='dark'?'Dark':'System'}
+                        {opt==='light'?'Light':opt==='dark'?'Dark':'Auto'}
                       </button>
                     ))}
                   </div>
