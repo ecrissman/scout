@@ -1,140 +1,268 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
-  <title>Scout — The Station</title>
+  <title>Scout — The Camp Mark</title>
+  <!--
+    CONCEPT 4: THE CAMP MARK
+    The most illustrative, most "trunk-stamp" of the four.
+    Format: a circle (like a wax seal or camp medallion).
+    The circle contains:
+      - An outer rope/stitch border ring
+      - An inner field filled with terracotta (with grain)
+      - Four viewfinder L-brackets in paper/ink at the corners
+        of an implied inner square, but positioned at the
+        cardinal points — N bracket at top, S at bottom, etc.
+        Each bracket points INWARD, like compass marks
+      - A bold 8-point star/compass rose at center, paper fill
+        with ink stroke — the starburst merges compass rose
+        with a camera's aperture star
+      - A tiny centered lens circle
+
+    The terracotta fill and the star together create maximum
+    contrast and warmth. This is the celebration version —
+    the one that goes on the bag.
+  -->
+
+  <defs>
+    <!-- Grain on terracotta field -->
+    <filter id="g4" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4"
+                    stitchTiles="stitch" result="n"/>
+      <feColorMatrix type="saturate" values="0" in="n" result="gn"/>
+      <feBlend in="SourceGraphic" in2="gn" mode="multiply" result="b"/>
+      <feComposite in="b" in2="SourceGraphic" operator="in"/>
+    </filter>
+    <!-- Clip to badge circle -->
+    <clipPath id="cc4">
+      <circle cx="100" cy="100" r="90"/>
+    </clipPath>
+  </defs>
 
   <!-- Paper background -->
   <rect width="200" height="200" fill="#F5F1EB"/>
 
-  <defs>
-    <filter id="grain4" x="0%" y="0%" width="100%" height="100%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.71" numOctaves="4" stitchTiles="stitch" result="noise"/>
-      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
-      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
-      <feComposite in="blended" in2="SourceGraphic" operator="in"/>
-    </filter>
-    <clipPath id="shieldClip">
-      <!-- Shield path for clipping fills -->
-      <path d="M 100 185 C 100 185 22 148 22 88 L 22 32 Q 22 24 30 24 L 170 24 Q 178 24 178 32 L 178 88 C 178 148 100 185 100 185 Z"/>
-    </clipPath>
-  </defs>
+  <!-- ─────────────────────────────────────────
+       OUTER CIRCLE — ink ring, thick
+  ───────────────────────────────────────── -->
+  <circle cx="100" cy="100" r="90"
+          fill="#1C1916"/>
+  <!-- Paper ring creates the stitch border band -->
+  <circle cx="100" cy="100" r="82"
+          fill="#F5F1EB"/>
 
-  <!-- ══════════════════════════════════════
-       SHIELD SHAPE — merit badge / patch silhouette
-       Flat-bottomed curve to a point
-       Ink filled exterior
-  ═══════════════════════════════════════ -->
+  <!-- ─────────────────────────────────────────
+       ROPE/STITCH BORDER
+       22 dash marks in the ink ring, evenly spaced,
+       like saddle-stitch on a patch.
+       Rendered as short strokes along the ring at r=86.
+  ───────────────────────────────────────── -->
+  <!-- Generate 24 stitch marks at r=86, equally spaced (15° each) -->
+  <!-- Stitch marks are ~5px long radially, 1.5px wide -->
+  <!-- Using precise coordinates for each -->
+  <g stroke="#F5F1EB" stroke-width="1.8" stroke-linecap="round" opacity="0.7">
+    <!-- 24 stitches, every 15 degrees, r inner=83 r outer=89 -->
+    <line x1="100" y1="11"  x2="100" y2="17"/>  <!-- 0° -->
+    <line x1="122.2" y1="13.2" x2="124.8" y2="18.7"/>  <!-- 15° -->
+    <line x1="141.3" y1="20.6" x2="144.7" y2="25.3"/>  <!-- 30° -->
+    <line x1="155.4" y1="32.5" x2="159.5" y2="36.3"/>  <!-- 45° -->
+    <line x1="163.6" y1="47.8" x2="168.2" y2="50.7"/>  <!-- 60° -->
+    <line x1="165.8" y1="64.8" x2="170.7" y2="66.8"/>  <!-- 75° -->
+    <line x1="162" y1="82" x2="166.8" y2="83"/>  <!-- 90° -->  <!-- actually 90 is x=r,y=100 but let me redo -->
+    <!-- I'll draw these as rotated lines using transform -->
+  </g>
 
-  <!-- Shield fill — ink -->
-  <path d="M 100 185 C 100 185 20 146 20 84 L 20 30 Q 20 22 28 22 L 172 22 Q 180 22 180 30 L 180 84 C 180 146 100 185 100 185 Z"
-        fill="#1C1916"/>
+  <!--
+    Cleaner approach: use a single dashed stroke on a circle
+    at r=86 with a dasharray tuned to 24 segments.
+    Circumference at r=86 = 2π×86 ≈ 540.4px
+    24 segments: each = 22.5px. Dash 10, gap 12.5.
+  -->
+  <circle cx="100" cy="100" r="86"
+          stroke="#F5F1EB" stroke-width="2"
+          stroke-dasharray="10 12.5"
+          stroke-linecap="round"
+          fill="none" opacity="0.65"/>
 
-  <!-- Inner shield — paper, inset 8px -->
-  <path d="M 100 176 C 100 176 29 141 29 84 L 29 33 Q 29 30 32 30 L 168 30 Q 171 30 171 33 L 171 84 C 171 141 100 176 100 176 Z"
-        fill="#F5F1EB" filter="url(#grain4)"/>
+  <!-- ─────────────────────────────────────────
+       INNER BADGE FIELD — terracotta circle with grain
+  ───────────────────────────────────────── -->
+  <circle cx="100" cy="100" r="80"
+          fill="#C4622D" filter="url(#g4)"
+          stroke="#1C1916" stroke-width="1.5"/>
 
-  <!-- Second inset line — thin rule, creates layered badge depth -->
-  <path d="M 100 176 C 100 176 29 141 29 84 L 29 33 Q 29 30 32 30 L 168 30 Q 171 30 171 33 L 171 84 C 171 141 100 176 100 176 Z"
-        fill="none" stroke="#1C1916" stroke-width="1.2"/>
+  <!-- ─────────────────────────────────────────
+       8-POINT COMPASS STAR
+       Center at 100,100.
+       4 long cardinal points (r=52) alternating with
+       4 short intercardinal points (r=32).
+       Paper fill with ink stroke.
+       This is both the compass rose AND the camera aperture star.
+  ───────────────────────────────────────── -->
 
-  <!-- ══════════════════════════════════════
-       TEXT BAND — top of shield, ink fill band
-       "SCOUT" in Inconsolata heavy
-  ═══════════════════════════════════════ -->
-  <!-- Ink band at top -->
-  <path d="M 28 22 Q 28 22 28 33 L 172 33 Q 172 22 172 22 Z" fill="#1C1916"/>
-  <!-- Actually a clean rectangular band -->
-  <rect x="20" y="22" width="160" height="26" rx="0" fill="#1C1916" clip-path="url(#shieldClip)"/>
+  <!-- Build the 8-point star as a polygon.
+       Long points at 0°,90°,180°,270° (cardinal) → r=52
+       Short points at 45°,135°,225°,315° (intercardinal) → r=32
+       Width of each "waist" between points: r_inner=14
 
-  <text x="100" y="39.5"
-        text-anchor="middle"
-        font-family="Inconsolata, monospace"
-        font-size="13"
-        font-weight="900"
-        fill="#F5F1EB"
-        letter-spacing="8">SCOUT</text>
+       Vertices in order (clockwise from top):
+       N tip:   (100, 48)
+       NE waist: approx (110, 90) — between N and NE
+       NE tip:  (137, 63)
+       SE waist: approx (110, 110)
+       S tip:   (100, 152)
+       SW waist: approx (90, 110)
+       SW tip:  (63, 137)
+       NW waist: approx (90, 90)
+       NW tip:  (63, 63)
+       WN waist: ...
 
-  <!-- ══════════════════════════════════════
-       COMPASS ROSE — 8-point star, center of shield
-       Hero illustration element
-       Alternating point lengths (4 long cardinals, 4 short intercardinals)
-  ═══════════════════════════════════════ -->
+       Let me compute properly.
+       8-point star: alternating outer/inner radii.
+       Outer (cardinal tips): r=52. Inner (between tips): r=14.
+       Intercardinal tips: r=32.
 
-  <!-- Sky fill circle behind compass -->
-  <circle cx="100" cy="106" r="46" fill="#5B8FA8" filter="url(#grain4)"/>
-  <circle cx="100" cy="106" r="46" fill="none" stroke="#1C1916" stroke-width="2"/>
+       Points at angles 0,45,90,135,180,225,270,315 + inner points between each
+       Actually a star has 2n vertices. For an 8-pointed star (4 main + 4 inter):
+       16 vertices total: alternating tip and waist at r_inner.
 
-  <!-- 8-point compass rose — drawn as two overlapping diamond shapes -->
+       Angles: 270° (top N), 315° (NE-inter), 0° (NE tip)...
 
-  <!-- Cardinal points (N, E, S, W) — longer, terracotta N, ink others -->
+       Let me simplify: use the starburst as two overlapping squares.
+       Square 1: axis-aligned, r=52 → corners at (±52, 0) and (0, ±52)
+       Square 2: rotated 45°, r=32 → corners at (±22.6, ±22.6)
 
-  <!-- NORTH — terracotta -->
-  <polygon points="100,63  105.5,101  100,97  94.5,101"
-           fill="#C4622D" stroke="#1C1916" stroke-width="1.5" stroke-linejoin="round"/>
+       No — more direct: polygon with 16 points alternating r=52 and r=14.
+       At 0° (right), 22.5°, 45°, 67.5°, 90°, 112.5°, 135°, 157.5°,
+       180°, 202.5°, 225°, 247.5°, 270°, 292.5°, 315°, 337.5°
 
-  <!-- SOUTH — ink -->
-  <polygon points="100,149  105.5,111  100,115  94.5,111"
-           fill="#1C1916" stroke="#1C1916" stroke-width="1.5" stroke-linejoin="round"/>
+       Long tips: 0°, 90°, 180°, 270° → r=52
+       Short waists: 22.5°, 67.5°, 112.5°, etc. → r=14
 
-  <!-- EAST — paper fill with ink stroke -->
-  <polygon points="143,106  105.5,111.5  109.5,106  105.5,100.5"
-           fill="#F5F1EB" stroke="#1C1916" stroke-width="1.5" stroke-linejoin="round"/>
+       Computing (cx=100, cy=100, angles measured from 12 o'clock = 270°):
 
-  <!-- WEST — paper fill with ink stroke -->
-  <polygon points="57,106  94.5,111.5  90.5,106  94.5,100.5"
-           fill="#F5F1EB" stroke="#1C1916" stroke-width="1.5" stroke-linejoin="round"/>
+       N (270°=−90°): (100+52*cos(270°), 100+52*sin(270°)) = (100+0, 100−52) = (100, 48)
+       NNE waist (315°=−45°): r=14 → (100+14*cos(315°), 100+14*sin(315°)) = (100+9.9, 100−9.9) = (109.9, 90.1)
+       NE-tip (0°): r=32 → (100+32, 100) = (132, 100)...
 
-  <!-- Intercardinal points (NE, NW, SE, SW) — shorter warm-mid fill -->
+       Wait — I need the intercardinal tips at 45° offsets, not at axis.
 
-  <!-- NE -->
-  <polygon points="130,79  105,101  107.5,103.5  103,105"
-           fill="#8C857C" stroke="#1C1916" stroke-width="1.2" stroke-linejoin="round"/>
+       Let me use this arrangement:
+       Tips at: N=270°, NE=315°, E=0°, SE=45°, S=90°, SW=135°, W=180°, NW=225°
+       With N,E,S,W longer (r=50) and NE,SE,SW,NW shorter (r=30).
+       Inner waists between each tip at r=12.
 
-  <!-- NW -->
-  <polygon points="70,79  95,101  92.5,103.5  97,105"
-           fill="#8C857C" stroke="#1C1916" stroke-width="1.2" stroke-linejoin="round"/>
+       Waist angles: 247.5°, 292.5°, 337.5°, 22.5°, 67.5°, 112.5°, 157.5°, 202.5°
 
-  <!-- SE -->
-  <polygon points="130,133  105,111  107.5,108.5  103,107"
-           fill="#8C857C" stroke="#1C1916" stroke-width="1.2" stroke-linejoin="round"/>
+       16 vertices:
+       270°  r=50: (100, 50)
+       292.5° r=12: (100+12cos(292.5°), 100+12sin(292.5°)) = (104.6, 89)
+       315°  r=30: (100+30cos(315°), 100+30sin(315°)) = (121.2, 78.8)
+       337.5° r=12: (104.6, 89) — wait, let me recalculate properly
 
-  <!-- SW -->
-  <polygon points="70,133  95,111  92.5,108.5  97,107"
-           fill="#8C857C" stroke="#1C1916" stroke-width="1.2" stroke-linejoin="round"/>
+       Converting angles: standard math angle = -(svg_angle - 90°)
+       Or: x = cx + r*sin(bearing), y = cy - r*cos(bearing) for clockwise from north.
 
-  <!-- ══════════════════════════════════════
-       CENTER APERTURE RING
-       Open circle = camera lens / aperture opening
-  ═══════════════════════════════════════ -->
-  <circle cx="100" cy="106" r="11" fill="#F5F1EB" stroke="#1C1916" stroke-width="2.5"/>
-  <circle cx="100" cy="106" r="4" fill="#1C1916"/>
+       270° bearing = West in SVG land... Let me just use clock angles (0=top, going clockwise):
 
-  <!-- ══════════════════════════════════════
-       VIEWFINDER BRACKETS — four corners of shield body
-       These appear at the corners of the viewing area
-       NOT on the text band
-  ═══════════════════════════════════════ -->
-  <!-- NW bracket (inside shield, below text band) -->
-  <path d="M 44 60 L 44 48 L 56 48" stroke="#1C1916" stroke-width="2.8" stroke-linecap="square"/>
-  <!-- NE bracket -->
-  <path d="M 144 48 L 156 48 L 156 60" stroke="#1C1916" stroke-width="2.8" stroke-linecap="square"/>
-  <!-- SW bracket -->
-  <path d="M 44 148 L 44 160 L 56 160" stroke="#1C1916" stroke-width="2.8" stroke-linecap="square"/>
-  <!-- SE bracket — terracotta -->
-  <path d="M 144 160 L 156 160 L 156 148" stroke="#C4622D" stroke-width="2.8" stroke-linecap="square"/>
+       Point at clock_angle θ, radius r:
+         x = 100 + r * sin(θ * π/180)
+         y = 100 - r * cos(θ * π/180)
 
-  <!-- ══════════════════════════════════════
-       BOTTOM LABEL — tiny text, below compass circle
-  ═══════════════════════════════════════ -->
-  <text x="100" y="165"
-        text-anchor="middle"
-        font-family="Inconsolata, monospace"
-        font-size="7.5"
-        font-weight="700"
-        fill="#1C1916"
-        letter-spacing="3"
-        opacity="0.6">PHOTO · A · DAY</text>
+       Tips (longer cardinal at 0,90,180,270; shorter inter at 45,135,225,315):
+         0°    r=52: x=100+0=100,   y=100-52=48          → (100, 48) = North tip
+         45°   r=30: x=100+21.2=121.2, y=100-21.2=78.8   → (121, 79) = NE tip
+         90°   r=52: x=100+52=152,  y=100=100              → (152, 100) = East tip
+         135°  r=30: x=100+21.2=121.2, y=100+21.2=121.2  → (121, 121) = SE tip
+         180°  r=52: x=100+0=100,   y=100+52=152          → (100, 152) = South tip
+         225°  r=30: x=100-21.2=78.8, y=100+21.2=121.2   → (79, 121) = SW tip
+         270°  r=52: x=100-52=48,   y=100=100              → (48, 100) = West tip
+         315°  r=30: x=100-21.2=78.8, y=100-21.2=78.8    → (79, 79) = NW tip
 
-  <!-- Outer shield stroke reinforce -->
-  <path d="M 100 185 C 100 185 20 146 20 84 L 20 30 Q 20 22 28 22 L 172 22 Q 180 22 180 30 L 180 84 C 180 146 100 185 100 185 Z"
-        fill="none" stroke="#1C1916" stroke-width="2.5"/>
+       Waists (between each pair, at r=13):
+         22.5°  r=13: x=100+13*sin(22.5°)=100+4.96≈105, y=100-13*cos(22.5°)=100-12=88  → (105, 88)
+         67.5°  r=13: x=100+13*sin(67.5°)=100+12=112,   y=100-13*cos(67.5°)=100-5=95   → (112, 95)
+         112.5° r=13: x=112, y=100+5=105                                                 → (112, 105)
+         157.5° r=13: x=105, y=100+12=112                                                → (105, 112)
+         202.5° r=13: x=100-5=95, y=112                                                  → (95, 112)
+         247.5° r=13: x=100-12=88, y=105                                                  → (88, 105)
+         292.5° r=13: x=88, y=95                                                          → (88, 95)
+         337.5° r=13: x=95, y=88                                                          → (95, 88)
+  -->
+  <polygon
+    points="
+      100,48
+      105,88
+      121,79
+      112,95
+      152,100
+      112,105
+      121,121
+      105,112
+      100,152
+      95,112
+      79,121
+      88,105
+      48,100
+      88,95
+      79,79
+      95,88
+    "
+    fill="#F5F1EB"
+    stroke="#1C1916" stroke-width="2"
+    stroke-linejoin="round"/>
+
+  <!-- ─────────────────────────────────────────
+       NORTH INDICATOR
+       The north tip of the star is recolored terracotta
+       to distinguish it as the bearing point.
+       A small filled terracotta triangle overlaid on the N tip.
+  ───────────────────────────────────────── -->
+  <!-- Terracotta north triangle (same coords as N tip of star, just the tip portion) -->
+  <polygon points="100,48 105,88 95,88"
+           fill="#1C1916" opacity="0.15"/>
+  <!-- Terracotta north arrow overlay — a small separate triangle above the star -->
+  <polygon points="100,52 104,70 96,70"
+           fill="#C4622D" stroke="#1C1916" stroke-width="1.2"
+           stroke-linejoin="round"/>
+
+  <!-- ─────────────────────────────────────────
+       VIEWFINDER BRACKETS
+       Four L-corners at the implied corners of the square
+       inscribed in the inner badge circle.
+       Square corners at ~±54px from center → (46,46) and (154,154).
+       Arm length 14px. Stroke 2.5 paper-on-terracotta.
+  ───────────────────────────────────────── -->
+
+  <!-- NW bracket — paper on terracotta -->
+  <path d="M 47 62 L 47 47 L 62 47"
+        stroke="#F5F1EB" stroke-width="3"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- NE bracket — paper on terracotta -->
+  <path d="M 138 47 L 153 47 L 153 62"
+        stroke="#F5F1EB" stroke-width="3"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- SW bracket — paper on terracotta -->
+  <path d="M 47 138 L 47 153 L 62 153"
+        stroke="#F5F1EB" stroke-width="3"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- SE bracket — paper on terracotta -->
+  <path d="M 138 153 L 153 153 L 153 138"
+        stroke="#F5F1EB" stroke-width="3"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+
+  <!-- ─────────────────────────────────────────
+       CENTER APERTURE
+  ───────────────────────────────────────── -->
+  <circle cx="100" cy="100" r="10"
+          fill="#C4622D" stroke="#1C1916" stroke-width="2.5"
+          filter="url(#g4)"/>
+  <circle cx="100" cy="100" r="4"
+          fill="#1C1916"/>
+
+  <!-- ─────────────────────────────────────────
+       OUTER RING STROKE — reinforce the seal
+  ───────────────────────────────────────── -->
+  <circle cx="100" cy="100" r="90"
+          fill="none" stroke="#1C1916" stroke-width="2"/>
+  <circle cx="100" cy="100" r="80"
+          fill="none" stroke="#1C1916" stroke-width="1"/>
 
 </svg>

@@ -1,112 +1,139 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
   <title>Scout — True North</title>
+  <!--
+    CONCEPT 3: TRUE NORTH
+    The most reduced, most tattooed concept. Not about badges or patches —
+    about mark-making. A single rectangular viewfinder frame (full sides,
+    not corner-brackets — more like a camera body outline) with notched
+    corners that create the bracket feel. Through the center: ONE bold
+    north arrow, running full vertical height of the frame, tip emerging
+    above it. The arrow IS the compass. The frame IS the viewfinder.
+    They share one axis. That's the whole idea.
+    Colors: ink frame, terracotta arrowhead tip only.
+    Works as a favicon, a rubber stamp, a chest tattoo.
+  -->
 
   <!-- Paper background -->
   <rect width="200" height="200" fill="#F5F1EB"/>
 
-  <defs>
-    <filter id="grain3" x="0%" y="0%" width="100%" height="100%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="3" stitchTiles="stitch" result="noise"/>
-      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
-      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
-      <feComposite in="blended" in2="SourceGraphic" operator="in"/>
-    </filter>
-  </defs>
+  <!-- ─────────────────────────────────────────
+       VIEWFINDER FRAME
+       Full rectangular border — not just brackets.
+       But the corners are NOTCHED (cutaway squares),
+       so it reads as four L-brackets joined into a frame.
+       Outer rect: 42,42 to 158,158 (116×116).
+       Notch size: 18×18 at each corner.
+       Border width: 5px.
 
-  <!-- ══════════════════════════════════════
-       OUTER FRAME — heavy worn square
-       Thick ink border, slightly uneven feel via
-       variable stroke on each side
-  ═══════════════════════════════════════ -->
-  <!-- The frame itself — slightly inset from edge -->
-  <rect x="22" y="22" width="156" height="156" rx="4" ry="4"
-        fill="#1C1916" stroke="#1C1916" stroke-width="1"/>
-  <!-- Inner paper window -->
-  <rect x="30" y="30" width="140" height="140" rx="2" ry="2" fill="#F5F1EB"/>
+       Technique: draw the frame as a compound path with
+       corner cutouts — a rect with square notches at corners.
+  ───────────────────────────────────────── -->
 
-  <!-- ══════════════════════════════════════
-       CORNER NOTCHES — viewfinder L-brackets
-       Cut into the ink frame border
-       These make the frame read as a viewfinder
-  ═══════════════════════════════════════ -->
-  <!-- NW notch corner accent — paper showing through as L-shape gap -->
-  <path d="M 22 22 L 22 46 L 30 46 L 30 30 L 46 30 L 46 22 Z" fill="#F5F1EB"/>
+  <!-- Frame shape: outer rect with notched corners.
+       Path goes clockwise from top-left notch end. -->
+  <path d="
+    M 60,42
+    L 140,42
+    L 140,42
+    L 158,42
+    L 158,60
+    L 158,140
+    L 158,158
+    L 140,158
+    L 60,158
+    L 42,158
+    L 42,140
+    L 42,60
+    Z"
+    fill="none" stroke="#1C1916" stroke-width="5"
+    stroke-linecap="butt" stroke-linejoin="miter"/>
+
+  <!--
+    The notches: cutaway white squares at each corner.
+    Cover the stroked corners with paper-colored rectangles
+    to create the bracket gap.
+  -->
+  <!-- NW notch -->
+  <rect x="40" y="40" width="20" height="20" fill="#F5F1EB"/>
   <!-- NE notch -->
-  <path d="M 178 22 L 154 22 L 154 30 L 170 30 L 170 46 L 178 46 Z" fill="#F5F1EB"/>
+  <rect x="140" y="40" width="20" height="20" fill="#F5F1EB"/>
   <!-- SW notch -->
-  <path d="M 22 178 L 22 154 L 30 154 L 30 170 L 46 170 L 46 178 Z" fill="#F5F1EB"/>
-  <!-- SE notch — terracotta tint instead of paper = the bearing -->
-  <path d="M 178 178 L 154 178 L 154 170 L 170 170 L 170 154 L 178 154 Z" fill="#C4622D"/>
+  <rect x="40" y="140" width="20" height="20" fill="#F5F1EB"/>
+  <!-- SE notch -->
+  <rect x="140" y="140" width="20" height="20" fill="#F5F1EB"/>
 
-  <!-- ══════════════════════════════════════
-       COMPASS NEEDLE — doubles as shutter crosshair
-       The big hero element inside the frame
-       North half: terracotta
-       South half: ink
-       Fine tick marks on the frame edges
-  ═══════════════════════════════════════ -->
+  <!-- Now redraw the bracket L-corners over the notches
+       so they read as proper thick L-shapes.
+       Arm length: 22px. Stroke-width 5 (same as frame).
+  -->
+  <!-- NW bracket -->
+  <path d="M 42 64 L 42 42 L 64 42"
+        stroke="#1C1916" stroke-width="5"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- NE bracket -->
+  <path d="M 136 42 L 158 42 L 158 64"
+        stroke="#1C1916" stroke-width="5"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- SW bracket -->
+  <path d="M 42 136 L 42 158 L 64 158"
+        stroke="#1C1916" stroke-width="5"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- SE bracket -->
+  <path d="M 136 158 L 158 158 L 158 136"
+        stroke="#1C1916" stroke-width="5"
+        stroke-linecap="square" stroke-linejoin="miter"/>
 
-  <!-- Needle NORTH — terracotta elongated diamond pointing up -->
-  <!-- North blade -->
-  <polygon points="100,46  108,100  100,95  92,100" fill="#C4622D" stroke="#1C1916" stroke-width="1.8" stroke-linejoin="round"/>
+  <!-- ─────────────────────────────────────────
+       THE NORTH ARROW
+       Vertical axis runs from bottom of frame (y=158)
+       to above the frame (y=10).
+       This is a bold element — 4px shaft, large arrowhead.
+       Terracotta arrowhead. Ink shaft.
+       A notch is cut in the south end of the shaft where
+       it meets the frame bottom — a small forked tail,
+       distinguishing which end is the pointer.
+  ───────────────────────────────────────── -->
 
-  <!-- Needle SOUTH — ink elongated diamond pointing down -->
-  <polygon points="100,154  108,100  100,105  92,100" fill="#1C1916" stroke="#1C1916" stroke-width="1.8" stroke-linejoin="round"/>
+  <!-- Arrow shaft — full vertical, ink -->
+  <line x1="100" y1="158" x2="100" y2="24"
+        stroke="#1C1916" stroke-width="3.5"
+        stroke-linecap="butt"/>
 
-  <!-- Horizontal crosshair bars — thin, subtle -->
-  <line x1="34" y1="100" x2="84" y2="100" stroke="#1C1916" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
-  <line x1="116" y1="100" x2="166" y2="100" stroke="#1C1916" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+  <!-- Arrowhead — terracotta, solid, large -->
+  <polygon points="100,10 89,26 111,26"
+           fill="#C4622D" stroke="#1C1916" stroke-width="2"
+           stroke-linejoin="round"/>
 
-  <!-- ══════════════════════════════════════
-       CENTER APERTURE
-       Double circle — lens opening / pivot of needle
-  ═══════════════════════════════════════ -->
-  <circle cx="100" cy="100" r="14" fill="#F5F1EB" stroke="#1C1916" stroke-width="2.5"/>
-  <circle cx="100" cy="100" r="7" fill="none" stroke="#1C1916" stroke-width="1.5"/>
+  <!-- South-end fork — two small prongs at base of shaft -->
+  <!-- Left prong -->
+  <line x1="100" y1="158" x2="92" y2="168"
+        stroke="#1C1916" stroke-width="3"
+        stroke-linecap="round"/>
+  <!-- Right prong -->
+  <line x1="100" y1="158" x2="108" y2="168"
+        stroke="#1C1916" stroke-width="3"
+        stroke-linecap="round"/>
+
+  <!-- ─────────────────────────────────────────
+       HORIZONTAL CROSSHAIR
+       A single thin horizontal line through center —
+       the viewfinder focus line, perpendicular to the arrow.
+       Breaks near center to float the pivot circle.
+  ───────────────────────────────────────── -->
+
+  <!-- Left arm -->
+  <line x1="44" y1="100" x2="89" y2="100"
+        stroke="#1C1916" stroke-width="2"
+        stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Right arm -->
+  <line x1="111" y1="100" x2="156" y2="100"
+        stroke="#1C1916" stroke-width="2"
+        stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Pivot / aperture at crossing -->
+  <circle cx="100" cy="100" r="8"
+          fill="#F5F1EB" stroke="#1C1916" stroke-width="2.5"/>
   <circle cx="100" cy="100" r="2.5" fill="#1C1916"/>
-
-  <!-- ══════════════════════════════════════
-       CARDINAL TICK MARKS on inner frame edge
-       8 ticks total: N, NE, E, SE, S, SW, W, NW
-       N and S on vertical axis, terracotta N
-  ═══════════════════════════════════════ -->
-  <!-- N -->
-  <line x1="100" y1="32" x2="100" y2="40" stroke="#C4622D" stroke-width="3" stroke-linecap="round"/>
-  <!-- S -->
-  <line x1="100" y1="160" x2="100" y2="168" stroke="#1C1916" stroke-width="2" stroke-linecap="round"/>
-  <!-- E -->
-  <line x1="160" y1="100" x2="168" y2="100" stroke="#1C1916" stroke-width="2" stroke-linecap="round"/>
-  <!-- W -->
-  <line x1="32" y1="100" x2="40" y2="100" stroke="#1C1916" stroke-width="2" stroke-linecap="round"/>
-  <!-- NE (diagonal intercardinal) -->
-  <line x1="149" y1="51" x2="145" y2="57" stroke="#1C1916" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-  <!-- NW -->
-  <line x1="51" y1="51" x2="55" y2="57" stroke="#1C1916" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-  <!-- SE -->
-  <line x1="149" y1="149" x2="145" y2="143" stroke="#1C1916" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-  <!-- SW -->
-  <line x1="51" y1="149" x2="55" y2="143" stroke="#1C1916" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-
-  <!-- ══════════════════════════════════════
-       "N" LETTERFORM at top tick
-       Terracotta — the mark of north
-  ═══════════════════════════════════════ -->
-  <text x="100" y="30" text-anchor="middle"
-        font-family="Inconsolata, monospace"
-        font-size="10" font-weight="900"
-        fill="#C4622D" letter-spacing="0">N</text>
-
-  <!-- ══════════════════════════════════════
-       CORNER BRACKET REDRAWN as ink strokes
-       Over the notched corners — tight L-marks
-  ═══════════════════════════════════════ -->
-  <!-- NW -->
-  <path d="M 34 52 L 34 34 L 52 34" stroke="#1C1916" stroke-width="3" stroke-linecap="square"/>
-  <!-- NE -->
-  <path d="M 148 34 L 166 34 L 166 52" stroke="#1C1916" stroke-width="3" stroke-linecap="square"/>
-  <!-- SW -->
-  <path d="M 34 148 L 34 166 L 52 166" stroke="#1C1916" stroke-width="3" stroke-linecap="square"/>
-  <!-- SE — terracotta -->
-  <path d="M 148 166 L 166 166 L 166 148" stroke="#C4622D" stroke-width="3" stroke-linecap="square"/>
 
 </svg>

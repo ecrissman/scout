@@ -1,104 +1,171 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
-  <title>Scout — The Finder</title>
+  <title>Scout — The Patch</title>
+  <!--
+    CONCEPT 2: THE PATCH
+    Merit badge circle format. This is the most "sewn-on" of the four concepts.
+    The outermost ring is a thick ink band (like a badge border).
+    Inside: a compass bezel ring with 16 tick marks (cardinal + intercardinal + halves).
+    The cardinal ticks are long; intermediates are short.
+    North tick is terracotta and doubles as the longest mark.
+    Inside the bezel: a square viewfinder frame with four L-brackets.
+    At dead center: a compass needle (north=terracotta, south=ink).
+    The whole thing reads as: this is a patch you'd earn.
+    Text ring at bottom: "PHOTO · A · DAY" in the ink band.
+  -->
+
+  <defs>
+    <!-- Grain for sage inner fill -->
+    <filter id="g2" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="4"
+                    stitchTiles="stitch" result="n"/>
+      <feColorMatrix type="saturate" values="0" in="n" result="gn"/>
+      <feBlend in="SourceGraphic" in2="gn" mode="multiply" result="b"/>
+      <feComposite in="b" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
 
   <!-- Paper background -->
   <rect width="200" height="200" fill="#F5F1EB"/>
 
-  <defs>
-    <!-- Grain texture -->
-    <filter id="grain2" x="0%" y="0%" width="100%" height="100%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" result="noise"/>
-      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
-      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
-      <feComposite in="blended" in2="SourceGraphic" operator="in"/>
-    </filter>
-    <!-- Clip to badge circle -->
-    <clipPath id="badgeClip">
-      <circle cx="100" cy="100" r="88"/>
-    </clipPath>
-  </defs>
+  <!-- ─────────────────────────────────────────
+       OUTER BAND — ink filled ring
+       r=92 outer, r=76 inner
+  ───────────────────────────────────────── -->
+  <circle cx="100" cy="100" r="92" fill="#1C1916"/>
+  <circle cx="100" cy="100" r="76" fill="#F5F1EB"/>
 
-  <!-- ══════════════════════════════════════
-       OUTER BADGE RING — filled ink band
-       Classic merit badge perimeter
-  ═══════════════════════════════════════ -->
-  <circle cx="100" cy="100" r="88" fill="#1C1916"/>
-  <!-- Inner ring — paper fill, creates the band -->
-  <circle cx="100" cy="100" r="72" fill="#F5F1EB"/>
-
-  <!-- Text ring — SCOUT along top arc, ALL WEATHER along bottom -->
-  <!-- Top: "SCOUT" -->
-  <path id="topArc" d="M 24,100 A 76,76 0 0,1 176,100" fill="none"/>
-  <text font-family="Inconsolata, monospace" font-size="13.5" font-weight="800" fill="#F5F1EB" letter-spacing="5">
-    <textPath href="#topArc" startOffset="50%" text-anchor="middle">S C O U T</textPath>
+  <!-- ─────────────────────────────────────────
+       TEXT IN THE BAND
+       "SCOUT" arced along top half
+       "PHOTO · A · DAY" arced along bottom half
+  ───────────────────────────────────────── -->
+  <path id="topRing"
+        d="M 100,100 m -83,0 a 83,83 0 1,1 166,0" fill="none"/>
+  <text font-family="Inconsolata, monospace" font-size="13"
+        font-weight="800" fill="#F5F1EB" letter-spacing="6.5">
+    <textPath href="#topRing" startOffset="15%">S C O U T</textPath>
   </text>
 
-  <!-- Bottom: "PHOTO · A · DAY" -->
-  <path id="bottomArc" d="M 24,100 A 76,76 0 0,0 176,100" fill="none"/>
-  <text font-family="Inconsolata, monospace" font-size="10" font-weight="700" fill="#F5F1EB" letter-spacing="3">
-    <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">PHOTO · A · DAY</textPath>
+  <path id="botRing"
+        d="M 100,100 m -83,0 a 83,83 0 0,0 166,0" fill="none"/>
+  <text font-family="Inconsolata, monospace" font-size="9.5"
+        font-weight="700" fill="#F5F1EB" letter-spacing="3">
+    <textPath href="#botRing" startOffset="50%" text-anchor="middle">PHOTO · A · DAY</textPath>
   </text>
 
-  <!-- ══════════════════════════════════════
-       BADGE INTERIOR — sage fill circle
-  ═══════════════════════════════════════ -->
-  <circle cx="100" cy="100" r="66" fill="#4A6741" filter="url(#grain2)"/>
+  <!-- ─────────────────────────────────────────
+       INNER BADGE FIELD — paper circle
+       Separated from the band by the inner ring stroke
+  ───────────────────────────────────────── -->
+  <circle cx="100" cy="100" r="74" fill="#F5F1EB" stroke="#1C1916" stroke-width="1.5"/>
 
-  <!-- ══════════════════════════════════════
-       HORIZON LINE + TREELINE
-       Field guide / landscape inside lens
-  ═══════════════════════════════════════ -->
-  <!-- Sky area within the inner lens circle — ink-tinted -->
-  <!-- Horizon line -->
-  <line x1="48" y1="108" x2="152" y2="108" stroke="#F5F1EB" stroke-width="1.5" stroke-dasharray="0"/>
+  <!-- ─────────────────────────────────────────
+       COMPASS BEZEL — 16 tick marks on a ring at r=68
+       4 cardinal ticks: 9px long, 2.5px wide
+       4 intercardinal ticks: 5px long, 1.5px wide
+       8 half-intercardinal ticks: 3px long, 1px wide
+       North tick: terracotta, 12px long
+  ───────────────────────────────────────── -->
 
-  <!-- Treeline silhouette — simple triangles like a field guide -->
-  <!-- Tree 1 (left) -->
-  <polygon points="58,108  66,82  74,108" fill="#1C1916" opacity="0.85"/>
-  <!-- Tree 2 (left-center) -->
-  <polygon points="68,108  78,74  88,108" fill="#1C1916" opacity="0.85"/>
-  <!-- Tree 3 (center — tallest) -->
-  <polygon points="80,108  100,60  120,108" fill="#1C1916"/>
-  <!-- Tree 4 (right-center) -->
-  <polygon points="112,108  122,74  132,108" fill="#1C1916" opacity="0.85"/>
-  <!-- Tree 5 (right) -->
-  <polygon points="126,108  134,82  142,108" fill="#1C1916" opacity="0.85"/>
+  <!-- Cardinal ticks — N, E, S, W -->
+  <!-- NORTH — terracotta, longest -->
+  <line x1="100" y1="33" x2="100" y2="46"
+        stroke="#C4622D" stroke-width="3" stroke-linecap="square"/>
+  <!-- SOUTH -->
+  <line x1="100" y1="154" x2="100" y2="167"
+        stroke="#1C1916" stroke-width="2.5" stroke-linecap="square"/>
+  <!-- EAST -->
+  <line x1="154" y1="100" x2="167" y2="100"
+        stroke="#1C1916" stroke-width="2.5" stroke-linecap="square"/>
+  <!-- WEST -->
+  <line x1="33" y1="100" x2="46" y2="100"
+        stroke="#1C1916" stroke-width="2.5" stroke-linecap="square"/>
 
-  <!-- Ground fill beneath horizon -->
-  <rect x="34" y="108" width="132" height="32" fill="#1C1916" opacity="0.3" clip-path="url(#badgeClip)"/>
+  <!-- Intercardinal ticks — NE, SE, SW, NW at 45° (r=68 circle) -->
+  <!-- NE: center at (148.1, 51.9), angle 45° -->
+  <line x1="145" y1="55" x2="140" y2="60"
+        stroke="#1C1916" stroke-width="1.5" stroke-linecap="square"/>
+  <!-- SE -->
+  <line x1="145" y1="145" x2="140" y2="140"
+        stroke="#1C1916" stroke-width="1.5" stroke-linecap="square"/>
+  <!-- SW -->
+  <line x1="55" y1="145" x2="60" y2="140"
+        stroke="#1C1916" stroke-width="1.5" stroke-linecap="square"/>
+  <!-- NW -->
+  <line x1="55" y1="55" x2="60" y2="60"
+        stroke="#1C1916" stroke-width="1.5" stroke-linecap="square"/>
 
-  <!-- ══════════════════════════════════════
-       VIEWFINDER BRACKETS — on the badge face
-       Four L-brackets at inner corners, terracotta
-       These ARE the four compass cardinal markers
-  ═══════════════════════════════════════ -->
-  <!-- NW bracket -->
-  <path d="M 50 72 L 50 54 L 68 54" stroke="#F5F1EB" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
-  <!-- NE bracket -->
-  <path d="M 132 54 L 150 54 L 150 72" stroke="#F5F1EB" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
-  <!-- SW bracket -->
-  <path d="M 50 128 L 50 146 L 68 146" stroke="#F5F1EB" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
-  <!-- SE bracket — terracotta = south/bearing -->
-  <path d="M 132 146 L 150 146 L 150 128" stroke="#C4622D" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- Half-intercardinal ticks — 8 more at 22.5° intervals -->
+  <!-- NNE (22.5°) approx (125.9, 38.2) direction -->
+  <line x1="126" y1="38" x2="124" y2="43"
+        stroke="#1C1916" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- ENE (67.5°) approx (161.8, 74.1) -->
+  <line x1="162" y1="74" x2="157" y2="76"
+        stroke="#1C1916" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- ESE (112.5°) approx (161.8, 125.9) -->
+  <line x1="162" y1="126" x2="157" y2="124"
+        stroke="#1C1916" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- SSE (157.5°) approx (125.9, 161.8) -->
+  <line x1="126" y1="162" x2="124" y2="157"
+        stroke="#1C1916" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- SSW (202.5°) approx (74.1, 161.8) -->
+  <line x1="74" y1="162" x2="76" y2="157"
+        stroke="#1C1916" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- WSW (247.5°) approx (38.2, 125.9) -->
+  <line x1="38" y1="126" x2="43" y2="124"
+        stroke="#1C1916" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- WNW (292.5°) approx (38.2, 74.1) -->
+  <line x1="38" y1="74" x2="43" y2="76"
+        stroke="#1C1916" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+  <!-- NNW (337.5°) approx (74.1, 38.2) -->
+  <line x1="74" y1="38" x2="76" y2="43"
+        stroke="#1C1916" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
 
-  <!-- Compass north tick at top of frame, terracotta -->
-  <line x1="100" y1="48" x2="100" y2="56" stroke="#C4622D" stroke-width="3" stroke-linecap="round"/>
+  <!-- ─────────────────────────────────────────
+       VIEWFINDER BRACKETS — inside the bezel
+       Four L-corners at the inner square.
+       Square is 74×74 centered at 100,100 → corners at 63,63 and 137,137.
+       Arm length 18px. Stroke 3.5px square cap.
+  ───────────────────────────────────────── -->
 
-  <!-- North label -->
-  <text x="100" y="46" text-anchor="middle" font-family="Inconsolata, monospace" font-size="9" font-weight="800" fill="#C4622D">N</text>
+  <!-- NW -->
+  <path d="M 63 82 L 63 63 L 82 63"
+        stroke="#1C1916" stroke-width="3.5"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- NE -->
+  <path d="M 118 63 L 137 63 L 137 82"
+        stroke="#1C1916" stroke-width="3.5"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- SW -->
+  <path d="M 63 118 L 63 137 L 82 137"
+        stroke="#1C1916" stroke-width="3.5"
+        stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- SE -->
+  <path d="M 118 137 L 137 137 L 137 118"
+        stroke="#1C1916" stroke-width="3.5"
+        stroke-linecap="square" stroke-linejoin="miter"/>
 
-  <!-- Center aperture dot -->
-  <circle cx="100" cy="100" r="4" fill="#F5F1EB" stroke="#F5F1EB" stroke-width="1"/>
+  <!-- ─────────────────────────────────────────
+       COMPASS NEEDLE — hero element at center
+       North blade: terracotta, elongated diamond pointing up
+       South blade: ink, shorter diamond pointing down
+       Classic two-tone compass needle look.
+  ───────────────────────────────────────── -->
 
-  <!-- Crosshair lines — faint, viewfinder style -->
-  <line x1="88" y1="100" x2="95" y2="100" stroke="#F5F1EB" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
-  <line x1="105" y1="100" x2="112" y2="100" stroke="#F5F1EB" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
-  <line x1="100" y1="88" x2="100" y2="95" stroke="#F5F1EB" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
-  <line x1="100" y1="105" x2="100" y2="112" stroke="#F5F1EB" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+  <!-- North blade — terracotta -->
+  <polygon points="100,68  105.5,99  100,95  94.5,99"
+           fill="#C4622D" stroke="#1C1916" stroke-width="1.5"
+           stroke-linejoin="round"/>
 
-  <!-- Outer badge border stroke -->
-  <circle cx="100" cy="100" r="88" stroke="#1C1916" stroke-width="2.5" fill="none"/>
-  <!-- Separator ring between text band and badge field -->
-  <circle cx="100" cy="100" r="72" stroke="#1C1916" stroke-width="1.5" fill="none"/>
+  <!-- South blade — ink -->
+  <polygon points="100,132  105.5,101  100,105  94.5,101"
+           fill="#1C1916" stroke="#1C1916" stroke-width="1.5"
+           stroke-linejoin="round"/>
+
+  <!-- Needle pivot — double ring -->
+  <circle cx="100" cy="100" r="8.5"
+          fill="#F5F1EB" stroke="#1C1916" stroke-width="2"/>
+  <circle cx="100" cy="100" r="3"
+          fill="#1C1916"/>
 
 </svg>
