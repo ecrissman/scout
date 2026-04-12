@@ -1291,7 +1291,7 @@ export default function App() {
               if (wd.every(dd => photoDates.has(dd))) {
                 return (
                   <button className="week-header-line" onClick={()=>{ setWeekReview({dates:wd}); setReviewPhase('milestone'); }}>
-                    <span className="week-header-lbl">YOUR WEEK IN REVIEW</span>
+                    <span className="week-header-lbl">WEEK COMPLETE</span>
                     <span className="week-header-sep">|</span>
                     <span className="week-header-range">{formatWeekRange(wd)}</span>
                     <span className="week-header-arr">›</span>
@@ -1308,7 +1308,7 @@ export default function App() {
           <div className="theme-card">
             <div className="theme-card-toggle" onClick={()=>setThemeExpanded(v=>!v)}>
               <div className="theme-card-left">
-                <div className="theme-card-lbl">THIS WEEK</div>
+                <div className="theme-card-lbl">THEME</div>
                 <div className="theme-card-title">{weekTheme.theme}</div>
               </div>
               <svg className={`theme-card-chev${themeExpanded?' open':''}`} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1316,7 +1316,7 @@ export default function App() {
             <div className={`theme-card-body${themeExpanded?' open':''}`}>
               {weekTheme.description&&<div className="theme-card-desc">{weekTheme.description}</div>}
               <button className="theme-tips-link" onClick={()=>setTipsOpen(true)}>
-                This week's skills
+                This week's practice
               </button>
             </div>
           </div>
@@ -1648,7 +1648,8 @@ export default function App() {
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setAccountOpen(true); },310); }}>ACCOUNT</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSettingsOpen(true); },310); }}>SETTINGS</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSupportOpen(true); },310); }}>SUPPORT</button>
-              <button className="nav-panel-item" style={{color:'var(--sage)'}} onClick={()=>{ dismissPanel(); handleSignOut(); }}>SIGN OUT</button>
+              <hr style={{border:'none',borderTop:'1px solid var(--border)',margin:'8px 0'}}/>
+              <button className="nav-panel-item" style={{color:'var(--accent)',paddingTop:8}} onClick={()=>{ dismissPanel(); handleSignOut(); }}>SIGN OUT</button>
             </nav>
           </div>
         </div>

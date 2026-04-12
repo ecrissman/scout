@@ -313,14 +313,14 @@ export async function onRequest({ request, env, params }) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 120,
-        messages: [{ role: 'user', content: `Generate a weekly photography theme for a daily photo journal app. Respond with JSON only, no markdown.\n{"theme":"2-4 word evocative title","description":"one sentence that inspires creative observation"}\nExamples:\n{"theme":"Borrowed Light","description":"Photograph only light that has traveled through or reflected off something else."}\n{"theme":"Edges & Boundaries","description":"Look for where two things meet — shadows, surfaces, or moments in transition."}` }],
+        messages: [{ role: 'user', content: `Generate a weekly photography theme for Scout, a daily photo-a-day app. Respond with JSON only, no markdown.\n\n{"theme":"2–4 word evocative title","description":"one sentence. a frame for how to see this week — not what to shoot."}\n\nVoice: direct, slightly poetic, never instructional. The description names a way of looking, not a technique.\n\nGood examples:\n{"theme":"Borrowed Light","description":"This week, nothing lit directly — only light that passed through or bounced off something first."}\n{"theme":"The In-Between","description":"The pause before and after. The space between two things. The moment that isn\'t quite either."}\n{"theme":"Made by Hand","description":"Evidence of a person\'s touch — worn edges, adjusted angles, things arranged just so."}\n{"theme":"What Persists","description":"Find what hasn\'t moved, changed, or been claimed. The things that are simply still there."}\n\nBad (too instructional): {"theme":"Texture Week","description":"Look for rough, smooth, and layered surfaces in your environment and photograph the details."}\nBad (too vague): {"theme":"Everyday Beauty","description":"Find the beauty in ordinary moments around you this week."}\n\nRespond with JSON only. One theme object.` }],
       }),
     });
-    if (!aiRes.ok) return json({ theme: 'Open Frame', description: 'No rules today — shoot whatever catches your eye.' });
+    if (!aiRes.ok) return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
     const aiData = await aiRes.json();
     let themeData;
     try { themeData = JSON.parse(aiData.content?.[0]?.text ?? '{}'); } catch { themeData = {}; }
-    if (!themeData.theme) themeData = { theme: 'Open Frame', description: 'No rules today — shoot whatever catches your eye.' };
+    if (!themeData.theme) themeData = { theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' };
     themeData.week = weekKey;
     await env.PHOTOS.put(`themes/${weekKey}.json`, JSON.stringify(themeData), { httpMetadata: { contentType: 'application/json' } });
     return json(themeData);
