@@ -325,14 +325,14 @@ export async function onRequest({ request, env, params }) {
     if (!aiRes.ok) {
       const errText = await aiRes.text();
       console.error(`[theme] Anthropic error ${aiRes.status}:`, errText);
-      return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
+      return json({ theme: 'FALLBACK', description: 'API error — theme not generated.' });
     }
     const aiData = await aiRes.json();
     let themeData;
     try { themeData = JSON.parse(aiData.content?.[0]?.text ?? '{}'); } catch { themeData = {}; }
     if (!themeData.theme) {
       console.error('[theme] Parse failed or missing theme field. Raw:', aiData.content?.[0]?.text);
-      return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
+      return json({ theme: 'FALLBACK', description: 'API error — theme not generated.' });
     }
     themeData.week = weekKey;
     await env.PHOTOS.put(`themes/${weekKey}.json`, JSON.stringify(themeData), { httpMetadata: { contentType: 'application/json' } });
