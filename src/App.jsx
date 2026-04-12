@@ -141,8 +141,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
 .today-sheet-cam{display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;transition:opacity .15s,transform .1s}
 .today-sheet-cam:active{opacity:.75;transform:scale(0.92)}
-.today-cam-tray{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 72px);left:50%;transform:translateX(-50%);z-index:40;display:flex;align-items:center;justify-content:center}
-@media(min-width:640px){.today-cam-tray{display:none}}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
 @media(min-width:640px){.today-sheet{display:none}}
@@ -151,7 +149,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* ── Day detail ── */
 .pj-main-inner{flex:1;padding:0 20px 40px}
 @media(min-width:640px){.pj-main-inner{padding:20px 20px 48px}}
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(24px) brightness(0.32);-webkit-backdrop-filter:blur(24px) brightness(0.32);z-index:100;display:flex;flex-direction:column;align-items:stretch;cursor:zoom-out}
+.lightbox{position:fixed;inset:0;background:#000;z-index:100;display:flex;flex-direction:column;align-items:stretch;cursor:zoom-out}
 .lightbox img{max-width:100%;max-height:100%;object-fit:contain;cursor:default;display:block}
 .lb-close{background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.5;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;align-self:flex-end;pointer-events:auto}
 .lb-close:active{opacity:1}
@@ -261,7 +259,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .review-ms-next-btn:active{opacity:.7}
 /* Phase 2: Grid */
 .review-backdrop{position:fixed;inset:0;background:#0C0C0C;z-index:900;display:flex;flex-direction:column;animation:reviewIn .25s ease both}
-.review-header{padding:calc(env(safe-area-inset-top) + 8px) 8px 12px;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch}
+.review-header{padding:calc(env(safe-area-inset-top) + 8px) 8px 32px;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch}
 .review-x{align-self:flex-end;background:none;border:none;color:rgba(245,241,235,0.5);cursor:pointer;font-size:20px;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .review-x:active{opacity:0.5}
 .review-congrats{font-family:var(--brand);font-size:24px;color:#F5F1EB;line-height:1.51;text-align:center;padding:16px 20px}
@@ -875,6 +873,7 @@ export default function App() {
   const [dlProgress,    setDlProgress]    = useState(null); // null | {done, total}
   const [pwExpanded,    setPwExpanded]    = useState(false);
   const [devDeleteMode,      setDevDeleteMode]      = useState(true);
+  const [devShowPromptTray,  setDevShowPromptTray]  = useState(false);
   const [tipsOpen,           setTipsOpen]           = useState(false);
   const [justCompletedDate,  setJustCompletedDate]  = useState(null);
 
@@ -1583,20 +1582,9 @@ export default function App() {
         ) : null}
       </main>
 
-      {sel===todayStr&&dayMeta&&(
-        <div className="today-cam-tray">
-          <button className="today-sheet-cam" onClick={()=>cameraRef.current?.click()} disabled={busy} aria-label="Take photo">
-            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-              <rect width="80" height="80" rx="40" fill="#0C0C0C"/>
-              <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" fill="#FFFDFA"/>
-              <rect x="7" y="7" width="66" height="66" rx="33" fill="#E34822"/>
-            </svg>
-          </button>
-        </div>
-      )}
 
-      {/* Today Sheet — mobile only, shows when no photo for today */}
-      {showTodaySheet&&sel===todayStr&&!dayMeta&&!dayLoading&&(
+      {/* Today Sheet — mobile only, shows when no photo for today (or dev override) */}
+      {showTodaySheet&&sel===todayStr&&(!dayMeta||devShowPromptTray)&&!dayLoading&&(
         <div className={`today-sheet${sheetClosing?' is-closing':''}`}>
           <div className="today-sheet-tray">
             <div className="today-sheet-topbar">
@@ -2031,6 +2019,15 @@ export default function App() {
                 <div className="settings-row">
                   <span className="settings-row-label">Delete Mode</span>
                   <button className={`ai-toggle${devDeleteMode?' on':' off'}`} onClick={()=>setDevDeleteMode(v=>!v)} aria-label="Toggle delete mode">
+                    <div className="ai-toggle-thumb"/>
+                  </button>
+                </div>
+                <div className="settings-row">
+                  <div style={{flex:1}}>
+                    <div className="settings-row-label">Show Prompt Tray</div>
+                    <div className="settings-row-sub">display even when photo exists</div>
+                  </div>
+                  <button className={`ai-toggle${devShowPromptTray?' on':' off'}`} onClick={()=>setDevShowPromptTray(v=>!v)} aria-label="Toggle prompt tray">
                     <div className="ai-toggle-thumb"/>
                   </button>
                 </div>
