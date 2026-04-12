@@ -260,8 +260,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* ── First photo congrats ── */
 .first-photo-modal{position:fixed;inset:0;background:#E2B554;z-index:900;animation:reviewIn .35s ease both}
-.fpm-l1{position:absolute;top:32%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.2;color:#0C0C0C;text-transform:uppercase;text-align:center}
-.fpm-l2{position:absolute;top:46%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.2;color:#0C0C0C;text-transform:uppercase;text-align:center}
+.fpm-l1{position:absolute;top:34%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.0;color:#0C0C0C;text-transform:uppercase;text-align:center}
+.fpm-l2{position:absolute;top:44%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.0;color:#0C0C0C;text-transform:uppercase;text-align:center}
 .fpm-cta{position:absolute;top:86%;left:50%;transform:translateX(-50%);width:180px;height:51px;font-family:var(--brand);font-size:20px;color:#FFFDFA;background:#0C0C0C;border:none;border-radius:4px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .fpm-cta:active{opacity:.5}
 
@@ -1591,8 +1591,8 @@ export default function App() {
 
       {firstPhotoModal && (
         <div className="first-photo-modal">
-          <div className="fpm-l1">FIRST</div>
-          <div className="fpm-l2">FRAME</div>
+          <div className="fpm-l1">DAY ONE</div>
+          <div className="fpm-l2">LOGGED</div>
           <button className="fpm-cta" onClick={() => setFirstPhotoModal(false)}>KEEP GOING</button>
         </div>
       )}
