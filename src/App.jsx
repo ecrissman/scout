@@ -31,7 +31,7 @@ const CSS = `
   --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
 }
-html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg);transition:background .2s}
+html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
 
 /* ── Onboarding ── */
 .ob-s1,.ob-s2{position:absolute;inset:0;display:none}
@@ -153,7 +153,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 @media(min-width:640px){.pj-main-inner{padding:20px 20px 48px}}
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(24px) brightness(0.32);-webkit-backdrop-filter:blur(24px) brightness(0.32);z-index:100;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
 .lightbox img{max-width:95vw;max-height:95vh;object-fit:contain;cursor:default;display:block}
-.lb-close{position:absolute;top:calc(16px + env(safe-area-inset-top));right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.5;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.lb-close{position:absolute;top:calc(28px + env(safe-area-inset-top));right:12px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.5;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .lb-close:active{opacity:1}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:none;border:none;color:#fff;opacity:.45;cursor:pointer;padding:0;width:52px;height:88px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:opacity .15s}
 .lb-nav:hover{opacity:.9}.lb-nav:active{opacity:1;transform:translateY(-50%) scale(.93)}
@@ -1543,7 +1543,7 @@ export default function App() {
               <div className="review-ms-msg">WELL DONE!</div>
             </div>
             <div className="review-ms-next">
-              <button className="review-ms-next-btn" onClick={()=>setReviewPhase('grid')}>
+              <button className="review-ms-next-btn" onClick={()=>{ setReviewPhase('grid'); const m=document.querySelectorAll('meta[name="theme-color"]'); m.forEach(t=>t.content='#0C0C0C'); document.body.style.backgroundColor='#0C0C0C'; document.documentElement.style.backgroundColor='#0C0C0C'; }}>
                 NEXT
               </button>
             </div>
@@ -1652,10 +1652,8 @@ export default function App() {
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setAccountOpen(true); },310); }}>ACCOUNT</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSettingsOpen(true); },310); }}>SETTINGS</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSupportOpen(true); },310); }}>SUPPORT</button>
+              <button className="nav-panel-item" style={{color:'var(--sage)'}} onClick={()=>{ dismissPanel(); handleSignOut(); }}>SIGN OUT</button>
             </nav>
-            <div className="nav-panel-footer">
-              <button className="nav-panel-signout" onClick={handleSignOut}>SIGN OUT</button>
-            </div>
           </div>
         </div>
       )}
