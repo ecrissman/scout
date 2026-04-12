@@ -1523,12 +1523,8 @@ export default function App() {
                   <rect x="7" y="7" width="66" height="66" rx="33" fill="#E34822"/>
                 </svg>
               </button>
-              <button className="today-sheet-icon-btn" onClick={handleGetPrompt} disabled={promptLoading} aria-label="New prompt">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#292929" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 10A7 7 0 1 1 10 3"/>
-                  <path d="M10 1v4l2.5-2L10 1z"/>
-                </svg>
-              </button>
+              <div style={{width:44,height:44,margin:'0 36px'}}/>
+
             </div>
           </div>
         </div>
