@@ -930,7 +930,7 @@ export default function App() {
           setFeedbackError(null);
           getFeedback(sel).then(result => {
             if (result?.feedback) setFeedback(result.feedback);
-            else setFeedbackError(result?.error ?? 'Something went wrong.');
+            else setFeedbackError(result?.error ?? 'Couldn\'t get feedback. Try again.');
             setFeedbackLoading(false);
           });
         }
@@ -1089,7 +1089,7 @@ export default function App() {
     setFeedbackError(null);
     const result = await getFeedback(sel);
     if (result?.feedback) setFeedback(result.feedback);
-    else setFeedbackError(result?.error ?? 'Something went wrong. Try again.');
+    else setFeedbackError(result?.error ?? 'Couldn\'t get feedback. Try again.');
     setFeedbackLoading(false);
   };
 
@@ -1308,7 +1308,7 @@ export default function App() {
           <div className="theme-card">
             <div className="theme-card-toggle" onClick={()=>setThemeExpanded(v=>!v)}>
               <div className="theme-card-left">
-                <div className="theme-card-lbl">Theme for the week</div>
+                <div className="theme-card-lbl">THIS WEEK</div>
                 <div className="theme-card-title">{weekTheme.theme}</div>
               </div>
               <svg className={`theme-card-chev${themeExpanded?' open':''}`} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1316,7 +1316,7 @@ export default function App() {
             <div className={`theme-card-body${themeExpanded?' open':''}`}>
               {weekTheme.description&&<div className="theme-card-desc">{weekTheme.description}</div>}
               <button className="theme-tips-link" onClick={()=>setTipsOpen(true)}>
-                This week's tips →
+                This week's skills
               </button>
             </div>
           </div>
@@ -1444,7 +1444,7 @@ export default function App() {
               {dayMeta&&(
                 <div className="cap-row">
                   <div className="cap-top">
-                    <textarea className="cap-in" placeholder="A note about this moment…"
+                    <textarea className="cap-in" placeholder="One line."
                       value={caption} rows={1}
                       onChange={e=>{ setCaption(e.target.value); e.target.style.height='auto'; e.target.style.height=e.target.scrollHeight+'px'; }}
                       onBlur={saveCaption} ref={captionRef}/>
@@ -1470,11 +1470,11 @@ export default function App() {
               {dayMeta&&aiEnabled&&(feedback||feedbackLoading||feedbackError)&&(
                 <div className="feedback-card">
                   <div className="feedback-toggle" onClick={()=>setFeedbackExpanded(x=>!x)}>
-                    <div className="feedback-toggle-lbl">Feedback</div>
+                    <div className="feedback-toggle-lbl">Scout's take</div>
                     <svg className={`feedback-toggle-chev${feedbackExpanded?' open':''}`} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                   </div>
                   <div className={`feedback-body${feedbackExpanded?' open':''}`}>
-                    {feedbackLoading&&<div style={{fontFamily:'var(--sans)',fontSize:13,color:'var(--text-3)',paddingBottom:16}}>Analyzing…</div>}
+                    {feedbackLoading&&<div style={{fontFamily:'var(--sans)',fontSize:13,color:'var(--text-3)',paddingBottom:16}}>Reading the frame…</div>}
                     {feedbackError&&<div style={{fontFamily:'var(--sans)',fontSize:12,color:'#B03030',paddingBottom:16}}>{feedbackError}</div>}
                     {feedback&&<div className="feedback-txt">{stripFeedback(feedback)}</div>}
                   </div>
@@ -1498,7 +1498,7 @@ export default function App() {
               </button>
             </div>
             <div className="today-sheet-body">
-              <div className="today-sheet-prompt-lbl">TODAY'S PROMPT</div>
+              <div className="today-sheet-prompt-lbl">SHOOT THIS</div>
               {aiEnabled&&shootPrompt&&!promptLoading ? (
                 <div className="today-sheet-prompt-txt">{shootPrompt}</div>
               ) : (
@@ -1536,7 +1536,7 @@ export default function App() {
             <div className="review-ms-body">
               <div className="review-ms-num">7</div>
               <div className="review-ms-unit">DAYS</div>
-              <div className="review-ms-msg">WELL DONE!</div>
+              <div className="review-ms-msg">NOT BAD AT ALL.</div>
             </div>
             <div className="review-ms-next">
               <button className="review-ms-next-btn" onClick={()=>{ setReviewPhase('grid'); const m=document.querySelectorAll('meta[name="theme-color"]'); m.forEach(t=>t.content='#0C0C0C'); document.body.style.backgroundColor='#0C0C0C'; document.documentElement.style.backgroundColor='#0C0C0C'; }}>
@@ -1553,7 +1553,7 @@ export default function App() {
           <div className="review-backdrop">
             <div className="review-header">
               <button className="review-x" onClick={()=>setWeekReview(null)} aria-label="Close">✕</button>
-              <div className="review-congrats">Your weekly grid</div>
+              <div className="review-congrats">The week.</div>
             </div>
             <div className="review-grid">
               {cols.map((colImgs, ci)=>(

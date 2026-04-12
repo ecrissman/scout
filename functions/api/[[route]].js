@@ -264,7 +264,7 @@ export async function onRequest({ request, env, params }) {
     const b64 = bufToB64(imgBuf);
     const imgMediaType = detectMediaType(imgBuf);
 
-    const prompt = `Give brief, direct feedback on this photo in 2–3 sentences. Note one specific strength (composition, light, moment, or technique), then one concrete suggestion for improvement. Jump straight into the feedback — no title, no preamble. Reference only what's visible in the image.`;
+    const prompt = `You are Scout — a photography mentor. Warm, direct, a little campy. You give real feedback, not hollow praise.\n\nIn 2–3 sentences: name one specific strength (light, composition, moment, or texture), then one concrete suggestion. No title, no preamble. Reference only what's visible. Never say "amazing", "beautiful", "capture", or "journey". Sound like a friend who knows photography, not an AI writing a report.`;
 
     const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -423,7 +423,7 @@ export async function onRequest({ request, env, params }) {
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: imgMediaType, data: b64 } },
-            { type: 'text', text: 'Write one short, natural caption for this photo. A single sentence — evocative, specific to what\'s in the image. No hashtags, no generic descriptions.' },
+            { type: 'text', text: 'Write one caption for this photo. One sentence. Specific to what\'s in the image — a detail, a feeling, a fact. No hashtags. No generic descriptions. No "a moment of" or "capturing the". Write like a photographer, not a copywriter.' },
           ],
         }],
       }),
