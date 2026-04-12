@@ -184,7 +184,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 [data-theme="dark"] .nav-panel-close{color:#FFFDFA}
 [data-theme="dark"] .nav-panel-item{color:#FFFDFA}
 [data-theme="dark"] .nav-panel-signout{background:#FFFDFA;color:#0C0C0C}
-[data-theme="dark"] .nav-panel-backdrop{background:rgba(0,0,0,0.45)}
+[data-theme="dark"] .nav-panel{box-shadow:4px 0 20px rgba(0,0,0,0.5)}
 [data-theme="dark"] .grids-page{background:#0C0C0C}
 [data-theme="dark"] .grids-header{border-color:rgba(255,255,255,0.08)}
 [data-theme="dark"] .grids-cell{background:#2E2C2B}
@@ -352,14 +352,14 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* ── Nav panel (left slide-in) ── */
 @keyframes navPanelIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 @keyframes navPanelOut{from{transform:translateX(0)}to{transform:translateX(-100%)}}
-.nav-panel-backdrop{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.18)}
-.nav-panel{position:fixed;left:0;top:0;bottom:0;width:189px;z-index:201;background:#FFFDFA;box-shadow:6px 0 16px -8px rgba(0,0,0,0.08);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);animation:navPanelIn 0.32s cubic-bezier(0.32,0.72,0,1)}
+.nav-panel-backdrop{position:fixed;inset:0;z-index:200;background:transparent}
+.nav-panel{position:fixed;left:0;top:0;bottom:0;width:189px;z-index:201;background:#FFFDFA;box-shadow:4px 0 20px rgba(0,0,0,0.18);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);animation:navPanelIn 0.32s cubic-bezier(0.32,0.72,0,1)}
 .nav-panel.is-closing{animation:navPanelOut 0.28s cubic-bezier(0.32,0.72,0,1) forwards}
 .nav-panel-header{display:flex;align-items:center;padding:14px 21px;position:relative;flex-shrink:0}
 .nav-panel-wordmark{position:absolute;left:67px;right:0;text-align:left;font-family:var(--brand);font-size:30px;line-height:1.2;color:var(--sage);pointer-events:none;letter-spacing:0.01em}
 .nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1;color:#0C0C0C}
 .nav-panel-close:active{opacity:.5}
-.nav-panel-nav{display:flex;flex-direction:column;gap:24px;padding:32px 21px 0;flex:1}
+.nav-panel-nav{display:flex;flex-direction:column;gap:30px;padding:32px 21px 0;flex:1}
 .nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:Inconsolata,monospace;font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
 .nav-panel-item:active{opacity:.4}
 .nav-panel-footer{padding:21px;flex-shrink:0}
@@ -831,7 +831,7 @@ export default function App() {
   const [pwMsg,         setPwMsg]         = useState(null); // {ok, text}
   const [dlProgress,    setDlProgress]    = useState(null); // null | {done, total}
   const [pwExpanded,    setPwExpanded]    = useState(false);
-  const [devDeleteMode,      setDevDeleteMode]      = useState(false);
+  const [devDeleteMode,      setDevDeleteMode]      = useState(true);
   const [tipsOpen,           setTipsOpen]           = useState(false);
   const [justCompletedDate,  setJustCompletedDate]  = useState(null);
 
@@ -1657,8 +1657,8 @@ export default function App() {
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setAccountOpen(true); },310); }}>ACCOUNT</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSettingsOpen(true); },310); }}>SETTINGS</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSupportOpen(true); },310); }}>SUPPORT</button>
-              <hr style={{border:'none',borderTop:'1px solid var(--border)',margin:'8px 0'}}/>
-              <button className="nav-panel-item" style={{color:'var(--accent)',paddingTop:8}} onClick={()=>{ dismissPanel(); handleSignOut(); }}>SIGN OUT</button>
+              <hr style={{border:'none',borderTop:'1px solid var(--border)',margin:'4px 0'}}/>
+              <button className="nav-panel-item" style={{color:'var(--accent)'}} onClick={()=>{ dismissPanel(); handleSignOut(); }}>SIGN OUT</button>
             </nav>
           </div>
         </div>
