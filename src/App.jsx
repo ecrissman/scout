@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
 import { getPhoto, uploadPhoto, updateCaption, deletePhoto, listYear, thumbUrl, fullUrl, getFeedback, getCaptionSuggestion, getTodayPrompt, getTheme, requestAccess } from './api';
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { getSkill } from './skills';
