@@ -303,14 +303,8 @@ export async function onRequest({ request, env, params }) {
   // ── GET /api/theme/current ───────────────────────────────────────────────
   if (route === 'theme/current' && method === 'GET') {
     const weekKey = isoWeekKey();
-    console.log('[theme] weekKey:', weekKey);
     const cached = await env.PHOTOS.get(`themes/${weekKey}.json`);
-    if (cached) {
-      const data = await cached.json();
-      console.log('[theme] serving from cache:', JSON.stringify(data));
-      return json(data);
-    }
-    console.log('[theme] no cache, calling Anthropic...');
+    if (cached) return json(await cached.json());
 
     // Generate a new theme for this week
     const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -325,14 +319,14 @@ export async function onRequest({ request, env, params }) {
     if (!aiRes.ok) {
       const errText = await aiRes.text();
       console.error(`[theme] Anthropic error ${aiRes.status}:`, errText);
-      return json({ theme: 'FALLBACK', description: 'API error — theme not generated.' });
+      return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
     }
     const aiData = await aiRes.json();
     let themeData;
     try { themeData = JSON.parse(aiData.content?.[0]?.text ?? '{}'); } catch { themeData = {}; }
     if (!themeData.theme) {
       console.error('[theme] Parse failed or missing theme field. Raw:', aiData.content?.[0]?.text);
-      return json({ theme: 'FALLBACK', description: 'API error — theme not generated.' });
+      return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
     }
     themeData.week = weekKey;
     await env.PHOTOS.put(`themes/${weekKey}.json`, JSON.stringify(themeData), { httpMetadata: { contentType: 'application/json' } });
