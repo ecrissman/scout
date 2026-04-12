@@ -175,6 +175,7 @@ body{background:var(--bg);transition:background .2s}
 [data-theme="dark"] .today-sheet-icon-btn{opacity:0.6}
 [data-theme="dark"] .today-sheet-icon-btn svg line,[data-theme="dark"] .today-sheet-icon-btn svg path{stroke:#FFFDFA}
 [data-theme="dark"] .nav-panel{background:#0C0C0C;box-shadow:6px 0 16px -8px rgba(0,0,0,0.5)}
+[data-theme="dark"] .nav-panel-close{color:#FFFDFA}
 [data-theme="dark"] .nav-panel-item{color:#FFFDFA}
 [data-theme="dark"] .nav-panel-signout{background:#FFFDFA;color:#0C0C0C}
 [data-theme="dark"] .nav-panel-backdrop{background:rgba(0,0,0,0.45)}
@@ -350,12 +351,12 @@ body{background:var(--bg);transition:background .2s}
 .nav-panel.is-closing{animation:navPanelOut 0.28s cubic-bezier(0.32,0.72,0,1) forwards}
 .nav-panel-header{display:flex;align-items:center;padding:14px 21px;position:relative;flex-shrink:0}
 .nav-panel-wordmark{position:absolute;left:67px;right:0;text-align:left;font-family:var(--brand);font-size:30px;line-height:1.2;color:var(--sage);pointer-events:none;letter-spacing:0.01em}
-.nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1}
+.nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1;color:#0C0C0C}
 .nav-panel-close:active{opacity:.5}
 .nav-panel-nav{display:flex;flex-direction:column;gap:24px;padding:32px 21px 0;flex:1}
 .nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:Inconsolata,monospace;font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
 .nav-panel-item:active{opacity:.4}
-.nav-panel-footer{padding:0 21px calc(32px);flex-shrink:0}
+.nav-panel-footer{padding:0 21px calc(56px + env(safe-area-inset-bottom));flex-shrink:0}
 .nav-panel-signout{width:109px;height:36px;background:#0C0C0C;border:none;border-radius:3px;cursor:pointer;font-family:var(--brand);font-size:16px;color:#FFFDFA;letter-spacing:0.02em;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .nav-panel-signout:active{opacity:.7}
 
