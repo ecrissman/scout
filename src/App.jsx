@@ -658,7 +658,7 @@ export default function App() {
     else if (showLanding)        color = '#0C0C0C';
     else if (onboardingStep)     color = '#4F5E2E';
     else if (!authed)            color = '#FFFDFA';
-    else if (todaySheetVisible)  color = '#FFFDFA';
+    else if (todaySheetVisible)  color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     else if (weekReview)         color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
     else                         color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     const m = document.querySelector('meta[name="theme-color"]');
