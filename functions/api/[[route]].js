@@ -324,7 +324,10 @@ export async function onRequest({ request, env, params }) {
     const aiData = await aiRes.json();
     let themeData;
     try { themeData = JSON.parse(aiData.content?.[0]?.text ?? '{}'); } catch { themeData = {}; }
-    if (!themeData.theme) themeData = { theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' };
+    if (!themeData.theme) {
+      console.error('[theme] Parse failed or missing theme field. Raw:', aiData.content?.[0]?.text);
+      return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
+    }
     themeData.week = weekKey;
     await env.PHOTOS.put(`themes/${weekKey}.json`, JSON.stringify(themeData), { httpMetadata: { contentType: 'application/json' } });
     return json(themeData);
