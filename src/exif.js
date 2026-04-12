@@ -4,23 +4,52 @@ export async function extractEXIF(file) {
   try {
     const buf = await file.arrayBuffer();
     const v = new DataView(buf);
-    if (v.getUint16(0) !== 0xFFD8) return {};
-    let off = 2;
-    while (off < Math.min(buf.byteLength - 4, 131072)) {
-      if (v.getUint8(off) !== 0xFF) break;
-      const mk = v.getUint8(off + 1);
-      const len = v.getUint16(off + 2);
-      if (mk === 0xDA || mk === 0xD9) break;
-      if (mk === 0xE1 && v.getUint32(off + 4) === 0x45786966 && v.getUint16(off + 8) === 0) {
-        const t = off + 10;
-        const le = v.getUint16(t) === 0x4949;
-        const r = {};
-        _readIFD(v, t, t + v.getUint32(t + 4, le), le, r);
-        return r;
+    const sig = v.getUint16(0);
+
+    // JPEG
+    if (sig === 0xFFD8) {
+      let off = 2;
+      while (off < Math.min(buf.byteLength - 4, 524288)) {
+        if (v.getUint8(off) !== 0xFF) break;
+        const mk = v.getUint8(off + 1);
+        const len = v.getUint16(off + 2);
+        if (mk === 0xDA || mk === 0xD9) break;
+        // APP1 with "Exif\0\0" header — may start with or without null padding
+        if (mk === 0xE1 && len > 8) {
+          const magic32 = v.getUint32(off + 4);
+          const magic16 = v.getUint16(off + 8);
+          if (magic32 === 0x45786966 && magic16 === 0) {
+            const t = off + 10;
+            const le = v.getUint16(t) === 0x4949;
+            const r = {};
+            _readIFD(v, t, t + v.getUint32(t + 4, le), le, r);
+            return r;
+          }
+        }
+        if (len < 2) break;
+        off += 2 + len;
       }
-      off += 2 + len;
+      return {};
     }
-  } catch {}
+
+    // HEIC / HEIF — ftyp box at offset 4 contains 'heic', 'heif', 'heix', 'mif1', etc.
+    // EXIF in HEIC lives in an 'Exif' item — too complex to parse raw; return empty
+    // but log so devs know the format was detected
+    if (buf.byteLength > 8) {
+      const ftyp = String.fromCharCode(
+        v.getUint8(4), v.getUint8(5), v.getUint8(6), v.getUint8(7)
+      );
+      if (ftyp === 'ftyp') {
+        const brand = String.fromCharCode(
+          v.getUint8(8), v.getUint8(9), v.getUint8(10), v.getUint8(11)
+        );
+        console.info('[Scout] HEIC/HEIF detected (brand:', brand, ') — EXIF not available from camera captures in this format. In iOS Settings → Camera → Formats, switch to "Most Compatible" to get EXIF from in-app captures.');
+        return {};
+      }
+    }
+  } catch (err) {
+    console.warn('[Scout] extractEXIF error:', err);
+  }
   return {};
 }
 

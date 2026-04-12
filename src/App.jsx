@@ -31,8 +31,7 @@ const CSS = `
   --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
 }
-html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch}
-body{background:var(--bg);transition:background .2s}
+html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg);transition:background .2s}
 
 /* ── Onboarding ── */
 .ob-s1,.ob-s2{position:absolute;inset:0;display:none}
@@ -77,7 +76,13 @@ body{background:var(--bg);transition:background .2s}
 @media(min-width:1024px){.pj-sidebar{width:300px}}
 
 /* ── Shared header — used by both sidebar (MONTH) and main (TODAY) ── */
-.pj-topbar{display:flex;align-items:center;justify-content:flex-start;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
+.pj-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
+.week-header-line{display:flex;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:4px 0}
+.week-header-line:active{opacity:0.5}
+.week-header-lbl{font-family:Inconsolata,monospace;font-weight:700;font-size:11px;color:#E2B554;letter-spacing:0.04em}
+.week-header-sep{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
+.week-header-range{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#ABABAB;letter-spacing:0.02em}
+.week-header-arr{font-size:9px;color:#ABABAB;margin-left:1px}
 .settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;color:var(--text);padding:0;flex-shrink:0}
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -146,15 +151,15 @@ body{background:var(--bg);transition:background .2s}
 /* ── Day detail ── */
 .pj-main-inner{flex:1;padding:0 20px 40px}
 @media(min-width:640px){.pj-main-inner{padding:20px 20px 48px}}
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:100;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(24px) brightness(0.32);-webkit-backdrop-filter:blur(24px) brightness(0.32);z-index:100;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
 .lightbox img{max-width:95vw;max-height:95vh;object-fit:contain;cursor:default;display:block}
-.lb-close{position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.5;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.lb-close{position:absolute;top:calc(16px + env(safe-area-inset-top));right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.5;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .lb-close:active{opacity:1}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:none;border:none;color:#fff;opacity:.45;cursor:pointer;padding:0;width:52px;height:88px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:opacity .15s}
 .lb-nav:hover{opacity:.9}.lb-nav:active{opacity:1;transform:translateY(-50%) scale(.93)}
 .lb-nav svg{width:12px;height:20px}
 .lb-prev{left:12px}.lb-next{right:12px}
-.lb-info{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-family:var(--sans);font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.05em;white-space:nowrap;pointer-events:none}
+.lb-info{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);font-family:var(--sans);font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.05em;white-space:nowrap;pointer-events:none}
 
 /* ── Photo area ── */
 .photo-wrap{width:100%;background:#FFFFFF;padding:12px 11px 11px;box-shadow:0 0 12px 0 rgba(0,0,0,0.16);position:relative;box-sizing:border-box}
@@ -356,7 +361,7 @@ body{background:var(--bg);transition:background .2s}
 .nav-panel-nav{display:flex;flex-direction:column;gap:24px;padding:32px 21px 0;flex:1}
 .nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:Inconsolata,monospace;font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
 .nav-panel-item:active{opacity:.4}
-.nav-panel-footer{padding:0 21px calc(56px + env(safe-area-inset-bottom));flex-shrink:0}
+.nav-panel-footer{padding:21px;flex-shrink:0}
 .nav-panel-signout{width:109px;height:36px;background:#0C0C0C;border:none;border-radius:3px;cursor:pointer;font-family:var(--brand);font-size:16px;color:#FFFDFA;letter-spacing:0.02em;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .nav-panel-signout:active{opacity:.7}
 
@@ -500,7 +505,6 @@ export default function App() {
 
   useEffect(()=>{
     document.documentElement.setAttribute('data-theme', theme);
-    document.body.style.background = theme==='dark' ? '#000000' : '#FFFFFF';
     localStorage.setItem('scout-theme-pref', themePref);
   }, [theme, themePref]);
 
@@ -820,6 +824,7 @@ export default function App() {
   const [pwNew,         setPwNew]         = useState('');
   const [pwChanging,    setPwChanging]    = useState(false);
   const [pwMsg,         setPwMsg]         = useState(null); // {ok, text}
+  const [dlProgress,    setDlProgress]    = useState(null); // null | {done, total}
   const [pwExpanded,    setPwExpanded]    = useState(false);
   const [devDeleteMode,      setDevDeleteMode]      = useState(false);
   const [tipsOpen,           setTipsOpen]           = useState(false);
@@ -832,6 +837,37 @@ export default function App() {
     if (error) { setPwMsg({ ok: false, text: error.message }); }
     else { setPwMsg({ ok: true, text: 'Password updated' }); setPwNew(''); }
     setPwChanging(false);
+  };
+
+  const handleDownloadAllPhotos = async () => {
+    const { data } = await supabase.auth.getSession();
+    const token = data?.session?.access_token;
+    const dates = [...photoDates].sort();
+    if (!dates.length) return;
+    setDlProgress({ done: 0, total: dates.length });
+    for (let i = 0; i < dates.length; i++) {
+      const date = dates[i];
+      try {
+        const r = await fetch(fullUrl(date), { headers: { Authorization: `Bearer ${token}` } });
+        if (!r.ok) continue;
+        const blob = await r.blob();
+        // Try Web Share API first (saves to Photos on iOS)
+        const file = new File([blob], `scout-${date}.webp`, { type: 'image/webp' });
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: `Scout — ${date}` });
+        } else {
+          // Fallback: anchor download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = `scout-${date}.webp`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          await new Promise(res => setTimeout(res, 400));
+        }
+      } catch { /* skip failed */ }
+      setDlProgress({ done: i + 1, total: dates.length });
+    }
+    setDlProgress(null);
   };
 
   const handleDeletePhoto = async () => {
@@ -867,9 +903,13 @@ export default function App() {
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file||!sel) return;
+    const fromCamera = e.target === cameraRef.current;
     e.target.value=''; setBusy(true); setFeedback(null); setFeedbackExpanded(true);
     try {
       const exif = await extractEXIF(file);
+      if (fromCamera && !exif?.model && !exif?.et) {
+        console.info('[Scout] Camera EXIF empty — file type:', file.type, 'size:', file.size);
+      }
       const fullSrc = await compressFile(file, exif?.orientation);
       const thumbSrc = await makeThumb(fullSrc);
       const ok = await uploadPhoto(sel, {fullSrc, thumbSrc, exif, caption});
@@ -1242,6 +1282,25 @@ export default function App() {
           <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu">
             <IcHamburger/>
           </button>
+          {(()=>{
+            const checked = new Set();
+            for (const d of [...photoDates].sort().reverse()) {
+              const wd = getWeekDates(d);
+              if (checked.has(wd[0])) continue;
+              checked.add(wd[0]);
+              if (wd.every(dd => photoDates.has(dd))) {
+                return (
+                  <button className="week-header-line" onClick={()=>{ setWeekReview({dates:wd}); setReviewPhase('milestone'); }}>
+                    <span className="week-header-lbl">YOUR WEEK IN REVIEW</span>
+                    <span className="week-header-sep">|</span>
+                    <span className="week-header-range">{formatWeekRange(wd)}</span>
+                    <span className="week-header-arr">›</span>
+                  </button>
+                );
+              }
+            }
+            return null;
+          })()}
         </div>
 
         {/* Weekly theme card — expandable: title always visible, desc + tips on expand */}
@@ -1294,28 +1353,6 @@ export default function App() {
             );
           })}
 
-          {/* Week complete chip */}
-          {(()=>{
-            const checked = new Set();
-            let recentWeek = null;
-            for (const d of [...photoDates].sort().reverse()) {
-              const wd = getWeekDates(d);
-              if (checked.has(wd[0])) continue;
-              checked.add(wd[0]);
-              if (wd.every(dd => photoDates.has(dd))) { recentWeek = wd; break; }
-            }
-            if (!recentWeek) return null;
-            return (
-              <div className="week-chip" style={{margin:'12px 16px 4px',borderRadius:10}} onClick={()=>{ setWeekReview({dates:recentWeek}); setReviewPhase('milestone'); }}>
-                <span className="week-chip-dot">✦</span>
-                <div style={{flex:1}}>
-                  <div className="week-chip-text">Week complete · View your story</div>
-                  <div className="week-chip-sub">{formatWeekRange(recentWeek)}</div>
-                </div>
-                <span className="week-chip-arr">→</span>
-              </div>
-            );
-          })()}
           <div style={{height:24}}/>
         </div>
       </aside>
@@ -1350,11 +1387,11 @@ export default function App() {
                 {selParsed&&<div className="today-dow-sm">{WDAYS[new Date(selParsed.y,selParsed.m,selParsed.d).getDay()]} · {selParsed.y}</div>}
               </div>
               <div className="today-date-nav">
-                {/* Replace photo — only on today with a photo */}
-                {dayMeta&&sel===todayStr&&(
+                {/* Replace photo — available for any day with a photo */}
+                {dayMeta&&(
                   <button className="arr" onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.5 3.5v4h-4"/><path d="M16.5 11a6 6 0 1 1-1.4-6.22L17.5 7.5"/>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
                     </svg>
                   </button>
                 )}
@@ -1371,21 +1408,6 @@ export default function App() {
             </div>
 
             <div className="pj-main-inner">
-              {/* Week complete chip */}
-              {justCompletedDate===sel&&(()=>{
-                const wd = getWeekDates(sel);
-                return (
-                  <div className="week-chip" style={{marginBottom:16,marginTop:16}} onClick={()=>{ setWeekReview({dates:wd}); setReviewPhase('milestone'); setJustCompletedDate(null); }}>
-                    <span className="week-chip-dot">✦</span>
-                    <div style={{flex:1}}>
-                      <div className="week-chip-text">Week complete · View your story</div>
-                      <div className="week-chip-sub">{formatWeekRange(wd)}</div>
-                    </div>
-                    <span className="week-chip-arr">→</span>
-                  </div>
-                );
-              })()}
-
               {/* Photo / upload area */}
               <div className="photo-wrap">
                 {dayLoading ? (
@@ -1748,6 +1770,18 @@ export default function App() {
                 )}
                 <button className="settings-row-btn" onClick={handleSignOut}>
                   <span className="settings-row-label" style={{color:'#D9534F'}}>Sign Out</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="settings-section">
+              <div className="settings-section-label">Photos</div>
+              <div className="settings-group">
+                <button className="settings-row-btn" onClick={handleDownloadAllPhotos} disabled={!!dlProgress||photoDates.size===0}>
+                  <span className="settings-row-label">
+                    {dlProgress ? `Downloading… ${dlProgress.done} of ${dlProgress.total}` : 'Download All Photos'}
+                  </span>
+                  {!dlProgress&&<svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>}
                 </button>
               </div>
             </div>
