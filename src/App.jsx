@@ -34,26 +34,12 @@ const CSS = `
 html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
 
 /* ── Onboarding ── */
-.ob-s1,.ob-s2{position:absolute;inset:0;display:none}
-.ob-s1.active{display:block;background:#4F5E2E}
-.ob-s2.active{display:block;background:#4F5E2E}
-
-/* Step 1 — Name (Sage) */
-.ob-s1 h2{margin:0;font-weight:inherit}
-.ob-s1-hed{position:absolute;top:40.5%;left:45px;right:45px;font-family:var(--brand);font-size:27px;line-height:1.51;color:#FFFDFA;text-transform:uppercase;text-align:center}
-.ob-s1-in{position:absolute;top:52.5%;left:44px;right:44px;background:none;border:none;border-bottom:4px solid #0C0C0C;font-family:var(--sans);font-size:20px;font-weight:300;color:#FFFDFA;padding:0 0 8px;outline:none;-webkit-appearance:none;border-radius:0}
-.ob-s1-in::placeholder{color:rgba(255,253,250,0.35)}
-.ob-s1-hint{position:absolute;top:57.4%;left:44px;font-family:Inconsolata,monospace;font-weight:400;font-size:14px;line-height:1.51;color:#0C0C0C}
-.ob-s1-cta{position:absolute;top:86.4%;left:50%;transform:translateX(-50%);width:150px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
-.ob-s1-cta:active{opacity:.5}
-
-/* Step 2 — Day One (Sage) */
-.ob-s2 h2{margin:0;font-weight:inherit}
-.ob-s2-daynum{position:absolute;top:27.3%;left:32px;right:32px;font-family:var(--brand);font-size:88px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center}
-.ob-s2-trail{position:absolute;top:42.6%;left:50%;transform:translateX(-50%);pointer-events:none}
-.ob-s2-cta{position:absolute;top:61.5%;left:50%;transform:translateX(-50%);width:197px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
-.ob-s2-cta:active{opacity:.5}
-.ob-s2-cta:disabled{opacity:.35;cursor:default}
+.ob-wrap{position:fixed;inset:0;background:#4F5E2E;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px}
+.ob-hed{font-family:var(--brand);font-size:88px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center;margin:0 0 28px}
+.ob-body{font-family:var(--sans);font-size:16px;font-weight:300;line-height:1.7;color:rgba(255,253,250,0.85);text-align:center;margin:0 0 20px}
+.ob-hint{font-family:var(--sans);font-size:15px;font-weight:300;line-height:1.7;color:rgba(255,253,250,0.6);text-align:center;margin:0 0 48px}
+.ob-cta{width:197px;height:51px;font-family:var(--brand);font-size:20px;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
+.ob-cta:active{opacity:.5}
 
 /* ── Splash ── */
 .pj-splash{position:fixed;inset:0;background:#0C0C0C;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;display:flex;align-items:center;justify-content:center}
@@ -272,6 +258,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .review-action-btn{background:none;border:none;color:#F5F1EB;font-family:var(--sans);font-size:21px;font-weight:400;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;padding:16px 24px;transition:opacity .15s}
 .review-action-btn:active{opacity:0.5}
 .review-action-btn:disabled{opacity:0.4}
+
+/* ── First photo congrats ── */
+.first-photo-modal{position:fixed;inset:0;background:#E34822;z-index:900;animation:reviewIn .35s ease both}
+.fpm-l1{position:absolute;top:32%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center}
+.fpm-l2{position:absolute;top:46%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.2;color:#FFFDFA;text-transform:uppercase;text-align:center}
+.fpm-cta{position:absolute;top:86%;left:50%;transform:translateX(-50%);width:180px;height:51px;font-family:var(--brand);font-size:20px;color:#FFFDFA;background:#0C0C0C;border:none;border-radius:4px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fpm-cta:active{opacity:.5}
 
 /* ── Tips sheet ── */
 .tips-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:600;display:flex;align-items:flex-end}
@@ -556,7 +549,7 @@ export default function App() {
   }, []);
 
   // ── Onboarding ──
-  const [onboardingStep, setOnboardingStep] = useState(null); // null | 1 | 2
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const syncObColor = (step) => {
     const color = step ? '#4F5E2E' : '#FFFDFA';
@@ -565,22 +558,12 @@ export default function App() {
     document.body.style.background = color;
   };
 
-  useEffect(() => { syncObColor(onboardingStep); }, [onboardingStep]);
-  const [onboardingName, setOnboardingName] = useState('');
-  const [onboardingBusy, setOnboardingBusy] = useState(false);
+  useEffect(() => { syncObColor(showOnboarding || null); }, [showOnboarding]);
 
-  const finishOnboarding = async () => {
-    setOnboardingBusy(true);
-    // Set flag first — before any async work — so it persists even if the network call fails
+  const finishOnboarding = () => {
     localStorage.setItem('scout-onboarded', '1');
-    try {
-      if (onboardingName.trim()) {
-        await supabase.auth.updateUser({ data: { display_name: onboardingName.trim() } });
-      }
-    } catch(e) { /* non-critical — flag already saved */ }
     syncObColor(null);
-    setOnboardingStep(null);
-    setOnboardingBusy(false);
+    setShowOnboarding(false);
   };
 
   // ── Settings ──
@@ -647,6 +630,7 @@ export default function App() {
   const [reviewPhase,   setReviewPhase]  = useState('milestone'); // 'milestone' | 'grid'
   const [reviewImages,  setReviewImages] = useState([]); // {date,url,w,h}
   const [reviewBuilding,setReviewBuilding]=useState(false);
+  const [firstPhotoModal, setFirstPhotoModal] = useState(false);
   const fileRef        = useRef(null);
   const cameraRef      = useRef(null);
   const captionRef     = useRef(null);
@@ -662,14 +646,14 @@ export default function App() {
       setAuthed(hasSession);
       setUserEmail(data.session?.user?.email || null);
       if (hasSession) setShowLanding(false); // already authed — skip landing, clear dark status bar
-      if (hasSession && !localStorage.getItem('scout-onboarded')) setOnboardingStep(1);
+      if (hasSession && !localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
       setChecking(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') { setForgotView('set'); return; }
       setAuthed(!!session);
       setUserEmail(session?.user?.email || null);
-      if (event === 'SIGNED_IN' && !localStorage.getItem('scout-onboarded')) setOnboardingStep(1);
+      if (event === 'SIGNED_IN' && !localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -690,7 +674,7 @@ export default function App() {
     let color;
     if (!splashDone)             color = '#0C0C0C';
     else if (showLanding)        color = '#0C0C0C';
-    else if (onboardingStep)     color = '#4F5E2E';
+    else if (showOnboarding)     color = '#4F5E2E';
     else if (!authed)            color = '#FFFDFA';
     else if (todaySheetVisible)  color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     else if (weekReview)         color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
@@ -699,7 +683,7 @@ export default function App() {
     if (m) m.content = color;
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
-  }, [splashDone, showLanding, onboardingStep, authed, showTodaySheet, sel, todayStr,
+  }, [splashDone, showLanding, showOnboarding, authed, showTodaySheet, sel, todayStr,
       dayMeta, dayLoading, weekReview, reviewPhase, theme]);
 
   useLayoutEffect(()=>{ applyStatusBarColor(); }, [applyStatusBarColor]);
@@ -967,6 +951,7 @@ export default function App() {
         const newPhotoDates = new Set([...photoDates, sel]);
         setPhotoDates(newPhotoDates);
         setPhotoVer(Date.now());
+        if (newPhotoDates.size === 1) setFirstPhotoModal(true);
         if (exif?.lat != null && exif?.lon != null) reverseGeocode(exif.lat, exif.lon).then(name => { if (name) setLocationName(name); });
         else setLocationName(null);
         // Check if Sun–Sat week is now complete
@@ -1206,25 +1191,20 @@ export default function App() {
 
   if (checking) return splash || null;
 
-  if (onboardingStep) {
+  if (showOnboarding) {
     return (
-      <div style={{position:'fixed',inset:0,background:'#4F5E2E'}}>
-        <section className={`ob-s1${onboardingStep===1?' active':''}`} aria-labelledby="ob-s1-title">
-          <h2 id="ob-s1-title" className="ob-s1-hed">What's your name, Scout?</h2>
-          <input className="ob-s1-in" type="text" placeholder="Your name"
-            value={onboardingName} onChange={e => setOnboardingName(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { setOnboardingStep(2); } }}
-            autoComplete="given-name" />
-          <div className="ob-s1-hint">*Optional</div>
-          <button type="button" className="ob-s1-cta" onClick={() => setOnboardingStep(2)}>NEXT</button>
-        </section>
-        <section className={`ob-s2${onboardingStep===2?' active':''}`} aria-labelledby="ob-s2-title">
-          <h2 id="ob-s2-title" className="ob-s2-daynum">Day One!</h2>
-          <img src="/trail.svg" className="ob-s2-trail" alt="" aria-hidden="true" />
-          <button type="button" className="ob-s2-cta" onClick={finishOnboarding} disabled={onboardingBusy}>
-            {onboardingBusy ? 'Setting up…' : 'START SHOOTING'}
-          </button>
-        </section>
+      <div className="ob-wrap">
+        <h2 className="ob-hed">Day One.</h2>
+        <p className="ob-body">
+          One photo. Every day.<br/>Over time, a trail.
+        </p>
+        <p className="ob-hint">
+          A daily trailmarker will be here when you need it.<br/>
+          Follow it, or find your own.
+        </p>
+        <button type="button" className="ob-cta" onClick={finishOnboarding}>
+          START SHOOTING
+        </button>
       </div>
     );
   }
@@ -1582,7 +1562,7 @@ export default function App() {
               </button>
             </div>
             <div className="today-sheet-body">
-              <div className="today-sheet-prompt-lbl">SHOOT THIS</div>
+              <div className="today-sheet-prompt-lbl">TODAY'S TRAIL</div>
               {aiEnabled&&shootPrompt&&!promptLoading ? (
                 <div className="today-sheet-prompt-txt">{shootPrompt}</div>
               ) : (
@@ -1611,6 +1591,14 @@ export default function App() {
 
             </div>
           </div>
+        </div>
+      )}
+
+      {firstPhotoModal && (
+        <div className="first-photo-modal">
+          <div className="fpm-l1">TRAILHEAD</div>
+          <div className="fpm-l2">DISCOVERED.</div>
+          <button className="fpm-cta" onClick={() => setFirstPhotoModal(false)}>KEEP GOING</button>
         </div>
       )}
 
@@ -1967,7 +1955,7 @@ export default function App() {
                     <span className="settings-row-label">Reset Week Reviews</span>
                     <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>clears seen flags</span>
                   </button>
-                  <button className="settings-row-btn" onClick={()=>{ localStorage.removeItem('scout-onboarded'); setOnboardingName(''); setOnboardingStep(1); setAccountOpen(false); }}>
+                  <button className="settings-row-btn" onClick={()=>{ localStorage.removeItem('scout-onboarded'); setShowOnboarding(true); setAccountOpen(false); }}>
                     <span className="settings-row-label">Reset Onboarding</span>
                     <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay first-run flow</span>
                   </button>

@@ -1,12 +1,12 @@
-# Sightful / Scout — Project Context for Claude
+# Scout — Project Context for Claude
 
 ## What This App Is
 
 A photo-a-day time-lapse PWA. One photo per day. Over time it builds a personal visual record and time-lapse reel. Part habit app, part journal, part creative practice tool.
 
-- **Live URL:** sightful.pages.dev
-- **App name in UI:** Sightful (current) → Scout (planned rebrand, not yet implemented)
-- **PWA manifest name:** Sightful
+- **Live URL:** sightful.pages.dev (domain migration to scout domain pending)
+- **App name in UI:** Scout
+- **PWA manifest name:** Scout
 
 ---
 
@@ -16,11 +16,11 @@ A photo-a-day time-lapse PWA. One photo per day. Over time it builds a personal 
 |-------|-----------|
 | Framework | React 18 + Vite 5 |
 | Styling | Inline CSS string in `src/App.jsx` (see below) |
-| Auth | Supabase (cookie-based) |
-| Storage | Cloudflare R2 (photo originals + thumbnails) |
-| Backend | Cloudflare Workers (`/functions/`) |
+| Auth | Supabase (cookie-based JWT) |
+| Storage | Cloudflare R2 (photo originals + thumbnails + meta JSON) |
+| Backend | Cloudflare Pages Functions (`/functions/`) |
 | Database | Supabase |
-| AI | Anthropic API — captions, prompts, feedback, tagging |
+| AI | Anthropic API — captions, prompts, feedback, weekly theme |
 | Deployment | Cloudflare Pages (`npm run deploy` → `wrangler pages deploy dist/`) |
 | PWA | Service worker + manifest + icons in `/public/` |
 
@@ -49,100 +49,54 @@ To edit styles: edit the `CSS` string directly in `App.jsx`.
 | `index.html` | Entry HTML, base CSS reset, PWA meta tags |
 | `public/manifest.json` | PWA manifest |
 | `public/sw.js` | Service worker |
-| `functions/` | Cloudflare Worker serverless functions |
+| `functions/` | Cloudflare Pages Functions (serverless backend) |
 
 ---
 
-## Current Design System (V1 — Sightful)
+## Current Design System (Scout)
 
-**Archived at:** `design-archive/sightful-v1.css`
+**Previous V1 design archived at:** `design-archive/sightful-v1.css`
 
 ### Tokens
 
 ```css
 /* Light mode */
---bg: #FFFFFF
---bg-secondary: #F5F5F5
---surface: #EBEBEB
---border: rgba(0,0,0,0.10)
---text: #1C1C1C
---text-2: #505050
---text-3: #AEAEB2
---accent: #E06C00          /* Orange — active states, CTAs, today indicator */
---accent-fg: #FFFFFF
+--terracotta: #E34822   /* CTAs · Active states · Streak counter */
+--sage:       #4F5E2E   /* Prompt strips · Empty states · Primary accent */
+--gold:       #E2B554   /* Week header highlight */
+--paper:      #FFFDFA   /* Primary background */
+--ink:        #0C0C0C   /* All text · Borders · Nav · Icons */
+--warm-mid:   #8C857C   /* Secondary text · Section labels · Timestamps */
+--rule:       #E3E1DD   /* Dividers · Card borders (light mode) */
 
-/* Dark mode */
---bg: #000000
---bg-secondary: #1C1C1E
---surface: #1C1C1E
---border: rgba(255,255,255,0.10)
---text: #FFFFFF
---text-2: rgba(235,235,245,0.60)
---text-3: rgba(235,235,245,0.30)
+/* Dark mode overrides */
+--paper:      #0C0C0C
+--ink:        #FFFDFA
+--rule:       rgba(28,25,22,0.1)
 ```
 
 ### Typography
 
-Single font: **DM Sans** (300, 400, 500, 600) — loaded from Google Fonts.
-No display font. All font variables (`--brand`, `--serif`, `--sans`) point to DM Sans.
-
-### Theme
-
-Light/dark toggle. Stored in `localStorage` as `still-theme-pref` ('light' | 'dark' | 'system').
-Applied via `data-theme` attribute on root element.
-
----
-
-## Planned Rebrand (Scout — NOT YET IMPLEMENTED)
-
-Full brief: `SCOUT_CREATIVE_BRIEF.md`
-Mockup reference: `scout-mockup.html`
-
-### Summary of Direction
-
-Modern photo app with the typographic warmth of 1950s advertising. Handmade letterforms, bold color moments, confident white space.
-
-### Scout Token System
-
-```css
---terracotta: #C4622D   /* Splash · Streak counter · Active state · CTA */
---sage:       #4A6741   /* Prompt strips · Empty states · Day One screen */
---sky:        #5B8FA8   /* Milestone screens · Streak celebrations */
---paper:      #F5F1EB   /* Primary background */
---ink:        #1C1916   /* All text · Borders · Nav · Icons */
---warm-mid:   #8C857C   /* Secondary text · Section labels · Timestamps */
---rule:       rgba(28,25,22,0.1)   /* Dividers · Card borders */
-```
-
-### Scout Typography
-
 | Role | Font | Details |
 |------|------|---------|
-| Wordmark / Display | **Taylor Penton — Birdie or Wingman** | Purchase at taylorpenton.com (~$25). Heavy weight only. |
-| UI / Body | **DM Sans** | 300, 400, 500. All interface text. |
+| Wordmark / Display | **Flapjack** (Taylor Penton) | Self-hosted in `/public/fonts/TAYFlapjack.woff2` |
+| UI / Body | **Inconsolata** | Monospace, loaded via Google Fonts |
 
-### Scout Color Rules
+CSS font variables:
+- `--brand`: Flapjack, Inconsolata, system-ui
+- `--sans` / `--serif`: Inconsolata, system-ui, monospace
+
+### Color Rules
 
 - Most of the app is ink on paper
 - Color only at specific, meaningful moments (splash, streak counter, active thumb, prompt strip, milestones)
 - Color **never** on nav or interactive chrome
-- Grain texture on all full-color background blocks (terracotta, sage, sky) — NOT on paper
+- Grain texture on full-color background blocks (terracotta, sage) — NOT on paper
 
-### Implementation Priority (when ready)
+### Theme
 
-1. CSS token swap (`:root` variables)
-2. Taylor font integration (`@font-face`, self-host in `/public/fonts/`)
-3. Splash + onboarding
-4. Home screen (most used)
-5. Milestone / celebration screens
-6. Empty states (Day One)
-7. Calendar, year view, settings
-
-### Open Decisions Before Implementing Scout
-
-- [ ] Taylor font purchased? Which — Birdie or Wingman?
-- [ ] Confirm app name: Scout (update manifest, title, all UI strings)
-- [ ] Dark mode: sunset it, or design a Scout-compatible dark system?
+Light/dark toggle. Active and functional. Stored in `localStorage` as `scout-theme-pref` ('light' | 'dark' | 'system').
+Applied via `data-theme` attribute on root element.
 
 ---
 
@@ -194,14 +148,28 @@ Tab state: `activeTab` ('today'|'month'). Layout class `.month-active` shows sid
 | `.week-*` | Week strip + chip |
 | `.shoot-*` | Shoot prompt card |
 | `.feedback-*` | AI feedback card |
-| `.ob-*` | Onboarding screens |
 | `.lb-*` | Lightbox |
+
+---
+
+## localStorage Keys
+
+All keys use the `scout-` prefix:
+
+| Key | Values | Purpose |
+|-----|--------|---------|
+| `scout-theme-pref` | 'light' \| 'dark' \| 'system' | Theme preference |
+| `scout-ai-enabled` | boolean string | AI features toggle |
+| `scout-onboarded` | boolean string | Onboarding complete flag |
+| `scout-prompt-*` | cached string | Daily prompt cache (keyed by date) |
+| `scout-reviewed-*` | boolean string | Week review seen flags |
 
 ---
 
 ## AI Features (Anthropic API)
 
-All gated by `aiEnabled` toggle in settings (stored in `localStorage` as `'still-ai'`).
+All gated by `aiEnabled` toggle in settings (stored in `localStorage` as `scout-ai-enabled`).
+Model: `claude-haiku-4-5-20251001`
 
 | Feature | API Call | Where |
 |---------|----------|-------|
@@ -212,6 +180,20 @@ All gated by `aiEnabled` toggle in settings (stored in `localStorage` as `'still
 
 ---
 
+## External Services
+
+| Service | Purpose | Paid |
+|---------|---------|------|
+| Supabase | Auth (JWT) + PostgreSQL (waitlist) | ✅ |
+| Cloudflare Pages | Hosting + serverless functions | ✅ |
+| Cloudflare R2 | Photo storage — bucket: `photo-journal` | ✅ |
+| Anthropic API | AI features (claude-haiku-4-5) | ✅ |
+| Resend | Waitlist email notifications | ⚠️ Free tier |
+| Open-Meteo | Weather data for AI prompts | Free |
+| Nominatim (OSM) | Reverse geocoding from EXIF GPS | Free |
+
+---
+
 ## Environment Variables
 
 ```
@@ -219,7 +201,11 @@ VITE_SUPABASE_URL         Supabase project URL
 VITE_SUPABASE_ANON_KEY    Supabase anon key
 ```
 
-Worker-side secrets configured via Cloudflare dashboard / wrangler secrets.
+Cloudflare secrets (set via `wrangler pages secret put`):
+- `ANTHROPIC_API_KEY`
+- `SUPABASE_ANON_KEY`
+- `RESEND_API_KEY`
+- `WEBHOOK_SECRET`
 
 ---
 
@@ -238,6 +224,6 @@ npm run deploy    # Build + deploy to Cloudflare Pages
 
 | File | Purpose |
 |------|---------|
-| `SCOUT_CREATIVE_BRIEF.md` | Full Scout rebrand brief — typography, color, screen specs, rules |
-| `scout-mockup.html` | Static HTML mockup of all Scout screens (open in browser to preview) |
-| `design-archive/sightful-v1.css` | Full V1 design system, archived before Scout rebrand |
+| `SCOUT_CREATIVE_BRIEF.md` | Original Scout rebrand brief (reference) |
+| `scout-mockup.html` | Static HTML mockup of Scout screens |
+| `design-archive/sightful-v1.css` | V1 Sightful design system, archived |
