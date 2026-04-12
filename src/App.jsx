@@ -88,7 +88,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 /* TODAY date row — sits below the shared topbar in the main panel */
-.today-date-row{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 10px;flex-shrink:0;gap:8px}
+.today-date-row{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 16px;flex-shrink:0;gap:8px}
 .today-date-left{flex:1;min-width:0}
 .today-date-lg{font-family:var(--sans);font-size:17px;font-weight:300;letter-spacing:-0.01em;color:var(--text);line-height:1}
 .today-dow-sm{font-family:var(--sans);font-size:11px;color:var(--text-3);letter-spacing:0.04em;text-transform:uppercase;margin-top:3px}
@@ -1447,22 +1447,6 @@ export default function App() {
         <div className="pj-topbar main-brand-row">
           <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu"><IcHamburger/></button>
           <div className="today-date-nav">
-            {/* Replace photo — available for any day with a photo */}
-            {dayMeta&&(
-              <button className="arr" onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
-                </svg>
-              </button>
-            )}
-            {/* Download photo — available for any day with a photo */}
-            {dayMeta&&(
-              <button className="arr" onClick={handleDownload} aria-label="Download photo">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
-                </svg>
-              </button>
-            )}
             {/* Month view */}
             <button className="arr" onClick={()=>setActiveTab('month')} aria-label="Month view" style={{position:'relative'}}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1505,6 +1489,16 @@ export default function App() {
                           <svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg>
                         </button>
                       )}
+                      <button className="photo-overlay-btn right" style={{right:56}} onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
+                        </svg>
+                      </button>
+                      <button className="photo-overlay-btn right" onClick={handleDownload} aria-label="Download photo">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
+                        </svg>
+                      </button>
                     </div>
                   </>
                 ) : (
