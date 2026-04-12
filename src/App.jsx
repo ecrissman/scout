@@ -163,6 +163,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* ── Photo area ── */
 .photo-wrap{width:100%;background:#FFFFFF;padding:12px 11px 11px;box-shadow:0 0 12px 0 rgba(0,0,0,0.16);position:relative;box-sizing:border-box}
+.photo-wrap-inner{width:100%;min-height:200px;background:var(--surface);position:relative}
 .photo-wrap img{width:100%;height:auto;display:block;cursor:zoom-in}
 .photo-overlay-btn{position:absolute;top:12px;background:rgba(255,255,255,0.72);backdrop-filter:blur(12px) saturate(1.8);-webkit-backdrop-filter:blur(12px) saturate(1.8);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .15s}
 .photo-overlay-btn:active{opacity:0.55}
@@ -467,7 +468,10 @@ const IcBulb = ()=><svg width="18" height="18" viewBox="0 0 24 24" fill="none" s
 
 function AuthImage({ src, alt, ...props }) {
   const [blobSrc, setBlobSrc] = useState(null);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
+    setBlobSrc(null);
+    setLoaded(false);
     if (!src) return;
     let url;
     supabase.auth.getSession().then(({ data }) => {
@@ -479,7 +483,8 @@ function AuthImage({ src, alt, ...props }) {
     });
     return () => { if (url) URL.revokeObjectURL(url); };
   }, [src]);
-  return <img src={blobSrc || ''} alt={alt} {...props} />;
+  return <img src={blobSrc || ''} alt={alt} onLoad={() => setLoaded(true)}
+    style={{opacity: loaded ? 1 : 0, transition: 'opacity 0.25s ease'}} {...props} />;
 }
 
 export default function App() {
@@ -1414,12 +1419,14 @@ export default function App() {
                   <div className="upload-zone" style={{cursor:'default'}}><div className="up-txt">Loading…</div></div>
                 ) : dayMeta ? (
                   <>
-                    <AuthImage src={`${fullUrl(sel)}?v=${photoVer}`} alt="" onClick={()=>setLightboxOpen(true)}/>
-                    {devDeleteMode&&userEmail==='ecrissman@gmail.com'&&(
-                      <button className="photo-overlay-btn left danger" onClick={handleDeletePhoto} disabled={busy} aria-label="Delete photo">
-                        <svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg>
-                      </button>
-                    )}
+                    <div className="photo-wrap-inner">
+                      <AuthImage src={`${fullUrl(sel)}?v=${photoVer}`} alt="" onClick={()=>setLightboxOpen(true)}/>
+                      {devDeleteMode&&userEmail==='ecrissman@gmail.com'&&(
+                        <button className="photo-overlay-btn left danger" onClick={handleDeletePhoto} disabled={busy} aria-label="Delete photo">
+                          <svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg>
+                        </button>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <div className="upload-zone" onClick={()=>!busy&&fileRef.current?.click()}>
