@@ -1632,7 +1632,7 @@ export default function App() {
           </div>
         );
         // Phase 2: grid
-        const imgs = reviewImages.length ? reviewImages : weekReview.dates.filter(d=>photoDates.has(d)).map(d=>({date:d,url:null,w:4,h:3}));
+        const imgs = (reviewImages.length ? reviewImages : weekReview.dates.filter(d=>photoDates.has(d)).map(d=>({date:d,url:null,w:4,h:3}))).filter(img=>photoDates.has(img.date));
         const cols = [[],[]]; const colW = [0,0];
         imgs.forEach(img => { const c = colW[0]<=colW[1]?0:1; cols[c].push(img); colW[c]+=img.h/img.w; });
         return (
