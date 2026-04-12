@@ -316,7 +316,11 @@ export async function onRequest({ request, env, params }) {
         messages: [{ role: 'user', content: `Generate a weekly photography theme for Scout, a daily photo-a-day app. Respond with JSON only, no markdown.\n\n{"theme":"2–4 word evocative title","description":"one sentence. a frame for how to see this week — not what to shoot."}\n\nVoice: direct, slightly poetic, never instructional. The description names a way of looking, not a technique.\n\nGood examples:\n{"theme":"Borrowed Light","description":"This week, nothing lit directly — only light that passed through or bounced off something first."}\n{"theme":"The In-Between","description":"The pause before and after. The space between two things. The moment that isn\'t quite either."}\n{"theme":"Made by Hand","description":"Evidence of a person\'s touch — worn edges, adjusted angles, things arranged just so."}\n{"theme":"What Persists","description":"Find what hasn\'t moved, changed, or been claimed. The things that are simply still there."}\n\nBad (too instructional): {"theme":"Texture Week","description":"Look for rough, smooth, and layered surfaces in your environment and photograph the details."}\nBad (too vague): {"theme":"Everyday Beauty","description":"Find the beauty in ordinary moments around you this week."}\n\nRespond with JSON only. One theme object.` }],
       }),
     });
-    if (!aiRes.ok) return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
+    if (!aiRes.ok) {
+      const errText = await aiRes.text();
+      console.error(`[theme] Anthropic error ${aiRes.status}:`, errText);
+      return json({ theme: 'Just Show Up', description: 'No brief this week. One photo. Whatever\'s in front of you right now.' });
+    }
     const aiData = await aiRes.json();
     let themeData;
     try { themeData = JSON.parse(aiData.content?.[0]?.text ?? '{}'); } catch { themeData = {}; }

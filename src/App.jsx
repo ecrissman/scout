@@ -82,7 +82,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .week-header-lbl{font-family:Inconsolata,monospace;font-weight:700;font-size:11px;color:#E2B554;letter-spacing:0.04em}
 .week-header-sep{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
 .week-header-range{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#ABABAB;letter-spacing:0.02em}
-.week-header-arr{font-size:9px;color:#ABABAB;margin-left:1px}
+.week-header-arr{font-size:12px;color:#E2B554;margin-left:1px}
+.pj-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E2B554;margin-left:4px;vertical-align:middle;flex-shrink:0}
 .settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;color:var(--text);padding:0;flex-shrink:0}
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -187,8 +188,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 [data-theme="dark"] .nav-panel{box-shadow:4px 0 20px rgba(0,0,0,0.5)}
 [data-theme="dark"] .grids-page{background:#0C0C0C}
 [data-theme="dark"] .grids-header{border-color:rgba(255,255,255,0.08)}
-[data-theme="dark"] .grids-cell{background:#2E2C2B}
-[data-theme="dark"] .grids-empty-lbl{color:var(--sage)}
+[data-theme="dark"] .grids-title{color:#FFFDFA}
+[data-theme="dark"] .gallery-year-header{background:#0C0C0C;border-color:rgba(255,255,255,0.08)}
+[data-theme="dark"] .gallery-triptych{background:rgba(255,255,255,0.06)}
+[data-theme="dark"] .gallery-triptych-cell{background:#2E2C2B}
+[data-theme="dark"] .gallery-strip-cells{background:rgba(255,255,255,0.06)}
+[data-theme="dark"] .gallery-strip-cell{background:#2E2C2B}
+[data-theme="dark"] .grids-empty-lbl{color:var(--accent)}
 [data-theme="dark"] .grids-empty svg{opacity:0.3}
 .upload-zone{aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;border:1px dashed var(--border);background:var(--bg-secondary);transition:opacity .15s}
 .upload-zone:active{opacity:0.65}
@@ -366,7 +372,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .nav-panel-signout{width:109px;height:36px;background:#0C0C0C;border:none;border-radius:3px;cursor:pointer;font-family:var(--brand);font-size:16px;color:#FFFDFA;letter-spacing:0.02em;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .nav-panel-signout:active{opacity:.7}
 
-/* ── Grids page ── */
+/* ── Gallery page ── */
 @keyframes gridsPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes gridsPageOut{from{transform:translateX(0)}to{transform:translateX(100%)}}
 .grids-page{position:fixed;inset:0;z-index:150;background:#FFFDFA;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);animation:gridsPageIn 0.32s cubic-bezier(0.32,0.72,0,1)}
@@ -375,13 +381,30 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .grids-back{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--text);-webkit-tap-highlight-color:transparent}
 .grids-back:active{opacity:.4}
 .grids-title{font-family:Inconsolata,monospace;font-weight:500;font-size:14px;letter-spacing:0.06em;color:#0C0C0C}
-.grids-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;overflow-y:auto;flex:1;align-content:start}
-.grids-cell{position:relative;aspect-ratio:1;overflow:hidden;cursor:pointer;background:var(--surface)}
-.grids-cell img{width:100%;height:100%;object-fit:cover;display:block}
-.grids-cell-date{position:absolute;bottom:4px;right:5px;font-family:Inconsolata,monospace;font-size:11px;font-weight:500;color:#FFFDFA;text-shadow:0 1px 3px rgba(0,0,0,0.5);line-height:1}
 .grids-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 48px;gap:12px}
 .grids-empty-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;letter-spacing:0.06em;color:#4F5E2E}
 .grids-empty-sub{font-family:var(--sans);font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;font-weight:300}
+.gallery-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
+.gallery-year-header{position:sticky;top:0;z-index:2;background:#FFFDFA;padding:10px 20px 8px;font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;color:var(--text-3);border-bottom:1px solid var(--border)}
+.gallery-month-card{-webkit-tap-highlight-color:transparent}
+.gallery-triptych{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);cursor:pointer}
+.gallery-triptych:active{opacity:0.8}
+.gallery-triptych-cell{aspect-ratio:1;overflow:hidden;background:var(--surface);position:relative}
+.gallery-triptych-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-month-meta{display:flex;align-items:center;padding:10px 16px;gap:8px;border-bottom:1px solid var(--border);cursor:pointer}
+.gallery-month-label{font-family:Inconsolata,monospace;font-size:12px;font-weight:500;letter-spacing:0.08em;color:var(--text);flex:1}
+.gallery-month-count{font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--text-3)}
+.gallery-month-chevron{width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--text-3);flex-shrink:0;transition:transform 0.2s}
+.gallery-month-chevron.open{transform:rotate(180deg)}
+.gallery-strips{border-bottom:1px solid var(--border)}
+.gallery-strip-row{cursor:pointer;-webkit-tap-highlight-color:transparent;border-top:1px solid var(--border)}
+.gallery-strip-row:active{opacity:0.7}
+.gallery-strip-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border)}
+.gallery-strip-cell{aspect-ratio:1;overflow:hidden;background:var(--surface);position:relative}
+.gallery-strip-cell img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-strip-meta{display:flex;align-items:center;padding:6px 16px}
+.gallery-strip-dates{font-family:Inconsolata,monospace;font-size:10px;font-weight:500;letter-spacing:0.04em;color:var(--text-3);flex:1}
+.gallery-strip-count{font-family:Inconsolata,monospace;font-size:10px;color:var(--text-3)}
 `;
 
 (() => {
@@ -492,6 +515,15 @@ export default function App() {
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];
 
+  const weekKey = useMemo(() => {
+    const d = new Date(todayStr + 'T12:00:00');
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+    const jan4 = new Date(d.getFullYear(), 0, 4);
+    const wk = 1 + Math.round(((d - jan4) / 86400000 - 3 + (jan4.getDay() + 6) % 7) / 7);
+    return `${d.getFullYear()}-W${String(wk).padStart(2,'0')}`;
+  }, [todayStr]);
+
   // ── Theme: pref is 'light' | 'dark' | 'system', default 'system' ──
   const [themePref, setThemePref] = useState(()=>
     localStorage.getItem('scout-theme-pref') || 'system'
@@ -581,6 +613,7 @@ export default function App() {
   const [panelClosing, setPanelClosing] = useState(false);
   const [gridsOpen, setGridsOpen] = useState(false);
   const [gridsClosing, setGridsClosing] = useState(false);
+  const [expandedMonth, setExpandedMonth] = useState(null); // 'YYYY-MM' | null
   const [cm, setCm] = useState(TM);
   const [cy, setCy] = useState(TY);
   const [sel,        setSel]        = useState(todayStr);
@@ -702,8 +735,12 @@ export default function App() {
       setPhotoDates(dateSet);
       setActiveTab('month');
     });
-    if (aiEnabled) getTheme().then(t => { if (t?.theme) setWeekTheme(t); });
   }, [authed]);
+
+  useEffect(()=>{
+    if (!authed || !aiEnabled) return;
+    getTheme().then(t => { if (t?.theme) setWeekTheme(t); });
+  }, [authed, aiEnabled, weekKey]);
 
   useEffect(()=>{
     if (!weekReview) { setReviewImages([]); return; }
@@ -1282,6 +1319,17 @@ export default function App() {
     </>
   );
 
+  const hasCompleteWeek = (() => {
+    const checked = new Set();
+    for (const d of [...photoDates].sort().reverse()) {
+      const wd = getWeekDates(d);
+      if (checked.has(wd[0])) continue;
+      checked.add(wd[0]);
+      if (wd.every(dd => photoDates.has(dd))) return true;
+    }
+    return false;
+  })();
+
   return (
     <>
     {splash}
@@ -1305,7 +1353,7 @@ export default function App() {
                     <span className="week-header-lbl">WEEK COMPLETE</span>
                     <span className="week-header-sep">|</span>
                     <span className="week-header-range">{formatWeekRange(wd)}</span>
-                    <span className="week-header-arr">›</span>
+                    <span className="week-header-arr">→</span>
                   </button>
                 );
               }
@@ -1407,11 +1455,12 @@ export default function App() {
                   </button>
                 )}
                 {/* Month view */}
-                <button className="arr" onClick={()=>setActiveTab('month')} aria-label="Month view">
+                <button className="arr" onClick={()=>setActiveTab('month')} aria-label="Month view" style={{position:'relative'}}>
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="3" width="16" height="15" rx="1.5"/><path d="M2 7.5h16"/><path d="M6.5 2v2.5M13.5 2v2.5"/>
                     <rect x="5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="8.75" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="12.5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/>
                   </svg>
+                  {hasCompleteWeek&&<span style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#E2B554',display:'block',pointerEvents:'none'}}/>}
                 </button>
                 <button className="arr" onClick={()=>navigateDay(-1)} aria-label="Previous day"><ChevLeft/></button>
                 <button className="arr" onClick={()=>navigateDay(1)} disabled={sel>=todayStr} aria-label="Next day"><ChevRight/></button>
@@ -1657,7 +1706,7 @@ export default function App() {
               <span className="nav-panel-wordmark">SCOUT</span>
             </div>
             <nav className="nav-panel-nav">
-              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setGridsOpen(true); },310); }}>YOUR GRIDS</button>
+              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setGridsOpen(true); },310); }}>GALLERY</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setAccountOpen(true); },310); }}>ACCOUNT</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSettingsOpen(true); },310); }}>SETTINGS</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSupportOpen(true); },310); }}>SUPPORT</button>
@@ -1668,7 +1717,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ── Grids Page ── */}
+      {/* ── Gallery Page ── */}
       {gridsOpen&&(
         <div className={`grids-page${gridsClosing?' is-closing':''}`}>
           <div className="grids-header">
@@ -1677,8 +1726,9 @@ export default function App() {
                 <polyline points="9,1 1,8.5 9,16" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <span className="grids-title">YOUR GRIDS</span>
+            <span className="grids-title">GALLERY</span>
           </div>
+
           {photoDates.size===0 ? (
             <div className="grids-empty">
               <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#4F5E2E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:0.4}}>
@@ -1688,21 +1738,109 @@ export default function App() {
                 <path d="M16 8V5M32 8V5"/>
               </svg>
               <div className="grids-empty-lbl">NO PHOTOS YET</div>
-              <div className="grids-empty-sub">Start shooting to build your visual archive.</div>
+              <div className="grids-empty-sub">Start shooting to build your gallery.</div>
             </div>
-          ) : (
-            <div className="grids-grid">
-              {[...photoDates].sort().reverse().map(k=>{
-                const p = parseDate(k);
-                return (
-                  <div key={k} className="grids-cell" onClick={()=>{ dismissGrids(); setTimeout(()=>{ setSel(k); setActiveTab('today'); },310); }}>
-                    <AuthImage src={thumbUrl(k)} alt=""/>
-                    <span className="grids-cell-date">{p.d} {MONTHS_S[p.m]}</span>
+          ) : (()=>{
+            const monthMap = {};
+            for (const d of photoDates) {
+              const ym = d.slice(0,7);
+              if (!monthMap[ym]) monthMap[ym] = new Set();
+              monthMap[ym].add(d);
+            }
+            const sortedMonths = Object.keys(monthMap).sort().reverse();
+            const yearGroups = {};
+            for (const ym of sortedMonths) {
+              const yr = ym.slice(0,4);
+              if (!yearGroups[yr]) yearGroups[yr] = [];
+              yearGroups[yr].push(ym);
+            }
+            const sortedYears = Object.keys(yearGroups).sort().reverse();
+
+            const getFeatured = (datesSet) => {
+              const arr = [...datesSet].sort();
+              const n = arr.length;
+              if (n<=3) return arr;
+              return [arr[0], arr[Math.floor(n/2)], arr[n-1]];
+            };
+
+            const getWeeksForMonth = (ym) => {
+              const [y,m] = ym.split('-').map(Number);
+              const daysInMo = new Date(y,m,0).getDate();
+              const weeks=[], seen=new Set();
+              for (let d=1; d<=daysInMo; d++) {
+                const dk2=`${ym}-${String(d).padStart(2,'0')}`;
+                const wd=getWeekDates(dk2);
+                const wk=wd[0];
+                if (!seen.has(wk)){ seen.add(wk); weeks.push({weekStart:wk,dates:wd}); }
+              }
+              return weeks;
+            };
+
+            return (
+              <div className="gallery-scroll">
+                {sortedYears.map(yr=>(
+                  <div key={yr}>
+                    {sortedYears.length>1 && (
+                      <div className="gallery-year-header">{yr}</div>
+                    )}
+                    {yearGroups[yr].map(ym=>{
+                      const datesSet = monthMap[ym];
+                      const [ymY,ymM] = ym.split('-').map(Number);
+                      const monthName = `${MONTHS_S[ymM-1]} ${ymY}`;
+                      const daysInMo = new Date(ymY,ymM,0).getDate();
+                      const isExpanded = expandedMonth===ym;
+                      const featured = getFeatured(datesSet);
+
+                      return (
+                        <div key={ym} className="gallery-month-card">
+                          <div className="gallery-triptych" onClick={()=>setExpandedMonth(isExpanded?null:ym)}>
+                            {[0,1,2].map(i=>(
+                              <div key={i} className="gallery-triptych-cell">
+                                {featured[i] && <AuthImage src={thumbUrl(featured[i])} alt=""/>}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="gallery-month-meta" onClick={()=>setExpandedMonth(isExpanded?null:ym)}>
+                            <span className="gallery-month-label">{monthName}</span>
+                            <span className="gallery-month-count">{datesSet.size} / {daysInMo}</span>
+                            <span className={`gallery-month-chevron${isExpanded?' open':''}`}>
+                              <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                                <polyline points="1,1 5,5 9,1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </span>
+                          </div>
+                          {isExpanded && (
+                            <div className="gallery-strips">
+                              {getWeeksForMonth(ym).map(({weekStart,dates})=>{
+                                const filledInWeek = dates.filter(d=>datesSet.has(d));
+                                if (filledInWeek.length===0) return null;
+                                return (
+                                  <div key={weekStart} className="gallery-strip-row"
+                                    onClick={()=>{ setWeekReview({dates}); setReviewPhase('grid'); }}>
+                                    <div className="gallery-strip-cells">
+                                      {dates.map(d=>(
+                                        <div key={d} className="gallery-strip-cell">
+                                          {datesSet.has(d) && <AuthImage src={thumbUrl(d)} alt=""/>}
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="gallery-strip-meta">
+                                      <span className="gallery-strip-dates">{formatWeekRange(dates)}</span>
+                                      <span className="gallery-strip-count">{filledInWeek.length}/7</span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                ))}
+              </div>
+            );
+          })()}
         </div>
       )}
 
