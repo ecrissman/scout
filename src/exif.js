@@ -142,9 +142,9 @@ export function formatExif(exif) {
 
 // ── Image compression ──────────────────────────────────────────────────────
 
-export async function compressFile(file, orientation) {
+export async function compressFile(file) {
   const img = await _loadImg(URL.createObjectURL(file), true);
-  return _drawCanvas(img, 1200, 0.78, orientation);
+  return _drawCanvas(img, 1200, 0.78);
 }
 
 export async function makeThumb(src) {
@@ -161,30 +161,17 @@ function _loadImg(src, revoke) {
   });
 }
 
-function _drawCanvas(img, maxPx, quality, orientation = 1) {
-  let sw = img.naturalWidth, sh = img.naturalHeight;
-  const rotated = orientation >= 5; // 5,6,7,8 swap width/height
-  let dw = rotated ? sh : sw, dh = rotated ? sw : sh;
-  const scale = Math.min(1, maxPx / Math.max(dw, dh));
-  dw = Math.round(dw * scale); dh = Math.round(dh * scale);
+function _drawCanvas(img, maxPx, quality) {
+  // Modern browsers (Safari, Chrome 81+) auto-apply EXIF orientation when
+  // loading into <img>, so naturalWidth/Height already reflect the correctly
+  // rotated dimensions. Manual rotation would double-rotate portrait images.
+  const sw = img.naturalWidth, sh = img.naturalHeight;
+  const scale = Math.min(1, maxPx / Math.max(sw, sh));
+  const dw = Math.round(sw * scale), dh = Math.round(sh * scale);
 
   const c = document.createElement('canvas');
   c.width = dw; c.height = dh;
-  const ctx = c.getContext('2d');
-
-  // Apply EXIF orientation transform
-  ctx.save();
-  if (orientation === 2) { ctx.translate(dw,0); ctx.scale(-1,1); }
-  else if (orientation === 3) { ctx.translate(dw,dh); ctx.rotate(Math.PI); }
-  else if (orientation === 4) { ctx.translate(0,dh); ctx.scale(1,-1); }
-  else if (orientation === 5) { ctx.rotate(Math.PI/2); ctx.scale(1,-1); }
-  else if (orientation === 6) { ctx.translate(dw,0); ctx.rotate(Math.PI/2); }
-  else if (orientation === 7) { ctx.translate(dw,dh); ctx.rotate(Math.PI/2); ctx.scale(1,-1); }
-  else if (orientation === 8) { ctx.translate(0,dh); ctx.rotate(-Math.PI/2); }
-
-  if (rotated) ctx.drawImage(img, 0, 0, Math.round(sw * scale), Math.round(sh * scale));
-  else ctx.drawImage(img, 0, 0, dw, dh);
-  ctx.restore();
+  c.getContext('2d').drawImage(img, 0, 0, dw, dh);
 
   return c.toDataURL('image/webp', quality);
 }

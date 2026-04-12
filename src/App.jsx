@@ -915,11 +915,13 @@ export default function App() {
       if (fromCamera && !exif?.model && !exif?.et) {
         console.info('[Scout] Camera EXIF empty — file type:', file.type, 'size:', file.size);
       }
-      const fullSrc = await compressFile(file, exif?.orientation);
+      const fullSrc = await compressFile(file);
       const thumbSrc = await makeThumb(fullSrc);
       const ok = await uploadPhoto(sel, {fullSrc, thumbSrc, exif, caption});
       if (ok) {
         setDayMeta({exif, caption});
+        setShowTodaySheet(false);
+        setActiveTab('today');
         const newPhotoDates = new Set([...photoDates, sel]);
         setPhotoDates(newPhotoDates);
         setPhotoVer(Date.now());
