@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Scout — The Station</title>
+
+  <!-- Paper background -->
+  <rect width="200" height="200" fill="#F5F1EB"/>
+
+  <defs>
+    <filter id="grain4" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.71" numOctaves="4" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
+      <feComposite in="blended" in2="SourceGraphic" operator="in"/>
+    </filter>
+    <clipPath id="shieldClip">
+      <!-- Shield path for clipping fills -->
+      <path d="M 100 185 C 100 185 22 148 22 88 L 22 32 Q 22 24 30 24 L 170 24 Q 178 24 178 32 L 178 88 C 178 148 100 185 100 185 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- ══════════════════════════════════════
+       SHIELD SHAPE — merit badge / patch silhouette
+       Flat-bottomed curve to a point
+       Ink filled exterior
+  ═══════════════════════════════════════ -->
+
+  <!-- Shield fill — ink -->
+  <path d="M 100 185 C 100 185 20 146 20 84 L 20 30 Q 20 22 28 22 L 172 22 Q 180 22 180 30 L 180 84 C 180 146 100 185 100 185 Z"
+        fill="#1C1916"/>
+
+  <!-- Inner shield — paper, inset 8px -->
+  <path d="M 100 176 C 100 176 29 141 29 84 L 29 33 Q 29 30 32 30 L 168 30 Q 171 30 171 33 L 171 84 C 171 141 100 176 100 176 Z"
+        fill="#F5F1EB" filter="url(#grain4)"/>
+
+  <!-- Second inset line — thin rule, creates layered badge depth -->
+  <path d="M 100 176 C 100 176 29 141 29 84 L 29 33 Q 29 30 32 30 L 168 30 Q 171 30 171 33 L 171 84 C 171 141 100 176 100 176 Z"
+        fill="none" stroke="#1C1916" stroke-width="1.2"/>
+
+  <!-- ══════════════════════════════════════
+       TEXT BAND — top of shield, ink fill band
+       "SCOUT" in Inconsolata heavy
+  ═══════════════════════════════════════ -->
+  <!-- Ink band at top -->
+  <path d="M 28 22 Q 28 22 28 33 L 172 33 Q 172 22 172 22 Z" fill="#1C1916"/>
+  <!-- Actually a clean rectangular band -->
+  <rect x="20" y="22" width="160" height="26" rx="0" fill="#1C1916" clip-path="url(#shieldClip)"/>
+
+  <text x="100" y="39.5"
+        text-anchor="middle"
+        font-family="Inconsolata, monospace"
+        font-size="13"
+        font-weight="900"
+        fill="#F5F1EB"
+        letter-spacing="8">SCOUT</text>
+
+  <!-- ══════════════════════════════════════
+       COMPASS ROSE — 8-point star, center of shield
+       Hero illustration element
+       Alternating point lengths (4 long cardinals, 4 short intercardinals)
+  ═══════════════════════════════════════ -->
+
+  <!-- Sky fill circle behind compass -->
+  <circle cx="100" cy="106" r="46" fill="#5B8FA8" filter="url(#grain4)"/>
+  <circle cx="100" cy="106" r="46" fill="none" stroke="#1C1916" stroke-width="2"/>
+
+  <!-- 8-point compass rose — drawn as two overlapping diamond shapes -->
+
+  <!-- Cardinal points (N, E, S, W) — longer, terracotta N, ink others -->
+
+  <!-- NORTH — terracotta -->
+  <polygon points="100,63  105.5,101  100,97  94.5,101"
+           fill="#C4622D" stroke="#1C1916" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- SOUTH — ink -->
+  <polygon points="100,149  105.5,111  100,115  94.5,111"
+           fill="#1C1916" stroke="#1C1916" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- EAST — paper fill with ink stroke -->
+  <polygon points="143,106  105.5,111.5  109.5,106  105.5,100.5"
+           fill="#F5F1EB" stroke="#1C1916" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- WEST — paper fill with ink stroke -->
+  <polygon points="57,106  94.5,111.5  90.5,106  94.5,100.5"
+           fill="#F5F1EB" stroke="#1C1916" stroke-width="1.5" stroke-linejoin="round"/>
+
+  <!-- Intercardinal points (NE, NW, SE, SW) — shorter warm-mid fill -->
+
+  <!-- NE -->
+  <polygon points="130,79  105,101  107.5,103.5  103,105"
+           fill="#8C857C" stroke="#1C1916" stroke-width="1.2" stroke-linejoin="round"/>
+
+  <!-- NW -->
+  <polygon points="70,79  95,101  92.5,103.5  97,105"
+           fill="#8C857C" stroke="#1C1916" stroke-width="1.2" stroke-linejoin="round"/>
+
+  <!-- SE -->
+  <polygon points="130,133  105,111  107.5,108.5  103,107"
+           fill="#8C857C" stroke="#1C1916" stroke-width="1.2" stroke-linejoin="round"/>
+
+  <!-- SW -->
+  <polygon points="70,133  95,111  92.5,108.5  97,107"
+           fill="#8C857C" stroke="#1C1916" stroke-width="1.2" stroke-linejoin="round"/>
+
+  <!-- ══════════════════════════════════════
+       CENTER APERTURE RING
+       Open circle = camera lens / aperture opening
+  ═══════════════════════════════════════ -->
+  <circle cx="100" cy="106" r="11" fill="#F5F1EB" stroke="#1C1916" stroke-width="2.5"/>
+  <circle cx="100" cy="106" r="4" fill="#1C1916"/>
+
+  <!-- ══════════════════════════════════════
+       VIEWFINDER BRACKETS — four corners of shield body
+       These appear at the corners of the viewing area
+       NOT on the text band
+  ═══════════════════════════════════════ -->
+  <!-- NW bracket (inside shield, below text band) -->
+  <path d="M 44 60 L 44 48 L 56 48" stroke="#1C1916" stroke-width="2.8" stroke-linecap="square"/>
+  <!-- NE bracket -->
+  <path d="M 144 48 L 156 48 L 156 60" stroke="#1C1916" stroke-width="2.8" stroke-linecap="square"/>
+  <!-- SW bracket -->
+  <path d="M 44 148 L 44 160 L 56 160" stroke="#1C1916" stroke-width="2.8" stroke-linecap="square"/>
+  <!-- SE bracket — terracotta -->
+  <path d="M 144 160 L 156 160 L 156 148" stroke="#C4622D" stroke-width="2.8" stroke-linecap="square"/>
+
+  <!-- ══════════════════════════════════════
+       BOTTOM LABEL — tiny text, below compass circle
+  ═══════════════════════════════════════ -->
+  <text x="100" y="165"
+        text-anchor="middle"
+        font-family="Inconsolata, monospace"
+        font-size="7.5"
+        font-weight="700"
+        fill="#1C1916"
+        letter-spacing="3"
+        opacity="0.6">PHOTO · A · DAY</text>
+
+  <!-- Outer shield stroke reinforce -->
+  <path d="M 100 185 C 100 185 20 146 20 84 L 20 30 Q 20 22 28 22 L 172 22 Q 180 22 180 30 L 180 84 C 180 146 100 185 100 185 Z"
+        fill="none" stroke="#1C1916" stroke-width="2.5"/>
+
+</svg>

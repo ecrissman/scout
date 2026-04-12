@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <title>Scout — The Finder</title>
+
+  <!-- Paper background -->
+  <rect width="200" height="200" fill="#F5F1EB"/>
+
+  <defs>
+    <!-- Grain texture -->
+    <filter id="grain2" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise"/>
+      <feBlend in="SourceGraphic" in2="grayNoise" mode="multiply" result="blended"/>
+      <feComposite in="blended" in2="SourceGraphic" operator="in"/>
+    </filter>
+    <!-- Clip to badge circle -->
+    <clipPath id="badgeClip">
+      <circle cx="100" cy="100" r="88"/>
+    </clipPath>
+  </defs>
+
+  <!-- ══════════════════════════════════════
+       OUTER BADGE RING — filled ink band
+       Classic merit badge perimeter
+  ═══════════════════════════════════════ -->
+  <circle cx="100" cy="100" r="88" fill="#1C1916"/>
+  <!-- Inner ring — paper fill, creates the band -->
+  <circle cx="100" cy="100" r="72" fill="#F5F1EB"/>
+
+  <!-- Text ring — SCOUT along top arc, ALL WEATHER along bottom -->
+  <!-- Top: "SCOUT" -->
+  <path id="topArc" d="M 24,100 A 76,76 0 0,1 176,100" fill="none"/>
+  <text font-family="Inconsolata, monospace" font-size="13.5" font-weight="800" fill="#F5F1EB" letter-spacing="5">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">S C O U T</textPath>
+  </text>
+
+  <!-- Bottom: "PHOTO · A · DAY" -->
+  <path id="bottomArc" d="M 24,100 A 76,76 0 0,0 176,100" fill="none"/>
+  <text font-family="Inconsolata, monospace" font-size="10" font-weight="700" fill="#F5F1EB" letter-spacing="3">
+    <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">PHOTO · A · DAY</textPath>
+  </text>
+
+  <!-- ══════════════════════════════════════
+       BADGE INTERIOR — sage fill circle
+  ═══════════════════════════════════════ -->
+  <circle cx="100" cy="100" r="66" fill="#4A6741" filter="url(#grain2)"/>
+
+  <!-- ══════════════════════════════════════
+       HORIZON LINE + TREELINE
+       Field guide / landscape inside lens
+  ═══════════════════════════════════════ -->
+  <!-- Sky area within the inner lens circle — ink-tinted -->
+  <!-- Horizon line -->
+  <line x1="48" y1="108" x2="152" y2="108" stroke="#F5F1EB" stroke-width="1.5" stroke-dasharray="0"/>
+
+  <!-- Treeline silhouette — simple triangles like a field guide -->
+  <!-- Tree 1 (left) -->
+  <polygon points="58,108  66,82  74,108" fill="#1C1916" opacity="0.85"/>
+  <!-- Tree 2 (left-center) -->
+  <polygon points="68,108  78,74  88,108" fill="#1C1916" opacity="0.85"/>
+  <!-- Tree 3 (center — tallest) -->
+  <polygon points="80,108  100,60  120,108" fill="#1C1916"/>
+  <!-- Tree 4 (right-center) -->
+  <polygon points="112,108  122,74  132,108" fill="#1C1916" opacity="0.85"/>
+  <!-- Tree 5 (right) -->
+  <polygon points="126,108  134,82  142,108" fill="#1C1916" opacity="0.85"/>
+
+  <!-- Ground fill beneath horizon -->
+  <rect x="34" y="108" width="132" height="32" fill="#1C1916" opacity="0.3" clip-path="url(#badgeClip)"/>
+
+  <!-- ══════════════════════════════════════
+       VIEWFINDER BRACKETS — on the badge face
+       Four L-brackets at inner corners, terracotta
+       These ARE the four compass cardinal markers
+  ═══════════════════════════════════════ -->
+  <!-- NW bracket -->
+  <path d="M 50 72 L 50 54 L 68 54" stroke="#F5F1EB" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- NE bracket -->
+  <path d="M 132 54 L 150 54 L 150 72" stroke="#F5F1EB" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- SW bracket -->
+  <path d="M 50 128 L 50 146 L 68 146" stroke="#F5F1EB" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+  <!-- SE bracket — terracotta = south/bearing -->
+  <path d="M 132 146 L 150 146 L 150 128" stroke="#C4622D" stroke-width="3.5" stroke-linecap="square" stroke-linejoin="miter"/>
+
+  <!-- Compass north tick at top of frame, terracotta -->
+  <line x1="100" y1="48" x2="100" y2="56" stroke="#C4622D" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- North label -->
+  <text x="100" y="46" text-anchor="middle" font-family="Inconsolata, monospace" font-size="9" font-weight="800" fill="#C4622D">N</text>
+
+  <!-- Center aperture dot -->
+  <circle cx="100" cy="100" r="4" fill="#F5F1EB" stroke="#F5F1EB" stroke-width="1"/>
+
+  <!-- Crosshair lines — faint, viewfinder style -->
+  <line x1="88" y1="100" x2="95" y2="100" stroke="#F5F1EB" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="105" y1="100" x2="112" y2="100" stroke="#F5F1EB" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="100" y1="88" x2="100" y2="95" stroke="#F5F1EB" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+  <line x1="100" y1="105" x2="100" y2="112" stroke="#F5F1EB" stroke-width="1.2" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Outer badge border stroke -->
+  <circle cx="100" cy="100" r="88" stroke="#1C1916" stroke-width="2.5" fill="none"/>
+  <!-- Separator ring between text band and badge field -->
+  <circle cx="100" cy="100" r="72" stroke="#1C1916" stroke-width="1.5" fill="none"/>
+
+</svg>
