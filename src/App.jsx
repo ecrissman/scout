@@ -77,7 +77,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* ── Shared header — used by both sidebar (MONTH) and main (TODAY) ── */
 .pj-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
-.week-header-line{display:flex;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:4px 0}
+.week-header-line{display:flex;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:4px 0;background:none;border:none}
 .week-header-line:active{opacity:0.5}
 .week-header-lbl{font-family:Inconsolata,monospace;font-weight:700;font-size:11px;color:#E2B554;letter-spacing:0.04em}
 .week-header-sep{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
@@ -622,6 +622,7 @@ export default function App() {
       const hasSession = !!data.session;
       setAuthed(hasSession);
       setUserEmail(data.session?.user?.email || null);
+      if (hasSession) setShowLanding(false); // already authed — skip landing, clear dark status bar
       if (hasSession && !localStorage.getItem('scout-onboarded')) setOnboardingStep(1);
       setChecking(false);
     });
@@ -653,8 +654,7 @@ export default function App() {
     else if (showTodaySheet)    color = '#FFFDFA';
     else if (weekReview)        color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
     else                        color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = color;
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.content = color; });
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
   }, [splashDone, onboardingStep, authed, showLanding, showTodaySheet, weekReview, reviewPhase, theme]);
