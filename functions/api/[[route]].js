@@ -303,8 +303,14 @@ export async function onRequest({ request, env, params }) {
   // ── GET /api/theme/current ───────────────────────────────────────────────
   if (route === 'theme/current' && method === 'GET') {
     const weekKey = isoWeekKey();
+    console.log('[theme] weekKey:', weekKey);
     const cached = await env.PHOTOS.get(`themes/${weekKey}.json`);
-    if (cached) return json(await cached.json());
+    if (cached) {
+      const data = await cached.json();
+      console.log('[theme] serving from cache:', JSON.stringify(data));
+      return json(data);
+    }
+    console.log('[theme] no cache, calling Anthropic...');
 
     // Generate a new theme for this week
     const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
