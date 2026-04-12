@@ -79,10 +79,10 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .pj-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
 .week-header-line{display:flex;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:4px 0;background:none;border:none}
 .week-header-line:active{opacity:0.5}
-.week-header-lbl{font-family:Inconsolata,monospace;font-weight:700;font-size:11px;color:#E2B554;letter-spacing:0.04em}
+.week-header-lbl{font-family:Inconsolata,monospace;font-weight:700;font-size:14px;color:#E2B554;letter-spacing:0.04em}
 .week-header-sep{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
 .week-header-range{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#ABABAB;letter-spacing:0.02em}
-.week-header-arr{font-size:12px;color:#E2B554;margin-left:1px}
+.week-header-arr{font-size:14px;color:#E2B554;margin-left:1px}
 .pj-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E2B554;margin-left:4px;vertical-align:middle;flex-shrink:0}
 .settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;color:var(--text);padding:0;flex-shrink:0}
 .settings-btn:active{opacity:0.4}
@@ -1019,6 +1019,21 @@ export default function App() {
     setTimeout(() => { setGridsOpen(false); setGridsClosing(false); }, 300);
   };
 
+  const handleDownload = async () => {
+    const { data } = await supabase.auth.getSession();
+    const token = data?.session?.access_token;
+    if (!token) return;
+    const r = await fetch(fullUrl(sel), { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) return;
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scout-${sel}.jpg`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleCaptionSuggest = async () => {
     setCaptionSuggestLoad(true);
     const result = await getCaptionSuggestion(sel);
@@ -1431,6 +1446,34 @@ export default function App() {
         {/* Row 1: brand row — visible on mobile only, hidden on desktop since sidebar has it */}
         <div className="pj-topbar main-brand-row">
           <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu"><IcHamburger/></button>
+          <div className="today-date-nav">
+            {/* Replace photo — available for any day with a photo */}
+            {dayMeta&&(
+              <button className="arr" onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
+                </svg>
+              </button>
+            )}
+            {/* Download photo — available for any day with a photo */}
+            {dayMeta&&(
+              <button className="arr" onClick={handleDownload} aria-label="Download photo">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
+                </svg>
+              </button>
+            )}
+            {/* Month view */}
+            <button className="arr" onClick={()=>setActiveTab('month')} aria-label="Month view" style={{position:'relative'}}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="16" height="15" rx="1.5"/><path d="M2 7.5h16"/><path d="M6.5 2v2.5M13.5 2v2.5"/>
+                <rect x="5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="8.75" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="12.5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/>
+              </svg>
+              {hasCompleteWeek&&<span style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#E2B554',display:'block',pointerEvents:'none'}}/>}
+            </button>
+            <button className="arr" onClick={()=>navigateDay(-1)} aria-label="Previous day"><ChevLeft/></button>
+            <button className="arr" onClick={()=>navigateDay(1)} disabled={sel>=todayStr} aria-label="Next day"><ChevRight/></button>
+          </div>
         </div>
 
         {/* Hidden file inputs — always present so sheet buttons can trigger them */}
@@ -1440,31 +1483,11 @@ export default function App() {
         {/* Today with photo or past day */}
         {!(sel===todayStr&&!dayMeta) ? (
           <>
-            {/* Row 2: date + nav arrows — only shown for past days or today with photo */}
+            {/* Row 2: date text */}
             <div className="today-date-row">
               <div className="today-date-left">
                 {selParsed&&<div className="today-date-lg">{selParsed.d} {MONTHS[selParsed.m]}</div>}
                 {selParsed&&<div className="today-dow-sm">{WDAYS[new Date(selParsed.y,selParsed.m,selParsed.d).getDay()]} · {selParsed.y}</div>}
-              </div>
-              <div className="today-date-nav">
-                {/* Replace photo — available for any day with a photo */}
-                {dayMeta&&(
-                  <button className="arr" onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
-                    </svg>
-                  </button>
-                )}
-                {/* Month view */}
-                <button className="arr" onClick={()=>setActiveTab('month')} aria-label="Month view" style={{position:'relative'}}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="3" width="16" height="15" rx="1.5"/><path d="M2 7.5h16"/><path d="M6.5 2v2.5M13.5 2v2.5"/>
-                    <rect x="5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="8.75" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="12.5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/>
-                  </svg>
-                  {hasCompleteWeek&&<span style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#E2B554',display:'block',pointerEvents:'none'}}/>}
-                </button>
-                <button className="arr" onClick={()=>navigateDay(-1)} aria-label="Previous day"><ChevLeft/></button>
-                <button className="arr" onClick={()=>navigateDay(1)} disabled={sel>=todayStr} aria-label="Next day"><ChevRight/></button>
               </div>
             </div>
 
