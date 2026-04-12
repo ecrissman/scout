@@ -5,14 +5,17 @@
 let cachedJWKS = null;
 let jwksCachedAt = 0;
 
-/** ISO week key e.g. `2026-W15` — shared by theme + prompt routes */
+/** Sunday-based week key e.g. `2026-04-12` (the Sunday that starts the week).
+ *  Matches Scout's getWeekDates() which uses Sunday as week start (getDay()===0). */
 function isoWeekKey() {
   const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
-  const jan4 = new Date(d.getFullYear(), 0, 4);
-  const wk = 1 + Math.round(((d - jan4) / 86400000 - 3 + (jan4.getDay() + 6) % 7) / 7);
-  return `${d.getFullYear()}-W${String(wk).padStart(2, '0')}`;
+  const sunday = new Date(d);
+  sunday.setDate(d.getDate() - d.getDay()); // rewind to Sunday
+  sunday.setHours(0, 0, 0, 0);
+  const y = sunday.getFullYear();
+  const m = String(sunday.getMonth() + 1).padStart(2, '0');
+  const day = String(sunday.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 function anthropicHeaders(env) {

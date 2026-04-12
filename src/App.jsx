@@ -517,11 +517,12 @@ export default function App() {
 
   const weekKey = useMemo(() => {
     const d = new Date(todayStr + 'T12:00:00');
-    d.setHours(0,0,0,0);
-    d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
-    const jan4 = new Date(d.getFullYear(), 0, 4);
-    const wk = 1 + Math.round(((d - jan4) / 86400000 - 3 + (jan4.getDay() + 6) % 7) / 7);
-    return `${d.getFullYear()}-W${String(wk).padStart(2,'0')}`;
+    const sunday = new Date(d);
+    sunday.setDate(d.getDate() - d.getDay()); // rewind to Sunday
+    const y = sunday.getFullYear();
+    const m = String(sunday.getMonth() + 1).padStart(2, '0');
+    const day = String(sunday.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }, [todayStr]);
 
   // ── Theme: pref is 'light' | 'dark' | 'system', default 'system' ──
