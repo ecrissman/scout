@@ -1632,14 +1632,13 @@ export default function App() {
           </div>
         );
         // Phase 2: grid
-        const imgs = reviewImages.length ? reviewImages : weekReview.dates.map(d=>({date:d,url:null,w:4,h:3}));
+        const imgs = reviewImages.length ? reviewImages : weekReview.dates.filter(d=>photoDates.has(d)).map(d=>({date:d,url:null,w:4,h:3}));
         const cols = [[],[]]; const colW = [0,0];
         imgs.forEach(img => { const c = colW[0]<=colW[1]?0:1; cols[c].push(img); colW[c]+=img.h/img.w; });
         return (
           <div className="review-backdrop">
             <div className="review-header">
               <button className="review-x" onClick={()=>{ setWeekReview(null); setReviewPhase('milestone'); }} aria-label="Close">✕</button>
-              <div className="review-congrats">The week.</div>
             </div>
             <div className="review-grid">
               {cols.map((colImgs, ci)=>(
@@ -1841,10 +1840,10 @@ export default function App() {
                                 return (
                                   <div key={weekStart} className="gallery-strip-row"
                                     onClick={()=>{ setWeekReview({dates}); setReviewPhase('grid'); }}>
-                                    <div className="gallery-strip-cells" style={{gridTemplateColumns:`repeat(${filledInWeek.length},1fr)`}}>
-                                      {filledInWeek.map(d=>(
+                                    <div className="gallery-strip-cells">
+                                      {dates.map(d=>(
                                         <div key={d} className="gallery-strip-cell">
-                                          <AuthImage src={thumbUrl(d)} alt=""/>
+                                          {datesSet.has(d) && <AuthImage src={thumbUrl(d)} alt=""/>}
                                         </div>
                                       ))}
                                     </div>
