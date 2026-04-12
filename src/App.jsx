@@ -73,10 +73,10 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 /* TODAY date row — sits below the shared topbar in the main panel */
-.today-date-row{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 16px;flex-shrink:0;gap:8px}
+.today-date-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;flex-shrink:0;gap:8px}
 .today-date-left{flex:1;min-width:0}
-.today-date-lg{font-family:var(--sans);font-size:17px;font-weight:300;letter-spacing:-0.01em;color:var(--text);line-height:1}
-.today-dow-sm{font-family:var(--sans);font-size:11px;color:var(--text-3);letter-spacing:0.04em;text-transform:uppercase;margin-top:3px}
+.today-date-lg{font-family:var(--sans);font-size:20px;font-weight:300;letter-spacing:-0.01em;color:var(--text);line-height:1}
+.today-dow-sm{font-family:var(--sans);font-size:12px;color:var(--text-2);letter-spacing:0.04em;text-transform:uppercase;margin-top:3px}
 .today-date-nav{display:flex;align-items:center;flex-shrink:0}
 /* On desktop the sidebar already has the wordmark — hide the mobile brand row in main panel */
 .main-brand-row{display:flex}
@@ -97,7 +97,10 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .overflow-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;background:none;border:none;font-family:var(--sans);font-size:14px;color:var(--ink);cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;white-space:nowrap}
 .overflow-item:active{background:var(--rule)}
 .overflow-item svg{flex-shrink:0;opacity:0.6}
+.overflow-item-danger{color:#E34822}
+.overflow-item-danger svg{opacity:1}
 [data-theme="dark"] .overflow-menu{box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+[data-theme="dark"] .overflow-btn{color:var(--ink);opacity:1}
 .forgot-link{font-family:var(--brand);font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;padding:2px 0;text-align:center}
 .forgot-link:active{opacity:0.4}
 
@@ -138,6 +141,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
 .today-sheet-cam{display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;transition:opacity .15s,transform .1s}
 .today-sheet-cam:active{opacity:.75;transform:scale(0.92)}
+.today-cam-tray{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 72px);left:50%;transform:translateX(-50%);z-index:40;display:flex;align-items:center;justify-content:center}
+@media(min-width:640px){.today-cam-tray{display:none}}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
 @media(min-width:640px){.today-sheet{display:none}}
@@ -146,10 +151,12 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* ── Day detail ── */
 .pj-main-inner{flex:1;padding:0 20px 40px}
 @media(min-width:640px){.pj-main-inner{padding:20px 20px 48px}}
-.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(24px) brightness(0.32);-webkit-backdrop-filter:blur(24px) brightness(0.32);z-index:100;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
-.lightbox img{max-width:95vw;max-height:95vh;object-fit:contain;cursor:default;display:block}
-.lb-close{position:absolute;top:calc(28px + env(safe-area-inset-top));right:12px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.5;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(24px) brightness(0.32);-webkit-backdrop-filter:blur(24px) brightness(0.32);z-index:100;display:flex;flex-direction:column;align-items:stretch;cursor:zoom-out}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain;cursor:default;display:block}
+.lb-close{background:none;border:none;color:#fff;font-size:28px;cursor:pointer;opacity:.5;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;align-self:flex-end;pointer-events:auto}
 .lb-close:active{opacity:1}
+.lb-topbar{flex-shrink:0;height:calc(52px + env(safe-area-inset-top));display:flex;align-items:flex-end;justify-content:flex-end;padding:0 4px 4px;background:transparent;pointer-events:none}
+.lb-photo-area{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;position:relative;overflow:hidden}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:none;border:none;color:#fff;opacity:.45;cursor:pointer;padding:0;width:52px;height:88px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:opacity .15s}
 .lb-nav:hover{opacity:.9}.lb-nav:active{opacity:1;transform:translateY(-50%) scale(.93)}
 .lb-nav svg{width:12px;height:20px}
@@ -196,17 +203,17 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .up-txt{font-family:var(--sans);font-size:11px;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;text-align:center;line-height:2.4}
 
 /* ── EXIF ── */
-.exif-bar{padding:14px 0 16px;border-bottom:1px solid var(--border);margin-top:1px;min-height:38px}
-.exif-v{font-family:var(--sans);font-size:13px;font-weight:400;color:var(--text-3);letter-spacing:0.01em;font-variant-numeric:tabular-nums;line-height:1.4}
-.exif-c{font-family:var(--sans);font-size:12px;color:var(--text-3);margin-top:2px;opacity:0.7}
-.exif-e{font-family:var(--sans);font-size:12px;color:var(--text-3);letter-spacing:.04em}
+.exif-bar{padding:14px 0 16px;border-bottom:1px solid var(--border);margin-top:1px;min-height:38px;display:flex;flex-direction:column;gap:5px}
+.exif-v{font-family:var(--sans);font-size:13px;font-weight:400;color:var(--text-2);letter-spacing:0.01em;font-variant-numeric:tabular-nums;line-height:1.4}
+.exif-c{font-family:var(--sans);font-size:12px;color:var(--text-2)}
+.exif-e{font-family:var(--sans);font-size:12px;color:var(--text-2);letter-spacing:.04em}
 
 /* ── Caption ── */
-.cap-row{padding:12px 0;}
-.cap-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.cap-row{padding:12px 0;position:relative}
+.cap-top{display:flex;align-items:flex-start}
 .cap-in{flex:1;background:none;border:none;font-family:var(--sans);font-size:16px;color:var(--text);padding:0;outline:none;caret-color:var(--accent);font-weight:300;min-width:0;line-height:1.55;-webkit-tap-highlight-color:transparent;width:100%;resize:none;overflow:hidden;display:block}
 .cap-in::placeholder{color:var(--text-3)}
-.cap-suggest-btn{background:none;border:none;color:var(--text);cursor:pointer;padding:0;flex-shrink:0;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:flex-end;opacity:0.85}
+.cap-suggest-btn{position:absolute;top:0;right:0;background:none;border:none;color:var(--text);cursor:pointer;padding:0;width:44px;height:44px;display:flex;align-items:center;justify-content:flex-end;opacity:0.85}
 .cap-suggest-btn:active{opacity:0.4}
 .cap-suggest-btn:disabled{opacity:.3;cursor:default}
 .cap-suggestion{margin-top:8px;display:flex;align-items:flex-start;gap:10px}
@@ -254,7 +261,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .review-ms-next-btn:active{opacity:.7}
 /* Phase 2: Grid */
 .review-backdrop{position:fixed;inset:0;background:#0C0C0C;z-index:900;display:flex;flex-direction:column;animation:reviewIn .25s ease both}
-.review-header{padding:calc(env(safe-area-inset-top) + 8px) 8px 0;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch}
+.review-header{padding:calc(env(safe-area-inset-top) + 8px) 8px 12px;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch}
 .review-x{align-self:flex-end;background:none;border:none;color:rgba(245,241,235,0.5);cursor:pointer;font-size:20px;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
 .review-x:active{opacity:0.5}
 .review-congrats{font-family:var(--brand);font-size:24px;color:#F5F1EB;line-height:1.51;text-align:center;padding:16px 20px}
@@ -578,6 +585,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [accountOpen,  setAccountOpen]  = useState(false);
   const [supportOpen,  setSupportOpen]  = useState(false);
+  const [devPanelOpen, setDevPanelOpen] = useState(false);
 
   // ── Auth ──
   const [authed,      setAuthed]      = useState(false);
@@ -1432,6 +1440,15 @@ export default function App() {
         <div className="pj-topbar main-brand-row">
           <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu"><IcHamburger/></button>
           <div className="today-date-nav">
+            <button className="arr" onClick={() => navigateDay(-1)} aria-label="Previous day"><ChevLeft/></button>
+            <button className="arr" onClick={() => navigateDay(1)} disabled={sel >= todayStr} aria-label="Next day"><ChevRight/></button>
+            <button className="arr" onClick={() => setActiveTab('month')} aria-label="Month view" style={{position:'relative'}}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="16" height="15" rx="1.5"/><path d="M2 7.5h16"/><path d="M6.5 2v2.5M13.5 2v2.5"/>
+                <rect x="5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="8.75" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="12.5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/>
+              </svg>
+              {hasCompleteWeek && <span style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#E2B554',display:'block',pointerEvents:'none'}}/>}
+            </button>
             {dayMeta && (
               <div className="overflow-wrap">
                 <button className="overflow-btn" onClick={() => setOverflowOpen(o => !o)} aria-label="More options">
@@ -1454,19 +1471,18 @@ export default function App() {
                       </svg>
                       Download
                     </button>
+                    {userEmail==='ecrissman@gmail.com'&&(
+                      <button className="overflow-item overflow-item-danger" onClick={() => { setOverflowOpen(false); handleDeletePhoto(); }} disabled={busy}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/>
+                        </svg>
+                        Delete photo
+                      </button>
+                    )}
                   </div>
                 </>}
               </div>
             )}
-            <button className="arr" onClick={() => setActiveTab('month')} aria-label="Month view" style={{position:'relative'}}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="3" width="16" height="15" rx="1.5"/><path d="M2 7.5h16"/><path d="M6.5 2v2.5M13.5 2v2.5"/>
-                <rect x="5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="8.75" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="12.5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/>
-              </svg>
-              {hasCompleteWeek && <span style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#E2B554',display:'block',pointerEvents:'none'}}/>}
-            </button>
-            <button className="arr" onClick={() => navigateDay(-1)} aria-label="Previous day"><ChevLeft/></button>
-            <button className="arr" onClick={() => navigateDay(1)} disabled={sel >= todayStr} aria-label="Next day"><ChevRight/></button>
           </div>
         </div>
 
@@ -1494,11 +1510,6 @@ export default function App() {
                   <>
                     <div className="photo-wrap-inner">
                       <AuthImage src={`${fullUrl(sel)}?v=${photoVer}`} alt="" onClick={()=>setLightboxOpen(true)}/>
-                      {devDeleteMode&&userEmail==='ecrissman@gmail.com'&&(
-                        <button className="photo-overlay-btn left danger" onClick={handleDeletePhoto} disabled={busy} aria-label="Delete photo">
-                          <svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg>
-                        </button>
-                      )}
                     </div>
                   </>
                 ) : (
@@ -1516,7 +1527,7 @@ export default function App() {
                     ? <><div className="exif-v">{strip}</div>{camera&&<div className="exif-c">{camera}</div>}</>
                     : <div className="exif-e">No camera data</div>
                   }
-                  {locationName&&<div className="exif-e" style={{marginTop:4,display:'flex',alignItems:'center',gap:4}}>
+                  {locationName&&<div className="exif-e" style={{display:'flex',alignItems:'center',gap:4}}>
                     <svg width="11" height="13" viewBox="0 0 11 13" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:0.5}}>
                       <path d="M5.5 1C3.015 1 1 3.015 1 5.5c0 3.375 4.5 7.5 4.5 7.5s4.5-4.125 4.5-7.5C10 3.015 7.985 1 5.5 1z"/>
                       <circle cx="5.5" cy="5.5" r="1.5"/>
@@ -1571,6 +1582,18 @@ export default function App() {
           </>
         ) : null}
       </main>
+
+      {sel===todayStr&&dayMeta&&(
+        <div className="today-cam-tray">
+          <button className="today-sheet-cam" onClick={()=>cameraRef.current?.click()} disabled={busy} aria-label="Take photo">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <rect width="80" height="80" rx="40" fill="#0C0C0C"/>
+              <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" fill="#FFFDFA"/>
+              <rect x="7" y="7" width="66" height="66" rx="33" fill="#E34822"/>
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Today Sheet — mobile only, shows when no photo for today */}
       {showTodaySheet&&sel===todayStr&&!dayMeta&&!dayLoading&&(
@@ -1683,10 +1706,14 @@ export default function App() {
             if (dx < 0 && lbNext) lbGo(lbNext);
           }}
         >
-          <button className="lb-close" onClick={()=>setLightboxOpen(false)}>×</button>
-          {lbPrev&&<button className="lb-nav lb-prev" onClick={e=>{e.stopPropagation();lbGo(lbPrev);}} aria-label="Previous photo"><ChevLeft/></button>}
-          {lbNext&&<button className="lb-nav lb-next" onClick={e=>{e.stopPropagation();lbGo(lbNext);}} aria-label="Next photo"><ChevRight/></button>}
-          <AuthImage src={`${fullUrl(sel)}?v=${photoVer}`} alt="" onClick={e=>e.stopPropagation()}/>
+          <div className="lb-topbar">
+            <button className="lb-close" onClick={()=>setLightboxOpen(false)}>×</button>
+          </div>
+          <div className="lb-photo-area">
+            {lbPrev&&<button className="lb-nav lb-prev" onClick={e=>{e.stopPropagation();lbGo(lbPrev);}} aria-label="Previous photo"><ChevLeft/></button>}
+            {lbNext&&<button className="lb-nav lb-next" onClick={e=>{e.stopPropagation();lbGo(lbNext);}} aria-label="Next photo"><ChevRight/></button>}
+            <AuthImage src={`${fullUrl(sel)}?v=${photoVer}`} alt="" onClick={e=>e.stopPropagation()}/>
+          </div>
           {lbSorted.length>1&&<div className="lb-info">{lbLabel} &nbsp;·&nbsp; {lbIdx+1} / {lbSorted.length}</div>}
         </div>
       )}
@@ -1741,6 +1768,9 @@ export default function App() {
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setAccountOpen(true); },310); }}>ACCOUNT</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSettingsOpen(true); },310); }}>SETTINGS</button>
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSupportOpen(true); },310); }}>SUPPORT</button>
+              {userEmail==='ecrissman@gmail.com'&&(
+                <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setDevPanelOpen(true); },310); }}>DEVELOPER</button>
+              )}
               <hr style={{border:'none',borderTop:'1px solid var(--border)',margin:'4px 0'}}/>
               <button className="nav-panel-item" style={{color:'var(--accent)'}} onClick={()=>{ dismissPanel(); handleSignOut(); }}>SIGN OUT</button>
             </nav>
@@ -1963,35 +1993,6 @@ export default function App() {
               </div>
             </div>
 
-            {userEmail==='ecrissman@gmail.com'&&(
-              <div className="settings-section">
-                <div className="settings-section-label" style={{color:'var(--accent)'}}>Developer</div>
-                <div className="settings-group">
-                  <div className="settings-row">
-                    <span className="settings-row-label">Delete Mode</span>
-                    <button className={`ai-toggle${devDeleteMode?' on':' off'}`} onClick={()=>setDevDeleteMode(v=>!v)} aria-label="Toggle delete mode">
-                      <div className="ai-toggle-thumb"/>
-                    </button>
-                  </div>
-                  <button className="settings-row-btn" onClick={()=>{ Object.keys(localStorage).filter(k=>k.startsWith('scout-reviewed-')).forEach(k=>localStorage.removeItem(k)); }}>
-                    <span className="settings-row-label">Reset Week Reviews</span>
-                    <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>clears seen flags</span>
-                  </button>
-                  <button className="settings-row-btn" onClick={()=>{ localStorage.removeItem('scout-onboarded'); setShowOnboarding(true); setAccountOpen(false); }}>
-                    <span className="settings-row-label">Reset Onboarding</span>
-                    <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay first-run flow</span>
-                  </button>
-                  <button className="settings-row-btn" onClick={()=>{ const dates=getWeekDates(sel||new Date().toISOString().slice(0,10)); setWeekReview({dates}); setReviewPhase('milestone'); setAccountOpen(false); }}>
-                    <span className="settings-row-label">Show Week Review</span>
-                    <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>current week</span>
-                  </button>
-                  <button className="settings-row-btn" onClick={()=>{ setSplashDone(false); setSplashFading(false); setAccountOpen(false); setTimeout(()=>setSplashFading(true),2200); setTimeout(()=>setSplashDone(true),2900); }}>
-                    <span className="settings-row-label">Show Splash</span>
-                    <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay intro</span>
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}
@@ -2013,6 +2014,34 @@ export default function App() {
                   <span className="settings-row-label">Report a Bug</span>
                   <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
                 </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {devPanelOpen&&(
+        <div className="settings-backdrop" onClick={()=>setDevPanelOpen(false)}>
+          <div className="settings-sheet" onClick={e=>e.stopPropagation()}>
+            <div className="settings-handle"/>
+            <div className="settings-title">Developer</div>
+            <div className="settings-section">
+              <div className="settings-section-label">Tools</div>
+              <div className="settings-group">
+                <div className="settings-row">
+                  <span className="settings-row-label">Delete Mode</span>
+                  <button className={`ai-toggle${devDeleteMode?' on':' off'}`} onClick={()=>setDevDeleteMode(v=>!v)} aria-label="Toggle delete mode">
+                    <div className="ai-toggle-thumb"/>
+                  </button>
+                </div>
+                <button className="settings-row-btn" onClick={()=>{ Object.keys(localStorage).filter(k=>k.startsWith('scout-reviewed-')).forEach(k=>localStorage.removeItem(k)); }}>
+                  <span className="settings-row-label">Reset Week Reviews</span>
+                  <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>clears seen flags</span>
+                </button>
+                <button className="settings-row-btn" onClick={()=>{ localStorage.removeItem('scout-onboarded'); setShowOnboarding(true); setDevPanelOpen(false); }}>
+                  <span className="settings-row-label">Reset Onboarding</span>
+                  <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay first-run flow</span>
+                </button>
               </div>
             </div>
           </div>
