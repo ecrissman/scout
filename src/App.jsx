@@ -959,7 +959,7 @@ export default function App() {
 
   const dismissTodaySheet = () => {
     setSheetClosing(true);
-    setTimeout(() => { setShowTodaySheet(false); setSheetClosing(false); }, 360);
+    setTimeout(() => { setShowTodaySheet(false); setSheetClosing(false); setActiveTab('today'); }, 360);
   };
   const dismissPanel = () => {
     setPanelClosing(true);
