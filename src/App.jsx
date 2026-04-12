@@ -89,6 +89,15 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .arr{background:none;border:none;padding:8px;margin:0;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;opacity:0.75}
 .arr:active{opacity:0.3;transform:scale(0.9)}
 .arr:disabled{opacity:.2;cursor:default}
+.overflow-wrap{position:relative}
+.overflow-btn{background:none;border:none;padding:8px;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;opacity:0.75;-webkit-tap-highlight-color:transparent}
+.overflow-btn:active{opacity:0.3}
+.overflow-backdrop{position:fixed;inset:0;z-index:199}
+.overflow-menu{position:absolute;top:calc(100% + 4px);right:0;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;z-index:200;min-width:160px;box-shadow:0 4px 16px rgba(0,0,0,0.10)}
+.overflow-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;background:none;border:none;font-family:var(--sans);font-size:14px;color:var(--ink);cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.overflow-item:active{background:var(--rule)}
+.overflow-item svg{flex-shrink:0;opacity:0.6}
+[data-theme="dark"] .overflow-menu{box-shadow:0 4px 16px rgba(0,0,0,0.4)}
 .forgot-link{font-family:var(--brand);font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;padding:2px 0;text-align:center}
 .forgot-link:active{opacity:0.4}
 
@@ -620,6 +629,7 @@ export default function App() {
   const [photoVer,           setPhotoVer]           = useState(()=>Date.now());
 
   const [lightboxOpen,  setLightboxOpen]  = useState(false);
+  const [overflowOpen,  setOverflowOpen]  = useState(false);
   const [locationName,  setLocationName]  = useState(null);
   const [aiEnabled,    setAiEnabled]    = useState(()=> localStorage.getItem('scout-ai-enabled') !== 'false');
   useEffect(()=>{ localStorage.setItem('scout-ai-enabled', String(aiEnabled)); }, [aiEnabled]);
@@ -1422,16 +1432,41 @@ export default function App() {
         <div className="pj-topbar main-brand-row">
           <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu"><IcHamburger/></button>
           <div className="today-date-nav">
-            {/* Month view */}
-            <button className="arr" onClick={()=>setActiveTab('month')} aria-label="Month view" style={{position:'relative'}}>
+            {dayMeta && (
+              <div className="overflow-wrap">
+                <button className="overflow-btn" onClick={() => setOverflowOpen(o => !o)} aria-label="More options">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <circle cx="4" cy="10" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="16" cy="10" r="1.5"/>
+                  </svg>
+                </button>
+                {overflowOpen && <>
+                  <div className="overflow-backdrop" onClick={() => setOverflowOpen(false)}/>
+                  <div className="overflow-menu">
+                    <button className="overflow-item" onClick={() => { setOverflowOpen(false); fileRef.current?.click(); }} disabled={busy}>
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
+                      </svg>
+                      Replace photo
+                    </button>
+                    <button className="overflow-item" onClick={() => { setOverflowOpen(false); handleDownload(); }}>
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
+                      </svg>
+                      Download
+                    </button>
+                  </div>
+                </>}
+              </div>
+            )}
+            <button className="arr" onClick={() => setActiveTab('month')} aria-label="Month view" style={{position:'relative'}}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="3" width="16" height="15" rx="1.5"/><path d="M2 7.5h16"/><path d="M6.5 2v2.5M13.5 2v2.5"/>
                 <rect x="5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="8.75" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/><rect x="12.5" y="10.5" width="2.5" height="2.5" rx=".4" fill="currentColor" stroke="none"/>
               </svg>
-              {hasCompleteWeek&&<span style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#E2B554',display:'block',pointerEvents:'none'}}/>}
+              {hasCompleteWeek && <span style={{position:'absolute',top:6,right:6,width:6,height:6,borderRadius:'50%',background:'#E2B554',display:'block',pointerEvents:'none'}}/>}
             </button>
-            <button className="arr" onClick={()=>navigateDay(-1)} aria-label="Previous day"><ChevLeft/></button>
-            <button className="arr" onClick={()=>navigateDay(1)} disabled={sel>=todayStr} aria-label="Next day"><ChevRight/></button>
+            <button className="arr" onClick={() => navigateDay(-1)} aria-label="Previous day"><ChevLeft/></button>
+            <button className="arr" onClick={() => navigateDay(1)} disabled={sel >= todayStr} aria-label="Next day"><ChevRight/></button>
           </div>
         </div>
 
@@ -1448,20 +1483,6 @@ export default function App() {
                 {selParsed&&<div className="today-date-lg">{selParsed.d} {MONTHS[selParsed.m]}</div>}
                 {selParsed&&<div className="today-dow-sm">{WDAYS[new Date(selParsed.y,selParsed.m,selParsed.d).getDay()]} · {selParsed.y}</div>}
               </div>
-              {dayMeta&&(
-                <div className="today-date-nav">
-                  <button className="arr" onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
-                    </svg>
-                  </button>
-                  <button className="arr" onClick={handleDownload} aria-label="Download photo">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
-                    </svg>
-                  </button>
-                </div>
-              )}
             </div>
 
             <div className="pj-main-inner">
