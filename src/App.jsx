@@ -1467,12 +1467,26 @@ export default function App() {
         {/* Today with photo or past day */}
         {!(sel===todayStr&&!dayMeta) ? (
           <>
-            {/* Row 2: date text */}
+            {/* Row 2: date text + photo actions */}
             <div className="today-date-row">
               <div className="today-date-left">
                 {selParsed&&<div className="today-date-lg">{selParsed.d} {MONTHS[selParsed.m]}</div>}
                 {selParsed&&<div className="today-dow-sm">{WDAYS[new Date(selParsed.y,selParsed.m,selParsed.d).getDay()]} · {selParsed.y}</div>}
               </div>
+              {dayMeta&&(
+                <div className="today-date-nav">
+                  <button className="arr" onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
+                    </svg>
+                  </button>
+                  <button className="arr" onClick={handleDownload} aria-label="Download photo">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="pj-main-inner">
@@ -1489,16 +1503,6 @@ export default function App() {
                           <svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6M14,11v6"/><path d="M9,6V4h6v2"/></svg>
                         </button>
                       )}
-                      <button className="photo-overlay-btn right" style={{right:56}} onClick={()=>fileRef.current?.click()} disabled={busy} aria-label="Replace photo">
-                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 7h11M3 7l3-3M3 7l3 3"/><path d="M17 13H6M17 13l-3-3M17 13l-3 3"/>
-                        </svg>
-                      </button>
-                      <button className="photo-overlay-btn right" onClick={handleDownload} aria-label="Download photo">
-                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M10 3v10M6 9l4 4 4-4"/><path d="M3 15h14"/>
-                        </svg>
-                      </button>
                     </div>
                   </>
                 ) : (
