@@ -651,18 +651,22 @@ export default function App() {
   // useLayoutEffect fires before paint on state changes; the visibilitychange/pageshow listeners
   // handle the case where iOS resets the bar after the app is backgrounded/foregrounded.
   const applyStatusBarColor = useCallback(()=>{
+    // Mirror the exact JSX render condition — only treat sheet as "visible" when it actually renders
+    const todaySheetVisible = showTodaySheet && sel === todayStr && !dayMeta && !dayLoading;
     let color;
-    if (!splashDone)            color = '#0C0C0C';
-    else if (showLanding)       color = '#0C0C0C';
-    else if (onboardingStep)    color = '#4F5E2E';
-    else if (!authed)           color = '#FFFDFA';
-    else if (showTodaySheet)    color = '#FFFDFA';
-    else if (weekReview)        color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
-    else                        color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
-    document.querySelectorAll('meta[name="theme-color"]').forEach(m => { m.content = color; });
+    if (!splashDone)             color = '#0C0C0C';
+    else if (showLanding)        color = '#0C0C0C';
+    else if (onboardingStep)     color = '#4F5E2E';
+    else if (!authed)            color = '#FFFDFA';
+    else if (todaySheetVisible)  color = '#FFFDFA';
+    else if (weekReview)         color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
+    else                         color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
+    const m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.content = color;
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
-  }, [splashDone, onboardingStep, authed, showLanding, showTodaySheet, weekReview, reviewPhase, theme]);
+  }, [splashDone, showLanding, onboardingStep, authed, showTodaySheet, sel, todayStr,
+      dayMeta, dayLoading, weekReview, reviewPhase, theme]);
 
   useLayoutEffect(()=>{ applyStatusBarColor(); }, [applyStatusBarColor]);
 
@@ -1548,7 +1552,7 @@ export default function App() {
               <div className="review-ms-msg">NOT BAD AT ALL.</div>
             </div>
             <div className="review-ms-next">
-              <button className="review-ms-next-btn" onClick={()=>{ setReviewPhase('grid'); const m=document.querySelectorAll('meta[name="theme-color"]'); m.forEach(t=>t.content='#0C0C0C'); document.body.style.backgroundColor='#0C0C0C'; document.documentElement.style.backgroundColor='#0C0C0C'; }}>
+              <button className="review-ms-next-btn" onClick={()=>{ setReviewPhase('grid'); }}>
                 NEXT
               </button>
             </div>
@@ -1561,7 +1565,7 @@ export default function App() {
         return (
           <div className="review-backdrop">
             <div className="review-header">
-              <button className="review-x" onClick={()=>setWeekReview(null)} aria-label="Close">✕</button>
+              <button className="review-x" onClick={()=>{ setWeekReview(null); setReviewPhase('milestone'); }} aria-label="Close">✕</button>
               <div className="review-congrats">The week.</div>
             </div>
             <div className="review-grid">
@@ -1808,7 +1812,7 @@ export default function App() {
                     <span className="settings-row-label">Reset Onboarding</span>
                     <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay first-run flow</span>
                   </button>
-                  <button className="settings-row-btn" onClick={()=>{ const dates=getWeekDates(sel||new Date().toISOString().slice(0,10)); setWeekReview({dates}); setAccountOpen(false); }}>
+                  <button className="settings-row-btn" onClick={()=>{ const dates=getWeekDates(sel||new Date().toISOString().slice(0,10)); setWeekReview({dates}); setReviewPhase('milestone'); setAccountOpen(false); }}>
                     <span className="settings-row-label">Show Week Review</span>
                     <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>current week</span>
                   </button>
