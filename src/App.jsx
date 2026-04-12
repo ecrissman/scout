@@ -959,7 +959,14 @@ export default function App() {
 
   const dismissTodaySheet = () => {
     setSheetClosing(true);
-    setTimeout(() => { setShowTodaySheet(false); setSheetClosing(false); setActiveTab('today'); }, 360);
+    setTimeout(() => {
+      setShowTodaySheet(false);
+      setSheetClosing(false);
+      const sorted = [...photoDates].filter(d => d !== todayStr).sort();
+      const lastPhoto = sorted[sorted.length - 1];
+      if (lastPhoto) { selectDate(lastPhoto); setActiveTab('today'); }
+      else { setActiveTab('month'); }
+    }, 360);
   };
   const dismissPanel = () => {
     setPanelClosing(true);
