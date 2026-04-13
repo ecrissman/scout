@@ -7,6 +7,12 @@ import { supabase } from './supabase.js';
 // Mark standalone PWA mode before first paint so CSS can target it
 if (window.navigator.standalone) document.documentElement.classList.add('pwa');
 
+// Capture auth params synchronously at module load — Supabase clears the hash
+// almost immediately, so by the time any async code runs it's already gone.
+const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+const _authInUrl = window.location.hash.includes('access_token') ||
+  new URLSearchParams(window.location.search).has('code');
+
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wdth,wght@75..125,200..900&display=swap');
@@ -686,12 +692,9 @@ export default function App() {
 
 
   useEffect(()=>{
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
-
     // ── Safari → PWA cookie bridge ──
-    // After Google OAuth, the user lands in Safari (not the PWA). We write the
-    // Supabase tokens to a cookie (cookies are shared across Safari + PWA on iOS,
-    // unlike localStorage which is sandboxed). The PWA reads the cookie on next open.
+    // _isStandalone and _authInUrl are captured at module load (synchronously),
+    // before Supabase has a chance to clear the URL hash.
     const writeBridgeCookie = (session) => {
       const payload = JSON.stringify({ a: session.access_token, r: session.refresh_token });
       document.cookie = `scout_auth_bridge=${encodeURIComponent(payload)}; max-age=300; path=/; SameSite=Lax`;
@@ -709,7 +712,7 @@ export default function App() {
       let session = data.session;
 
       // PWA: no session in localStorage — check for bridged cookie from Safari OAuth
-      if (!session && isStandalone) {
+      if (!session && _isStandalone) {
         const bridged = readBridgeCookie();
         if (bridged) {
           const { data: restored } = await supabase.auth.setSession({ access_token: bridged.a, refresh_token: bridged.r });
@@ -718,17 +721,13 @@ export default function App() {
         }
       }
 
-      // Safari: just completed OAuth — write bridge cookie, show return screen
-      if (!isStandalone) {
-        const urlHasAuth = window.location.hash.includes('access_token') || new URLSearchParams(window.location.search).has('code');
-        if (urlHasAuth && session) {
-          writeBridgeCookie(session);
-          // Clean the URL
-          window.history.replaceState(null, '', window.location.pathname);
-          setShowAuthBridge(true);
-          setChecking(false);
-          return;
-        }
+      // Safari: just completed OAuth — _authInUrl was captured before Supabase cleared the hash
+      if (!_isStandalone && _authInUrl && session) {
+        writeBridgeCookie(session);
+        window.history.replaceState(null, '', window.location.pathname);
+        setShowAuthBridge(true);
+        setChecking(false);
+        return;
       }
 
       const hasSession = !!session;
@@ -740,6 +739,8 @@ export default function App() {
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') { setForgotView('set'); return; }
+      // Don't flip authed during a bridge handoff — we handle that flow separately
+      if (!_isStandalone && _authInUrl) return;
       setAuthed(!!session);
       setUserEmail(session?.user?.email || null);
       if (event === 'SIGNED_IN' && !localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
