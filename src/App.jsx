@@ -230,7 +230,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .theme-card-left{flex:1;min-width:0}
 .theme-card-lbl{font-family:var(--sans);font-size:12px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;font-weight:500;margin-bottom:5px}
 .theme-card-title{font-family:var(--sans);font-size:16px;color:var(--text);font-weight:400;line-height:1.3}
-.theme-card-chev{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;transition:transform .22s ease;flex-shrink:0;margin-left:8px}
+.theme-card-chev{width:14px;height:14px;stroke:var(--ink);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;transition:transform .22s ease;flex-shrink:0;margin-left:8px}
+[data-theme="dark"] .theme-card-chev{stroke:var(--paper)}
 .theme-card-chev.open{transform:rotate(180deg)}
 .theme-card-body{overflow:hidden;max-height:0;transition:max-height .35s ease}
 .theme-card-body.open{max-height:400px}
