@@ -65,9 +65,11 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .week-header-line{display:flex;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:4px 0;background:none;border:none}
 .week-header-line:active{opacity:0.5}
 .week-header-lbl{font-family:Inconsolata,monospace;font-weight:700;font-size:14px;color:#E2B554;letter-spacing:0.04em}
+[data-theme="dark"] .week-header-lbl{color:var(--terracotta)}
 .week-header-sep{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
 .week-header-range{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:#ABABAB;letter-spacing:0.02em}
 .week-header-arr{font-size:14px;color:#E2B554;margin-left:1px}
+[data-theme="dark"] .week-header-arr{color:var(--terracotta)}
 .pj-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E2B554;margin-left:4px;vertical-align:middle;flex-shrink:0}
 [data-theme="dark"] .pj-tab-dot{background:var(--terracotta)}
 .settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;color:var(--text);padding:0;flex-shrink:0}
