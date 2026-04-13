@@ -315,6 +315,11 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .week-chip-text{flex:1;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink);letter-spacing:.01em}
 .week-chip-sub{font-family:var(--sans);font-size:11px;color:rgba(28,25,22,0.55);margin-top:2px}
 .week-chip-arr{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.1em;color:var(--ink);flex-shrink:0;opacity:0.6}
+[data-theme="dark"] .week-chip{background:var(--terracotta)}
+[data-theme="dark"] .week-chip-dot{color:rgba(255,253,250,0.7)}
+[data-theme="dark"] .week-chip-text{color:var(--paper)}
+[data-theme="dark"] .week-chip-sub{color:rgba(255,253,250,0.55)}
+[data-theme="dark"] .week-chip-arr{color:var(--paper);opacity:0.8}
 
 /* ── Login ── */
 .pj-login{position:fixed;inset:0;background:var(--paper)}
