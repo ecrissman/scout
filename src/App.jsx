@@ -17,7 +17,7 @@ const CSS = `
   --border:#E3E1DD;
   --text:#1C1916;--text-2:#8C857C;--text-3:#B5AFA9;
   --accent:#E2B554;--accent-fg:#1C1916;
-  --terracotta:#E57016;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
+  --terracotta:#E37222;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:#E3E1DD;
   --brand:'Flapjack','Inconsolata',system-ui,sans-serif;
   --serif:'Inconsolata',system-ui,monospace;
@@ -27,8 +27,8 @@ const CSS = `
   --bg:#0C0C0C;--bg-secondary:#2E2C2B;--surface:#2E2C2B;
   --border:rgba(245,241,235,0.10);
   --text:#FFFDFA;--text-2:rgba(245,241,235,0.60);--text-3:rgba(245,241,235,0.30);
-  --accent:#E57016;--accent-fg:#FFFDFA;
-  --terracotta:#E57016;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
+  --accent:#E37222;--accent-fg:#FFFDFA;
+  --terracotta:#E37222;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
 }
 html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
@@ -100,7 +100,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .overflow-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;background:none;border:none;font-family:var(--sans);font-size:14px;color:var(--ink);cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;white-space:nowrap}
 .overflow-item:active{background:var(--rule)}
 .overflow-item svg{flex-shrink:0;opacity:0.6}
-.overflow-item-danger{color:#E57016}
+.overflow-item-danger{color:#E37222}
 .overflow-item-danger svg{opacity:1}
 [data-theme="dark"] .overflow-menu{box-shadow:0 4px 16px rgba(0,0,0,0.4)}
 [data-theme="dark"] .overflow-btn{color:var(--text);opacity:1}
@@ -149,7 +149,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .cam-center{fill:#E2B554}
 [data-theme="dark"] .cam-outer{fill:#FFFDFA}
 [data-theme="dark"] .cam-border{fill:#0C0C0C}
-[data-theme="dark"] .cam-center{fill:#E57016}
+[data-theme="dark"] .cam-center{fill:#E37222}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
 @media(min-width:640px){.today-sheet{display:none}}
@@ -338,6 +338,11 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .forgot-link:active{opacity:0.4}
 .login-footer{display:contents}
 .login-err{position:absolute;top:68%;left:45px;right:45px;font-family:var(--sans);font-size:10px;color:#B03030;letter-spacing:.04em}
+.login-divider{position:absolute;top:72.5%;left:45px;right:45px;display:flex;align-items:center;gap:12px;font-family:var(--sans);font-size:11px;color:var(--warm-mid);letter-spacing:.08em}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--rule)}
+.google-btn{position:absolute;top:78%;left:50%;transform:translateX(-50%);width:calc(100% - 90px);max-width:280px;height:48px;display:flex;align-items:center;justify-content:center;gap:10px;background:none;border:1.5px solid var(--ink);border-radius:4px;font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;letter-spacing:.04em;transition:opacity .15s}
+.google-btn:active{opacity:0.5}
+.google-btn:disabled{opacity:.3;cursor:default}
 
 /* ── Settings sheet ── */
 .settings-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;display:flex;align-items:flex-end;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
@@ -851,6 +856,15 @@ export default function App() {
     setLoginBusy(false);
   };
 
+  const handleGoogleLogin = async () => {
+    setLoginBusy(true); setLoginErr('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) { setLoginErr(error.message); setLoginBusy(false); }
+  };
+
   const handleForgotRequest = async (e) => {
     e.preventDefault(); setResetBusy(true); setResetMsg(null);
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -1335,6 +1349,11 @@ export default function App() {
           {loginErr && <div className="login-err">{loginErr}</div>}
           <button className="login-btn" type="submit" disabled={loginBusy || !email || !pw}>
             {loginBusy ? 'Signing in…' : 'SIGN IN >'}
+          </button>
+          <div className="login-divider">OR</div>
+          <button type="button" className="google-btn" onClick={handleGoogleLogin} disabled={loginBusy}>
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+            SIGN IN WITH GOOGLE
           </button>
           <button type="button" className="forgot-link" onClick={()=>{setForgotView('request');setResetMsg(null);}}>
             FORGOT PASSWORD?
