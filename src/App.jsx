@@ -27,7 +27,7 @@ const CSS = `
   --bg:#0C0C0C;--bg-secondary:#2E2C2B;--surface:#2E2C2B;
   --border:rgba(245,241,235,0.10);
   --text:#FFFDFA;--text-2:rgba(245,241,235,0.60);--text-3:rgba(245,241,235,0.30);
-  --accent:#E2B554;--accent-fg:#1C1916;
+  --accent:#E34822;--accent-fg:#FFFDFA;
   --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
 }
@@ -100,7 +100,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .overflow-item-danger{color:#E34822}
 .overflow-item-danger svg{opacity:1}
 [data-theme="dark"] .overflow-menu{box-shadow:0 4px 16px rgba(0,0,0,0.4)}
-[data-theme="dark"] .overflow-btn{color:var(--ink);opacity:1}
+[data-theme="dark"] .overflow-btn{color:var(--text);opacity:1}
 .forgot-link{font-family:var(--brand);font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;padding:2px 0;text-align:center}
 .forgot-link:active{opacity:0.4}
 
