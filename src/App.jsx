@@ -158,7 +158,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 [data-theme="dark"] .cam-center{fill:#E37222}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
-.tip-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7;-webkit-tap-highlight-color:transparent}
+.tip-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7;-webkit-tap-highlight-color:transparent;color:inherit}
 .tip-icon-btn:active{opacity:.4}
 .tip-popup{position:fixed;width:264px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:0 8px 28px rgba(0,0,0,0.18);z-index:500;animation:tipPopIn .16s ease both}
 @keyframes tipPopIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -1525,7 +1525,7 @@ export default function App() {
             </div>
             <div className={`theme-card-body${themeExpanded?' open':''}`}>
               {weekTheme.description&&<div className="theme-card-desc">{weekTheme.description}</div>}
-              {nextWeekTheme&&<div className="theme-next-week">Next week's theme: {nextWeekTheme.theme}</div>}
+              {nextWeekTheme&&nextWeekTheme.theme!==weekTheme?.theme&&<div className="theme-next-week">Next week's theme: {nextWeekTheme.theme}</div>}
             </div>
           </div>
         )}
