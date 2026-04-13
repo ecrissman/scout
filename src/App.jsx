@@ -69,6 +69,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .week-header-range{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:#ABABAB;letter-spacing:0.02em}
 .week-header-arr{font-size:14px;color:#E2B554;margin-left:1px}
 .pj-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E2B554;margin-left:4px;vertical-align:middle;flex-shrink:0}
+[data-theme="dark"] .pj-tab-dot{background:var(--terracotta)}
 .settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;color:var(--text);padding:0;flex-shrink:0}
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
