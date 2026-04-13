@@ -331,13 +331,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 [data-theme="dark"] .week-chip-arr{color:var(--paper);opacity:0.8}
 
 /* ── Auth Bridge (Safari → PWA handoff) ── */
-.auth-bridge{position:fixed;inset:0;background:#0C0C0C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;z-index:999}
-.auth-bridge-logo{width:80px;margin-bottom:48px}
-.auth-bridge-title{font-family:var(--brand);font-size:28px;color:#FFFDFA;letter-spacing:.02em;margin-bottom:12px}
-.auth-bridge-sub{font-family:var(--sans);font-size:14px;color:rgba(245,241,235,0.55);text-align:center;line-height:1.6;margin-bottom:56px;max-width:260px}
-.auth-bridge-instruction{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:48px}
-.auth-bridge-step{font-family:var(--sans);font-size:13px;color:rgba(245,241,235,0.4);letter-spacing:.06em}
-.auth-bridge-btn{width:200px;height:51px;background:#FFFDFA;border:none;border-radius:4px;font-family:var(--brand);font-size:18px;color:#0C0C0C;cursor:pointer;letter-spacing:.01em}
+@keyframes bridgeFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.auth-bridge{position:fixed;inset:0;background:#0C0C0C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;z-index:9999}
+.auth-bridge-inner{display:flex;flex-direction:column;align-items:center;animation:bridgeFadeIn .5s ease both}
+.auth-bridge-logo{width:72px;margin-bottom:40px;opacity:0.9}
+.auth-bridge-title{font-family:var(--brand);font-size:26px;color:#FFFDFA;letter-spacing:.02em;margin-bottom:10px}
+.auth-bridge-sub{font-family:var(--sans);font-size:13px;color:rgba(245,241,235,0.45);text-align:center;line-height:1.7;margin-bottom:52px;max-width:240px}
+.auth-bridge-hint{font-family:var(--sans);font-size:11px;color:rgba(245,241,235,0.25);letter-spacing:.08em;text-transform:uppercase;text-align:center}
 /* ── Login ── */
 .pj-login{position:fixed;inset:0;background:var(--paper)}
 .login-logo{position:absolute;top:10.3%;left:50%;transform:translateX(-50%);width:80px;height:80px}
@@ -633,7 +633,8 @@ export default function App() {
   const [newPwVal,     setNewPwVal]     = useState('');
   const [resetBusy,    setResetBusy]    = useState(false);
   const [accessView,   setAccessView]   = useState(false); // false | 'form' | 'success'
-  const [showAuthBridge, setShowAuthBridge] = useState(false); // Safari → PWA handoff screen
+  // Initialize to true synchronously if we detect OAuth params in the URL — avoids any flash
+  const [showAuthBridge, setShowAuthBridge] = useState(() => !_isStandalone && _authInUrl);
   const [showLanding,  setShowLanding]  = useState(true);
   const [reqEmail,     setReqEmail]     = useState('');
   const [reqBusy,      setReqBusy]      = useState(false);
@@ -1295,6 +1296,17 @@ export default function App() {
     </div>
   );
 
+  if (showAuthBridge) return (
+    <div className="auth-bridge">
+      <div className="auth-bridge-inner">
+        <img src="/scout-lockup.svg" alt="Scout" className="auth-bridge-logo" />
+        <div className="auth-bridge-title">YOU'RE IN</div>
+        <div className="auth-bridge-sub">Head back to Scout on your home screen to start shooting.</div>
+        <div className="auth-bridge-hint">Tap the Scout icon on your home screen</div>
+      </div>
+    </div>
+  );
+
   if (checking) return splash || null;
 
   if (showOnboarding) {
@@ -1325,17 +1337,6 @@ export default function App() {
       </div>
       <div/>
     </form>
-  );
-
-  if (showAuthBridge) return (
-    <div className="auth-bridge">
-      <img src="/scout-lockup.svg" alt="Scout" className="auth-bridge-logo" />
-      <div className="auth-bridge-title">YOU'RE IN</div>
-      <div className="auth-bridge-sub">Return to Scout on your home screen to start shooting.</div>
-      <div className="auth-bridge-instruction">
-        <div className="auth-bridge-step">TAP THE SCOUT ICON ON YOUR HOME SCREEN</div>
-      </div>
-    </div>
   );
 
   if (!authed && showLanding) return (
