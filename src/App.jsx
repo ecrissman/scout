@@ -1229,7 +1229,7 @@ export default function App() {
       <div className="ob-wrap">
         <h2 className="ob-hed">ONE PHOTO<br/>EVERY DAY</h2>
         <p className="ob-hint">
-          Follow your guide or make your own path.
+          Follow Scout's lead or make your own path
         </p>
         <button type="button" className="ob-cta" onClick={finishOnboarding}>
           LET'S GO
