@@ -324,6 +324,14 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 [data-theme="dark"] .week-chip-sub{color:rgba(255,253,250,0.55)}
 [data-theme="dark"] .week-chip-arr{color:var(--paper);opacity:0.8}
 
+/* ── Auth Bridge (Safari → PWA handoff) ── */
+.auth-bridge{position:fixed;inset:0;background:#0C0C0C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;z-index:999}
+.auth-bridge-logo{width:80px;margin-bottom:48px}
+.auth-bridge-title{font-family:var(--brand);font-size:28px;color:#FFFDFA;letter-spacing:.02em;margin-bottom:12px}
+.auth-bridge-sub{font-family:var(--sans);font-size:14px;color:rgba(245,241,235,0.55);text-align:center;line-height:1.6;margin-bottom:56px;max-width:260px}
+.auth-bridge-instruction{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:48px}
+.auth-bridge-step{font-family:var(--sans);font-size:13px;color:rgba(245,241,235,0.4);letter-spacing:.06em}
+.auth-bridge-btn{width:200px;height:51px;background:#FFFDFA;border:none;border-radius:4px;font-family:var(--brand);font-size:18px;color:#0C0C0C;cursor:pointer;letter-spacing:.01em}
 /* ── Login ── */
 .pj-login{position:fixed;inset:0;background:var(--paper)}
 .login-logo{position:absolute;top:10.3%;left:50%;transform:translateX(-50%);width:80px;height:80px}
@@ -619,6 +627,7 @@ export default function App() {
   const [newPwVal,     setNewPwVal]     = useState('');
   const [resetBusy,    setResetBusy]    = useState(false);
   const [accessView,   setAccessView]   = useState(false); // false | 'form' | 'success'
+  const [showAuthBridge, setShowAuthBridge] = useState(false); // Safari → PWA handoff screen
   const [showLanding,  setShowLanding]  = useState(true);
   const [reqEmail,     setReqEmail]     = useState('');
   const [reqBusy,      setReqBusy]      = useState(false);
@@ -677,11 +686,55 @@ export default function App() {
 
 
   useEffect(()=>{
-    supabase.auth.getSession().then(({ data }) => {
-      const hasSession = !!data.session;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
+
+    // ── Safari → PWA cookie bridge ──
+    // After Google OAuth, the user lands in Safari (not the PWA). We write the
+    // Supabase tokens to a cookie (cookies are shared across Safari + PWA on iOS,
+    // unlike localStorage which is sandboxed). The PWA reads the cookie on next open.
+    const writeBridgeCookie = (session) => {
+      const payload = JSON.stringify({ a: session.access_token, r: session.refresh_token });
+      document.cookie = `scout_auth_bridge=${encodeURIComponent(payload)}; max-age=300; path=/; SameSite=Lax`;
+    };
+    const readBridgeCookie = () => {
+      const match = document.cookie.match(/(?:^|;\s*)scout_auth_bridge=([^;]*)/);
+      if (!match) return null;
+      try { return JSON.parse(decodeURIComponent(match[1])); } catch { return null; }
+    };
+    const clearBridgeCookie = () => {
+      document.cookie = 'scout_auth_bridge=; max-age=0; path=/; SameSite=Lax';
+    };
+
+    supabase.auth.getSession().then(async ({ data }) => {
+      let session = data.session;
+
+      // PWA: no session in localStorage — check for bridged cookie from Safari OAuth
+      if (!session && isStandalone) {
+        const bridged = readBridgeCookie();
+        if (bridged) {
+          const { data: restored } = await supabase.auth.setSession({ access_token: bridged.a, refresh_token: bridged.r });
+          clearBridgeCookie();
+          session = restored.session;
+        }
+      }
+
+      // Safari: just completed OAuth — write bridge cookie, show return screen
+      if (!isStandalone) {
+        const urlHasAuth = window.location.hash.includes('access_token') || new URLSearchParams(window.location.search).has('code');
+        if (urlHasAuth && session) {
+          writeBridgeCookie(session);
+          // Clean the URL
+          window.history.replaceState(null, '', window.location.pathname);
+          setShowAuthBridge(true);
+          setChecking(false);
+          return;
+        }
+      }
+
+      const hasSession = !!session;
       setAuthed(hasSession);
-      setUserEmail(data.session?.user?.email || null);
-      if (hasSession) setShowLanding(false); // already authed — skip landing, clear dark status bar
+      setUserEmail(session?.user?.email || null);
+      if (hasSession) setShowLanding(false);
       if (hasSession && !localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
       setChecking(false);
     });
@@ -1271,6 +1324,17 @@ export default function App() {
       </div>
       <div/>
     </form>
+  );
+
+  if (showAuthBridge) return (
+    <div className="auth-bridge">
+      <img src="/scout-lockup.svg" alt="Scout" className="auth-bridge-logo" />
+      <div className="auth-bridge-title">YOU'RE IN</div>
+      <div className="auth-bridge-sub">Return to Scout on your home screen to start shooting.</div>
+      <div className="auth-bridge-instruction">
+        <div className="auth-bridge-step">TAP THE SCOUT ICON ON YOUR HOME SCREEN</div>
+      </div>
+    </div>
   );
 
   if (!authed && showLanding) return (
