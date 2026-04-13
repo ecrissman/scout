@@ -158,16 +158,14 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 [data-theme="dark"] .cam-center{fill:#E37222}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
-.tip-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7;position:relative;-webkit-tap-highlight-color:transparent}
+.tip-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7;-webkit-tap-highlight-color:transparent}
 .tip-icon-btn:active{opacity:.4}
-.tip-popup-wrap{position:absolute;bottom:calc(100% + 14px);right:-16px;z-index:200}
-.tip-popup{width:264px;background:var(--paper);border:1.5px solid var(--rule);border-radius:12px;padding:16px 18px;box-shadow:0 8px 28px rgba(0,0,0,0.13);animation:tipPopIn .16s ease both}
-@keyframes tipPopIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.tip-popup{position:fixed;width:264px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:0 8px 28px rgba(0,0,0,0.18);z-index:500;animation:tipPopIn .16s ease both}
+@keyframes tipPopIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .tip-popup-label{font-family:var(--sans);font-size:10px;font-weight:700;color:var(--terracotta);letter-spacing:.1em;margin-bottom:6px}
-.tip-popup-name{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:6px;line-height:1.3}
+.tip-popup-name{font-family:var(--sans);font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.3}
 .tip-popup-body{font-family:var(--sans);font-size:13px;color:var(--text-2);line-height:1.55}
-[data-theme="dark"] .tip-popup{box-shadow:0 8px 28px rgba(0,0,0,0.45)}
-.theme-next-week{font-family:var(--sans);font-size:13px;font-weight:600;color:#0C0C0C;margin-top:8px}
+.theme-next-week{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--text-2);margin-top:8px;padding:0 16px 14px}
 @media(min-width:640px){.today-sheet{display:none}}
 
 
@@ -535,7 +533,7 @@ const stripFeedback = (text) => {
 
 // ── Icons ──
 const IcUpload = ()=><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
-const IcTip = ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>;
+const IcTip = ()=><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>;
 const IcHamburger = ()=><svg width="20" height="14" viewBox="0 0 20 14" fill="none"><line x1="0" y1="1" x2="20" y2="1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><line x1="0" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><line x1="0" y1="13" x2="20" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>;
 const ChevLeft  = ()=><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M8 1L1 7.5L8 14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const ChevRight = ()=><svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M1 1L8 7.5L1 14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/></svg>;
@@ -701,6 +699,7 @@ export default function App() {
   const captionRef     = useRef(null);
   const lbTouchRef     = useRef(null);
   const swipeTouchRef  = useRef(null);
+  const tipBtnRef      = useRef(null);
   const monthScrollRef = useRef(null);
   const promptFiredRef = useRef(false);
 
@@ -1762,20 +1761,12 @@ export default function App() {
                   <rect x="7" y="7" width="66" height="66" rx="33" className="cam-center"/>
                 </svg>
               </button>
-              <div style={{position:'relative'}}>
-                <button className="tip-icon-btn" onClick={e=>{e.stopPropagation();setTipPopupOpen(v=>!v);}} aria-label="Today's tip">
-                  <IcTip/>
-                </button>
-                {tipPopupOpen&&(()=>{const tip=getSkill(sel);return(
-                  <div className="tip-popup-wrap">
-                    <div className="tip-popup">
-                      <div className="tip-popup-label">TODAY'S TIP</div>
-                      <div className="tip-popup-name">{tip.n}</div>
-                      <div className="tip-popup-body">{tip.t}</div>
-                    </div>
-                  </div>
-                );})()}
-              </div>
+              <button ref={tipBtnRef} className="tip-icon-btn" onClick={e=>{
+                e.stopPropagation();
+                setTipPopupOpen(v=>!v);
+              }} aria-label="Today's tip">
+                <IcTip/>
+              </button>
 
             </div>
           </div>
@@ -1832,6 +1823,20 @@ export default function App() {
               <button className="review-action-btn" onClick={handleShareReview} disabled={reviewBuilding}>Share</button>
               <button className="review-action-btn" onClick={handleDownloadReview} disabled={reviewBuilding}>Download</button>
             </div>
+          </div>
+        );
+      })()}
+
+      {tipPopupOpen&&(()=>{
+        const tip = getSkill(sel);
+        const rect = tipBtnRef.current?.getBoundingClientRect();
+        const bottom = rect ? window.innerHeight - rect.top + 12 : 150;
+        const right  = rect ? window.innerWidth - rect.right + 8  : 24;
+        return (
+          <div className="tip-popup" style={{bottom, right}}>
+            <div className="tip-popup-label">TODAY'S TIP</div>
+            <div className="tip-popup-name">{tip.n}</div>
+            <div className="tip-popup-body">{tip.t}</div>
           </div>
         );
       })()}
