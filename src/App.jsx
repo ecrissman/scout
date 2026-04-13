@@ -1307,6 +1307,11 @@ export default function App() {
     </div>
   );
 
+  // PWA receiving OAuth callback directly — show clean dark screen instead of flash
+  if (checking && _isStandalone && _authInUrl) return (
+    <div style={{position:'fixed',inset:0,background:'#0C0C0C'}} />
+  );
+
   if (checking) return splash || null;
 
   if (showOnboarding) {
