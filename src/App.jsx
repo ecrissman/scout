@@ -35,8 +35,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* ── Onboarding ── */
 .ob-wrap{position:fixed;inset:0;background:#4F5E2E;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px}
-.ob-hed{font-family:var(--brand);font-size:56px;line-height:1.05;color:#FFFDFA;text-transform:uppercase;text-align:center;margin:0 0 28px;white-space:nowrap}
-.ob-hint{font-family:var(--sans);font-size:15px;font-weight:300;line-height:1.5;color:rgba(255,253,250,0.6);text-align:center;margin:0}
+.ob-hed{font-family:var(--brand);font-size:56px;line-height:1.05;color:#FFFDFA;text-transform:uppercase;text-align:center;margin:0 0 40px;white-space:nowrap}
+.ob-hint{font-family:var(--sans);font-size:20px;font-weight:300;line-height:1.5;color:rgba(255,253,250);text-align:center;margin:0}
 .ob-cta{position:absolute;top:86%;left:50%;transform:translateX(-50%);width:197px;height:51px;font-family:var(--brand);font-size:20px;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
 .ob-cta:active{opacity:.5}
 
