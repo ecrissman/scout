@@ -18,6 +18,17 @@ function isoWeekKey() {
   return `${y}-${m}-${day}`;
 }
 
+/** Same as isoWeekKey() but anchored to a specific date string (YYYY-MM-DD). */
+function isoWeekKeyFromDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const sunday = new Date(d);
+  sunday.setDate(d.getDate() - d.getDay());
+  const y = sunday.getFullYear();
+  const m = String(sunday.getMonth() + 1).padStart(2, '0');
+  const day = String(sunday.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 function anthropicHeaders(env) {
   return {
     'x-api-key': env.ANTHROPIC_API_KEY,
@@ -305,7 +316,8 @@ export async function onRequest({ request, env, params }) {
 
   // ── GET /api/theme/current ───────────────────────────────────────────────
   if (route === 'theme/current' && method === 'GET') {
-    const weekKey = isoWeekKey();
+    const dateOverride = new URL(request.url).searchParams.get('date');
+    const weekKey = dateOverride ? isoWeekKeyFromDate(dateOverride) : isoWeekKey();
     const cached = await env.PHOTOS.get(`themes/${weekKey}.json`);
     if (cached) return json(await cached.json());
 
