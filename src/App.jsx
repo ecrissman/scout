@@ -141,6 +141,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
 .today-sheet-cam{display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;transition:opacity .15s,transform .1s}
 .today-sheet-cam:active{opacity:.75;transform:scale(0.92)}
+.cam-center{fill:#E2B554}
+[data-theme="dark"] .cam-center{fill:#E34822}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
 @media(min-width:640px){.today-sheet{display:none}}
@@ -368,7 +370,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .nav-panel{position:fixed;left:0;top:0;bottom:0;width:189px;z-index:201;background:#FFFDFA;box-shadow:4px 0 20px rgba(0,0,0,0.18);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);animation:navPanelIn 0.32s cubic-bezier(0.32,0.72,0,1)}
 .nav-panel.is-closing{animation:navPanelOut 0.28s cubic-bezier(0.32,0.72,0,1) forwards}
 .nav-panel-header{display:flex;align-items:center;padding:14px 21px;position:relative;flex-shrink:0}
-.nav-panel-wordmark{position:absolute;left:67px;right:0;text-align:left;font-family:var(--brand);font-size:30px;line-height:1.2;color:var(--sage);pointer-events:none;letter-spacing:0.01em}
+.nav-panel-wordmark{position:absolute;left:67px;right:0;text-align:left;font-family:var(--brand);font-size:30px;line-height:1.2;color:var(--ink);pointer-events:none;letter-spacing:0.01em}
+[data-theme="dark"] .nav-panel-wordmark{color:var(--paper)}
 .nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1;color:#0C0C0C}
 .nav-panel-close:active{opacity:.5}
 .nav-panel-nav{display:flex;flex-direction:column;gap:30px;padding:32px 21px 0;flex:1}
@@ -1618,7 +1621,7 @@ export default function App() {
                 <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
                   <rect width="80" height="80" rx="40" fill="#FFFDFA"/>
                   <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" fill="#0C0C0C"/>
-                  <rect x="7" y="7" width="66" height="66" rx="33" fill="#E2B554"/>
+                  <rect x="7" y="7" width="66" height="66" rx="33" className="cam-center"/>
                 </svg>
               </button>
               <div style={{width:44,height:44,margin:'0 36px'}}/>
