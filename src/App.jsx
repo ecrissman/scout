@@ -141,7 +141,11 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
 .today-sheet-cam{display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;transition:opacity .15s,transform .1s}
 .today-sheet-cam:active{opacity:.75;transform:scale(0.92)}
+.cam-outer{fill:#0C0C0C}
+.cam-border{fill:#FFFDFA}
 .cam-center{fill:#E2B554}
+[data-theme="dark"] .cam-outer{fill:#FFFDFA}
+[data-theme="dark"] .cam-border{fill:#0C0C0C}
 [data-theme="dark"] .cam-center{fill:#E34822}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
@@ -1620,8 +1624,8 @@ export default function App() {
               </button>
               <button className="today-sheet-cam" onClick={()=>cameraRef.current?.click()} disabled={busy} aria-label="Take photo">
                 <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                  <rect width="80" height="80" rx="40" fill="#FFFDFA"/>
-                  <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" fill="#0C0C0C"/>
+                  <rect width="80" height="80" rx="40" className="cam-outer"/>
+                  <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" className="cam-border"/>
                   <rect x="7" y="7" width="66" height="66" rx="33" className="cam-center"/>
                 </svg>
               </button>
