@@ -16,7 +16,7 @@ const CSS = `
   --bg:#FFFDFA;--bg-secondary:#F0EEEA;--surface:#F0EEEA;
   --border:#E3E1DD;
   --text:#1C1916;--text-2:#8C857C;--text-3:#B5AFA9;
-  --accent:#4F5E2E;--accent-fg:#FFFDFA;
+  --accent:#E2B554;--accent-fg:#1C1916;
   --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:#E3E1DD;
   --brand:'Flapjack','Inconsolata',system-ui,sans-serif;
@@ -27,7 +27,7 @@ const CSS = `
   --bg:#0C0C0C;--bg-secondary:#2E2C2B;--surface:#2E2C2B;
   --border:rgba(245,241,235,0.10);
   --text:#FFFDFA;--text-2:rgba(245,241,235,0.60);--text-3:rgba(245,241,235,0.30);
-  --accent:#4F5E2E;--accent-fg:#FFFDFA;
+  --accent:#E2B554;--accent-fg:#1C1916;
   --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
 }
@@ -135,7 +135,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .today-sheet-dismiss{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#F0EEEA;border:none;cursor:pointer;padding:0;flex-shrink:0}
 .today-sheet-dismiss:active{opacity:.6}
 .today-sheet-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 44px}
-.today-sheet-prompt-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:#4F5E2E;text-align:center;letter-spacing:0.06em;margin-bottom:14px}
+.today-sheet-prompt-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:var(--accent);text-align:center;letter-spacing:0.06em;margin-bottom:14px}
 .today-sheet-prompt-txt{font-family:var(--sans);font-size:16px;color:var(--text);line-height:1.65;font-weight:300;text-align:center}
 .today-sheet-skel{background:#EBEBEB;border-radius:85px;height:12px;margin:5px auto;display:block}
 .today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
@@ -388,7 +388,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .grids-back:active{opacity:.4}
 .grids-title{font-family:Inconsolata,monospace;font-weight:500;font-size:14px;letter-spacing:0.06em;color:#0C0C0C}
 .grids-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 48px;gap:12px}
-.grids-empty-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;letter-spacing:0.06em;color:#4F5E2E}
+.grids-empty-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;letter-spacing:0.06em;color:var(--accent)}
 .grids-empty-sub{font-family:var(--sans);font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;font-weight:300}
 .gallery-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
 .gallery-year-header{position:sticky;top:0;z-index:2;background:#FFFDFA;padding:10px 20px 8px;font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;color:var(--text-3);border-bottom:1px solid var(--border)}
@@ -691,6 +691,7 @@ export default function App() {
     else if (showLanding)        color = '#0C0C0C';
     else if (showOnboarding)     color = '#4F5E2E';
     else if (!authed)            color = '#FFFDFA';
+    else if (lightboxOpen)        color = '#000000';
     else if (todaySheetVisible)  color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     else if (weekReview)         color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
     else                         color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
@@ -698,7 +699,7 @@ export default function App() {
     if (m) m.content = color;
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
-  }, [splashDone, showLanding, showOnboarding, authed, showTodaySheet, sel, todayStr,
+  }, [splashDone, showLanding, showOnboarding, authed, lightboxOpen, showTodaySheet, sel, todayStr,
       dayMeta, dayLoading, weekReview, reviewPhase, theme]);
 
   useLayoutEffect(()=>{ applyStatusBarColor(); }, [applyStatusBarColor]);
@@ -1615,9 +1616,9 @@ export default function App() {
               </button>
               <button className="today-sheet-cam" onClick={()=>cameraRef.current?.click()} disabled={busy} aria-label="Take photo">
                 <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                  <rect width="80" height="80" rx="40" fill="#0C0C0C"/>
-                  <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" fill="#FFFDFA"/>
-                  <rect x="7" y="7" width="66" height="66" rx="33" fill="#E34822"/>
+                  <rect width="80" height="80" rx="40" fill="#FFFDFA"/>
+                  <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" fill="#0C0C0C"/>
+                  <rect x="7" y="7" width="66" height="66" rx="33" fill="#E2B554"/>
                 </svg>
               </button>
               <div style={{width:44,height:44,margin:'0 36px'}}/>
@@ -1780,10 +1781,10 @@ export default function App() {
 
           {photoDates.size===0 ? (
             <div className="grids-empty">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#4F5E2E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:0.4}}>
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="#E2B554" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:0.4}}>
                 <rect x="4" y="8" width="40" height="34" rx="3"/>
                 <circle cx="24" cy="25" r="9"/>
-                <circle cx="24" cy="25" r="4" fill="#4F5E2E" stroke="none" opacity="0.4"/>
+                <circle cx="24" cy="25" r="4" fill="#E2B554" stroke="none" opacity="0.4"/>
                 <path d="M16 8V5M32 8V5"/>
               </svg>
               <div className="grids-empty-lbl">NO PHOTOS YET</div>
