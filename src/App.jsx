@@ -642,9 +642,7 @@ export default function App() {
   const [newPwVal,     setNewPwVal]     = useState('');
   const [resetBusy,    setResetBusy]    = useState(false);
   const [accessView,   setAccessView]   = useState(false); // false | 'form' | 'success'
-  // Initialize to true synchronously if we detect OAuth params in the URL — avoids any flash
-  const [showAuthBridge, setShowAuthBridge] = useState(() => !_isStandalone && _authInUrl);
-  const [showLanding,  setShowLanding]  = useState(true);
+const [showLanding,  setShowLanding]  = useState(true);
   const [reqEmail,     setReqEmail]     = useState('');
   const [reqBusy,      setReqBusy]      = useState(false);
   const [reqErr,       setReqErr]       = useState(null);
@@ -734,13 +732,10 @@ export default function App() {
         }
       }
 
-      // Safari: just completed OAuth — _authInUrl was captured before Supabase cleared the hash
+      // Safari: just completed OAuth — write bridge cookie so PWA can pick it up
       if (!_isStandalone && _authInUrl && session) {
         writeBridgeCookie(session);
         window.history.replaceState(null, '', window.location.pathname);
-        setShowAuthBridge(true);
-        setChecking(false);
-        return;
       }
 
       const hasSession = !!session;
@@ -1328,16 +1323,6 @@ export default function App() {
     </div>
   );
 
-  if (showAuthBridge) return (
-    <div className="auth-bridge">
-      <div className="auth-bridge-inner">
-        <img src="/scout-lockup.svg" alt="Scout" className="auth-bridge-logo" />
-        <div className="auth-bridge-title">YOU'RE IN</div>
-        <div className="auth-bridge-sub">Head back to Scout on your home screen to start shooting.</div>
-        <div className="auth-bridge-hint">Tap the Scout icon on your home screen</div>
-      </div>
-    </div>
-  );
 
   // PWA receiving OAuth callback directly — show clean dark screen instead of flash
   if (checking && _isStandalone && _authInUrl) return (
@@ -1526,8 +1511,8 @@ export default function App() {
             </div>
             <div className={`theme-card-body${themeExpanded?' open':''}`}>
               {weekTheme.description&&<div className="theme-card-desc">{weekTheme.description}</div>}
-              {nextWeekTheme&&nextWeekTheme.theme!==weekTheme?.theme&&<div className="theme-next-week">Next week's theme: {nextWeekTheme.theme}</div>}
             </div>
+            {nextWeekTheme&&nextWeekTheme.theme!==weekTheme?.theme&&<div className="theme-next-week">Next week's theme: {nextWeekTheme.theme}</div>}
           </div>
         )}
 
