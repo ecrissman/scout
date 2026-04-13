@@ -858,11 +858,24 @@ export default function App() {
 
   const handleGoogleLogin = async () => {
     setLoginBusy(true); setLoginErr('');
-    const { error } = await supabase.auth.signInWithOAuth({
+    // In PWA standalone mode, OAuth redirects get trapped in the app's webview.
+    // We get the URL first, then navigate directly so the system browser handles it.
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: {
+        redirectTo: window.location.origin,
+        skipBrowserRedirect: true,
+      },
     });
-    if (error) { setLoginErr(error.message); setLoginBusy(false); }
+    if (error) { setLoginErr(error.message); setLoginBusy(false); return; }
+    if (isStandalone && data?.url) {
+      // Open in system browser so the OAuth flow works and can redirect back
+      window.open(data.url, '_blank');
+    } else if (data?.url) {
+      window.location.href = data.url;
+    }
+    setLoginBusy(false);
   };
 
   const handleForgotRequest = async (e) => {
