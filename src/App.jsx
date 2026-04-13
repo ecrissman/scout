@@ -835,7 +835,8 @@ const [showLanding,  setShowLanding]  = useState(true);
     thisSunday.setDate(date.getDate() - date.getDay());
     const nextSunday = new Date(thisSunday);
     nextSunday.setDate(thisSunday.getDate() + 7);
-    const nextSundayStr = dk(nextSunday.getFullYear(), nextSunday.getMonth(), nextSunday.getDate());
+    const pad = n => String(n).padStart(2,'0');
+    const nextSundayStr = `${nextSunday.getFullYear()}-${pad(nextSunday.getMonth()+1)}-${pad(nextSunday.getDate())}`;
     getNextWeekTheme(nextSundayStr).then(t => { if (t?.theme) setNextWeekTheme(t); });
   }, [authed, aiEnabled, weekKey]);
 
