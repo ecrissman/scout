@@ -833,6 +833,7 @@ export default function App() {
 
   useEffect(()=>{
     if (!authed || !aiEnabled) return;
+    setNextWeekTheme(null); // clear stale value when week changes
     const [y, m, d] = todayStr.split('-').map(Number);
     const date = new Date(y, m - 1, d);
     const thisSunday = new Date(date);
