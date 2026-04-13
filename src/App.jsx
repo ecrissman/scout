@@ -17,7 +17,7 @@ const CSS = `
   --border:#E3E1DD;
   --text:#1C1916;--text-2:#8C857C;--text-3:#B5AFA9;
   --accent:#E2B554;--accent-fg:#1C1916;
-  --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
+  --terracotta:#E57016;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:#E3E1DD;
   --brand:'Flapjack','Inconsolata',system-ui,sans-serif;
   --serif:'Inconsolata',system-ui,monospace;
@@ -27,8 +27,8 @@ const CSS = `
   --bg:#0C0C0C;--bg-secondary:#2E2C2B;--surface:#2E2C2B;
   --border:rgba(245,241,235,0.10);
   --text:#FFFDFA;--text-2:rgba(245,241,235,0.60);--text-3:rgba(245,241,235,0.30);
-  --accent:#E34822;--accent-fg:#FFFDFA;
-  --terracotta:#E34822;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
+  --accent:#E57016;--accent-fg:#FFFDFA;
+  --terracotta:#E57016;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
 }
 html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
@@ -100,7 +100,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .overflow-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;background:none;border:none;font-family:var(--sans);font-size:14px;color:var(--ink);cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;white-space:nowrap}
 .overflow-item:active{background:var(--rule)}
 .overflow-item svg{flex-shrink:0;opacity:0.6}
-.overflow-item-danger{color:#E34822}
+.overflow-item-danger{color:#E57016}
 .overflow-item-danger svg{opacity:1}
 [data-theme="dark"] .overflow-menu{box-shadow:0 4px 16px rgba(0,0,0,0.4)}
 [data-theme="dark"] .overflow-btn{color:var(--text);opacity:1}
@@ -149,7 +149,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .cam-center{fill:#E2B554}
 [data-theme="dark"] .cam-outer{fill:#FFFDFA}
 [data-theme="dark"] .cam-border{fill:#0C0C0C}
-[data-theme="dark"] .cam-center{fill:#E34822}
+[data-theme="dark"] .cam-center{fill:#E57016}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
 @media(min-width:640px){.today-sheet{display:none}}
@@ -2055,6 +2055,10 @@ export default function App() {
                 <button className="settings-row-btn" onClick={()=>{ localStorage.removeItem('scout-onboarded'); setShowOnboarding(true); setDevPanelOpen(false); }}>
                   <span className="settings-row-label">Reset Onboarding</span>
                   <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay first-run flow</span>
+                </button>
+                <button className="settings-row-btn" onClick={()=>{ setFirstPhotoModal(true); setDevPanelOpen(false); }}>
+                  <span className="settings-row-label">Show First Photo Screen</span>
+                  <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>DAY ONE LOGGED modal</span>
                 </button>
               </div>
             </div>

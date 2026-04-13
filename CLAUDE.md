@@ -61,7 +61,7 @@ To edit styles: edit the `CSS` string directly in `App.jsx`.
 
 ```css
 /* Light mode */
---terracotta: #E34822   /* CTAs · Active states · Streak counter */
+--terracotta: #E57016   /* CTAs · Active states · Streak counter */
 --sage:       #4F5E2E   /* Prompt strips · Empty states · Primary accent */
 --gold:       #E2B554   /* Week header highlight */
 --paper:      #FFFDFA   /* Primary background */
