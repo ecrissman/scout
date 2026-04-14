@@ -28,7 +28,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Vite inlines VITE_* vars at build time. If either is missing the
+      # bundle ships with undefined Supabase credentials and the app crashes
+      # on load. Fail loudly here instead of silently shipping a broken build.
+      - name: Verify build-time secrets
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$VITE_SUPABASE_URL" ] || [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
+            echo "::error::Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY repo secret. Aborting to avoid shipping a broken build."
+            exit 1
+          fi
+          echo "Build secrets present."
+
       - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
