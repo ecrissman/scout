@@ -741,6 +741,8 @@ const [showLanding,  setShowLanding]  = useState(true);
   const [locationName,  setLocationName]  = useState(null);
   const [aiEnabled,    setAiEnabled]    = useState(()=> localStorage.getItem('scout-ai-enabled') !== 'false');
   useEffect(()=>{ localStorage.setItem('scout-ai-enabled', String(aiEnabled)); }, [aiEnabled]);
+  const [tipsEnabled,  setTipsEnabled]  = useState(()=> localStorage.getItem('scout-tips-enabled') === 'true');
+  useEffect(()=>{ localStorage.setItem('scout-tips-enabled', String(tipsEnabled)); }, [tipsEnabled]);
   const [weekTheme,    setWeekTheme]    = useState(null);
   const [nextWeekTheme, setNextWeekTheme] = useState(null);
   const [tipPopupOpen,  setTipPopupOpen]  = useState(false);
@@ -1823,12 +1825,12 @@ const [showLanding,  setShowLanding]  = useState(true);
                   <rect x="7" y="7" width="66" height="66" rx="33" className="cam-center"/>
                 </svg>
               </button>
-              <button ref={tipBtnRef} className="tip-icon-btn" onClick={e=>{
+              {tipsEnabled&&<button ref={tipBtnRef} className="tip-icon-btn" onClick={e=>{
                 e.stopPropagation();
                 setTipPopupOpen(v=>!v);
               }} aria-label="Today's tip">
                 <IcTip/>
-              </button>
+              </button>}
 
             </div>
           </div>
@@ -2147,6 +2149,15 @@ const [showLanding,  setShowLanding]  = useState(true);
                     <div className="settings-row-sub">Captions, feedback & prompts</div>
                   </div>
                   <button className={`ai-toggle${aiEnabled?' on':' off'}`} onClick={()=>setAiEnabled(v=>!v)} aria-label={aiEnabled?'Disable AI':'Enable AI'}>
+                    <div className="ai-toggle-thumb"/>
+                  </button>
+                </div>
+                <div className="settings-row">
+                  <div style={{flex:1}}>
+                    <div className="settings-row-label">Photography Tips</div>
+                    <div className="settings-row-sub">Weekly skill tips in the theme card</div>
+                  </div>
+                  <button className={`ai-toggle${tipsEnabled?' on':' off'}`} onClick={()=>setTipsEnabled(v=>!v)} aria-label={tipsEnabled?'Disable tips':'Enable tips'}>
                     <div className="ai-toggle-thumb"/>
                   </button>
                 </div>
