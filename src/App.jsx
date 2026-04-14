@@ -757,7 +757,7 @@ const [showLanding,  setShowLanding]  = useState(true);
   const swipeTouchRef  = useRef(null);
   const tipBtnRef      = useRef(null);
   const monthScrollRef = useRef(null);
-  const promptFiredRef = useRef(false);
+  const promptFiredRef = useRef(null); // stores the date string the prompt was last fired for
 
 
   useEffect(()=>{
@@ -949,11 +949,11 @@ const [showLanding,  setShowLanding]  = useState(true);
     setFeedbackExpanded(true);
     setCaptionSuggestion(null);
     setCaptionSuggestLoad(false);
-    // Only reset prompt state when navigating away from today (not when returning to it)
+    // Reset prompt state when navigating away from today
     if (sel !== todayStr) {
       setShootPrompt(null);
       setPromptLoading(false);
-      promptFiredRef.current = false;
+      // Don't reset promptFiredRef here — it's date-keyed and self-manages
     }
     setLocationName(null);
     getPhoto(sel).then(data=>{
@@ -969,16 +969,17 @@ const [showLanding,  setShowLanding]  = useState(true);
   // ── Auto-fetch today's prompt when viewing today with no photo ──
   useEffect(()=>{
     if (!authed || !aiEnabled || sel !== todayStr || dayLoading || dayMeta) return;
-    if (promptFiredRef.current) return;
+    // Use date string in ref so the prompt re-fires correctly when the day rolls over
+    if (promptFiredRef.current === todayStr) return;
     // Check localStorage cache first — prompt should only generate once per day
     const cacheKey = `scout-prompt-${todayStr}`;
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       setShootPrompt(cached);
-      promptFiredRef.current = true;
+      promptFiredRef.current = todayStr;
       return;
     }
-    promptFiredRef.current = true;
+    promptFiredRef.current = todayStr;
     setPromptLoading(true);
     getTodayPrompt(sel).then(data=>{
       if (data?.prompt) {
@@ -987,7 +988,7 @@ const [showLanding,  setShowLanding]  = useState(true);
       }
       setPromptLoading(false);
     });
-  }, [sel, dayMeta, dayLoading, authed, aiEnabled]);
+  }, [sel, dayMeta, dayLoading, authed, aiEnabled, todayStr]);
 
 
   // Map Supabase auth errors to friendlier copy. Falls back to the original
