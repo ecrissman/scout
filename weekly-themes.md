@@ -1,4 +1,4 @@
-# Sightful — Weekly Photography Themes
+# Scout — Weekly Photography Themes
 
 52 themes for the year. Each is a creative brief — a way of seeing to carry with you for seven days. Themes are aspirational, not instructional. The *how* lives in the daily tips.
 

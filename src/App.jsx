@@ -3,6 +3,7 @@ import { getPhoto, uploadPhoto, updateCaption, deletePhoto, listYear, thumbUrl, 
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { getSkill } from './skills';
 import { supabase } from './supabase.js';
+import { PRIVACY_POLICY, TERMS_OF_SERVICE } from './legal.js';
 
 // Mark standalone PWA mode before first paint so CSS can target it
 if (window.navigator.standalone) document.documentElement.classList.add('pwa');
@@ -12,6 +13,40 @@ if (window.navigator.standalone) document.documentElement.classList.add('pwa');
 const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || !!window.navigator.standalone;
 const _authInUrl = window.location.hash.includes('access_token') ||
   new URLSearchParams(window.location.search).has('code');
+
+// Tiny markdown renderer for legal docs. Handles h1/h2, paragraphs, bullet
+// lists, and **bold** inline. The input is trusted (our own file) so the
+// output is safe to render as-is.
+function renderLegal(md) {
+  const blocks = md.split(/\n\n+/);
+  const inline = (s) => {
+    const parts = s.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((p, i) =>
+      p.startsWith('**') && p.endsWith('**')
+        ? <strong key={i}>{p.slice(2, -2)}</strong>
+        : <span key={i}>{p}</span>
+    );
+  };
+  return blocks.map((block, i) => {
+    const trimmed = block.trim();
+    if (!trimmed) return null;
+    if (trimmed.startsWith('# ')) return <h1 key={i}>{trimmed.slice(2)}</h1>;
+    if (trimmed.startsWith('## ')) return <h2 key={i}>{trimmed.slice(3)}</h2>;
+    if (trimmed.startsWith('**Effective:**')) {
+      return <p key={i} className="legal-effective">{inline(trimmed)}</p>;
+    }
+    if (trimmed.split('\n').every(l => l.trim().startsWith('- '))) {
+      return (
+        <ul key={i}>
+          {trimmed.split('\n').map((l, j) => (
+            <li key={j}>{inline(l.trim().slice(2))}</li>
+          ))}
+        </ul>
+      );
+    }
+    return <p key={i}>{inline(trimmed)}</p>;
+  });
+}
 
 
 const CSS = `
@@ -403,6 +438,27 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .ai-toggle.on .ai-toggle-thumb{left:22px}
 .ai-toggle.off .ai-toggle-thumb{left:2px}
 
+/* ── Legal sheet (Privacy / Terms) ── */
+.legal-sheet{width:100%;background:var(--bg);border-radius:20px 20px 0 0;border-top:1px solid var(--border);height:92dvh;display:flex;flex-direction:column;overflow:hidden}
+.legal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;flex-shrink:0;border-bottom:1px solid var(--border)}
+.legal-title{font-family:var(--sans);font-size:17px;font-weight:500;color:var(--text);letter-spacing:-0.01em}
+.legal-close{background:none;border:none;font-family:var(--sans);font-size:14px;color:var(--text-2);cursor:pointer;padding:4px 8px;-webkit-tap-highlight-color:transparent}
+.legal-close:active{opacity:0.5}
+.legal-content{flex:1;overflow-y:auto;padding:24px 22px calc(40px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.legal-content h1{font-family:var(--brand);font-size:28px;font-weight:400;color:var(--text);text-transform:uppercase;letter-spacing:0.01em;margin:0 0 8px}
+.legal-content h2{font-family:var(--sans);font-size:14px;font-weight:600;color:var(--text);text-transform:uppercase;letter-spacing:0.06em;margin:28px 0 10px}
+.legal-content p{font-family:var(--sans);font-size:14px;font-weight:300;line-height:1.65;color:var(--text);margin:0 0 14px}
+.legal-content ul{list-style:none;margin:0 0 14px;padding:0}
+.legal-content li{font-family:var(--sans);font-size:14px;font-weight:300;line-height:1.6;color:var(--text);padding-left:18px;position:relative;margin-bottom:8px}
+.legal-content li::before{content:'·';position:absolute;left:6px;top:-1px;color:var(--text-2);font-weight:700}
+.legal-content strong{font-weight:600;color:var(--text)}
+.legal-content .legal-effective{font-family:var(--sans);font-size:12px;color:var(--text-2);margin:0 0 22px;letter-spacing:0.02em}
+
+/* Inline legal link (login screen) */
+.legal-link-row{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-family:var(--sans);font-size:11px;color:var(--warm-mid);letter-spacing:0.04em;z-index:2}
+.legal-link-row button{background:none;border:none;font:inherit;color:var(--warm-mid);cursor:pointer;text-decoration:underline;padding:4px 6px;-webkit-tap-highlight-color:transparent}
+.legal-link-row button:active{opacity:0.5}
+
 /* ── Nav panel (left slide-in) ── */
 @keyframes navPanelIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 @keyframes navPanelOut{from{transform:translateX(0)}to{transform:translateX(-100%)}}
@@ -625,6 +681,8 @@ export default function App() {
 
   // ── Settings ──
   const [settingsOpen, setSettingsOpen] = useState(false);
+  // ── Legal (Privacy / Terms) ──
+  const [legalOpen, setLegalOpen] = useState(null); // null | 'privacy' | 'terms'
   const [accountOpen,  setAccountOpen]  = useState(false);
   const [supportOpen,  setSupportOpen]  = useState(false);
   const [devPanelOpen, setDevPanelOpen] = useState(false);
@@ -758,7 +816,7 @@ const [showLanding,  setShowLanding]  = useState(true);
 
 
   useEffect(()=>{
-    const handler = (e) => { if (e.key==='Escape') { setLightboxOpen(false); setSettingsOpen(false); setTipsOpen(false); } };
+    const handler = (e) => { if (e.key==='Escape') { setLightboxOpen(false); setSettingsOpen(false); setTipsOpen(false); setLegalOpen(null); } };
     window.addEventListener('keydown', handler);
     return ()=>window.removeEventListener('keydown', handler);
   }, []);
@@ -1412,6 +1470,12 @@ const [showLanding,  setShowLanding]  = useState(true);
               &lt;-- Back to Sign in
             </button>
           </div>
+          <div className="legal-link-row">
+            By requesting access you agree to our{' '}
+            <button type="button" onClick={()=>setLegalOpen('terms')}>Terms</button>
+            {' '}&amp;{' '}
+            <button type="button" onClick={()=>setLegalOpen('privacy')}>Privacy Policy</button>
+          </div>
         </form>
       ) : forgotView === 'request' ? (
         <form className="pj-login" onSubmit={handleForgotRequest} data-theme={theme}>
@@ -1452,7 +1516,27 @@ const [showLanding,  setShowLanding]  = useState(true);
           <button type="button" className="forgot-link" onClick={()=>{setForgotView('request');setResetMsg(null);}}>
             FORGOT PASSWORD?
           </button>
+          <div className="legal-link-row">
+            <button type="button" onClick={()=>setLegalOpen('terms')}>Terms</button>
+            {' · '}
+            <button type="button" onClick={()=>setLegalOpen('privacy')}>Privacy</button>
+          </div>
         </form>
+      )}
+
+      {/* Legal sheet is also available from the login flow */}
+      {legalOpen&&(
+        <div className="settings-backdrop" onClick={()=>setLegalOpen(null)}>
+          <div className="legal-sheet" onClick={e=>e.stopPropagation()}>
+            <div className="legal-header">
+              <div className="legal-title">{legalOpen==='privacy'?'Privacy Policy':'Terms of Service'}</div>
+              <button className="legal-close" onClick={()=>setLegalOpen(null)}>Close</button>
+            </div>
+            <div className="legal-content">
+              {renderLegal(legalOpen==='privacy' ? PRIVACY_POLICY : TERMS_OF_SERVICE)}
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
@@ -2150,6 +2234,35 @@ const [showLanding,  setShowLanding]  = useState(true);
                   <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
                 </a>
               </div>
+            </div>
+
+            <div className="settings-section">
+              <div className="settings-section-label">Legal</div>
+              <div className="settings-group">
+                <button className="settings-row-btn" onClick={()=>{ setSupportOpen(false); setLegalOpen('privacy'); }}>
+                  <span className="settings-row-label">Privacy Policy</span>
+                  <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
+                </button>
+                <button className="settings-row-btn" onClick={()=>{ setSupportOpen(false); setLegalOpen('terms'); }}>
+                  <span className="settings-row-label">Terms of Service</span>
+                  <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Legal sheet (Privacy / Terms) ── */}
+      {legalOpen&&(
+        <div className="settings-backdrop" onClick={()=>setLegalOpen(null)}>
+          <div className="legal-sheet" onClick={e=>e.stopPropagation()}>
+            <div className="legal-header">
+              <div className="legal-title">{legalOpen==='privacy'?'Privacy Policy':'Terms of Service'}</div>
+              <button className="legal-close" onClick={()=>setLegalOpen(null)}>Close</button>
+            </div>
+            <div className="legal-content">
+              {renderLegal(legalOpen==='privacy' ? PRIVACY_POLICY : TERMS_OF_SERVICE)}
             </div>
           </div>
         </div>

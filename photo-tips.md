@@ -1,4 +1,4 @@
-# Sightful — Daily Photo Tips
+# Scout — Daily Photo Tips
 
 52 tips, cycled weekly by week-of-year. Each is a single concrete thing to try — actionable on your next shot, on any camera including a phone.
 
