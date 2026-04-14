@@ -990,10 +990,21 @@ const [showLanding,  setShowLanding]  = useState(true);
   }, [sel, dayMeta, dayLoading, authed, aiEnabled]);
 
 
+  // Map Supabase auth errors to friendlier copy. Falls back to the original
+  // string for anything we don't explicitly recognize.
+  const friendlyAuthError = (msg) => {
+    if (!msg) return '';
+    const m = msg.toLowerCase();
+    if (m.includes('invalid login credentials')) return 'Wrong email or password.';
+    if (m.includes('email not confirmed')) return 'Please confirm your email first.';
+    if (m.includes('rate limit')) return 'Too many attempts. Try again in a moment.';
+    return msg;
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault(); setLoginBusy(true); setLoginErr('');
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password: pw });
-    if (error) setLoginErr(error.message);
+    if (error) setLoginErr(friendlyAuthError(error.message));
     setLoginBusy(false);
   };
 
@@ -1006,7 +1017,7 @@ const [showLanding,  setShowLanding]  = useState(true);
         skipBrowserRedirect: true,
       },
     });
-    if (error) { setLoginErr(error.message); setLoginBusy(false); return; }
+    if (error) { setLoginErr(friendlyAuthError(error.message)); setLoginBusy(false); return; }
     if (data?.url) window.location.href = data.url;
     setLoginBusy(false);
   };
@@ -1433,8 +1444,8 @@ const [showLanding,  setShowLanding]  = useState(true);
         <button
           type="button"
           onClick={()=>{ setShowLanding(false); setAccessView('form'); }}
-          style={{position:'absolute',bottom:80,fontFamily:'Inconsolata, monospace',fontWeight:600,fontSize:16,color:'#F5F1EB',background:'none',border:'none',cursor:'pointer',letterSpacing:'0.05em'}}
-        >REQUEST ACCESS</button>
+          style={{marginTop:18,fontFamily:'var(--sans)',fontWeight:600,fontSize:14,color:'#F5F1EB',background:'none',border:'none',cursor:'pointer',letterSpacing:'0.06em',textTransform:'uppercase',padding:'8px 12px'}}
+        >SIGN UP</button>
       </div>
     </>
   );
@@ -1461,20 +1472,19 @@ const [showLanding,  setShowLanding]  = useState(true);
               onChange={e=>{setReqEmail(e.target.value);setReqErr(null);}}
               placeholder="" autoComplete="email" />
             {reqErr && <div className="login-err">{reqErr}</div>}
-            <button className="login-btn" type="submit" disabled={reqBusy || !reqEmail.trim()}>
+            <button
+              className="login-btn"
+              type="submit"
+              style={{width:'auto',minWidth:150,padding:'0 28px'}}
+              disabled={reqBusy || !reqEmail.trim()}
+            >
               {reqBusy ? 'Submitting…' : 'REQUEST ACCESS >'}
             </button>
           </div>
           <div className="login-footer">
             <button type="button" className="forgot-link" onClick={()=>{ setAccessView(false); setReqErr(null); }}>
-              &lt;-- Back to Sign in
+              Back to Sign in
             </button>
-          </div>
-          <div className="legal-link-row">
-            By requesting access you agree to our{' '}
-            <button type="button" onClick={()=>setLegalOpen('terms')}>Terms</button>
-            {' '}&amp;{' '}
-            <button type="button" onClick={()=>setLegalOpen('privacy')}>Privacy Policy</button>
           </div>
         </form>
       ) : forgotView === 'request' ? (
@@ -1516,27 +1526,7 @@ const [showLanding,  setShowLanding]  = useState(true);
           <button type="button" className="forgot-link" onClick={()=>{setForgotView('request');setResetMsg(null);}}>
             FORGOT PASSWORD?
           </button>
-          <div className="legal-link-row">
-            <button type="button" onClick={()=>setLegalOpen('terms')}>Terms</button>
-            {' · '}
-            <button type="button" onClick={()=>setLegalOpen('privacy')}>Privacy</button>
-          </div>
         </form>
-      )}
-
-      {/* Legal sheet is also available from the login flow */}
-      {legalOpen&&(
-        <div className="settings-backdrop" onClick={()=>setLegalOpen(null)}>
-          <div className="legal-sheet" onClick={e=>e.stopPropagation()}>
-            <div className="legal-header">
-              <div className="legal-title">{legalOpen==='privacy'?'Privacy Policy':'Terms of Service'}</div>
-              <button className="legal-close" onClick={()=>setLegalOpen(null)}>Close</button>
-            </div>
-            <div className="legal-content">
-              {renderLegal(legalOpen==='privacy' ? PRIVACY_POLICY : TERMS_OF_SERVICE)}
-            </div>
-          </div>
-        </div>
       )}
     </>
   );
