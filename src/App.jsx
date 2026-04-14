@@ -1590,7 +1590,6 @@ const [showLanding,  setShowLanding]  = useState(true);
             <div className={`theme-card-body${themeExpanded?' open':''}`}>
               {weekTheme.description&&<div className="theme-card-desc">{weekTheme.description}</div>}
               {nextWeekTheme&&nextWeekTheme.theme!==weekTheme?.theme&&<div className="theme-next-week">Next week's theme: {nextWeekTheme.theme}</div>}
-              {tipsEnabled&&<button className="theme-tips-link" onClick={e=>{e.stopPropagation();setTipsOpen(true);}}>This week's tips →</button>}
             </div>
           </div>
         )}
@@ -1826,12 +1825,12 @@ const [showLanding,  setShowLanding]  = useState(true);
                   <rect x="7" y="7" width="66" height="66" rx="33" className="cam-center"/>
                 </svg>
               </button>
-              <button ref={tipBtnRef} className="tip-icon-btn" onClick={e=>{
+              {tipsEnabled&&<button ref={tipBtnRef} className="tip-icon-btn" onClick={e=>{
                 e.stopPropagation();
                 setTipPopupOpen(v=>!v);
               }} aria-label="Today's tip">
                 <IcTip/>
-              </button>
+              </button>}
 
             </div>
           </div>
