@@ -1825,12 +1825,10 @@ const [showLanding,  setShowLanding]  = useState(true);
                   <rect x="7" y="7" width="66" height="66" rx="33" className="cam-center"/>
                 </svg>
               </button>
-              {tipsEnabled&&<button ref={tipBtnRef} className="tip-icon-btn" onClick={e=>{
-                e.stopPropagation();
-                setTipPopupOpen(v=>!v);
-              }} aria-label="Today's tip">
-                <IcTip/>
-              </button>}
+              {tipsEnabled
+                ? <button ref={tipBtnRef} className="tip-icon-btn" onClick={e=>{e.stopPropagation();setTipPopupOpen(v=>!v);}} aria-label="Today's tip"><IcTip/></button>
+                : <div style={{width:44,margin:'0 36px'}}/>
+              }
 
             </div>
           </div>
