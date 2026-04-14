@@ -394,7 +394,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .forgot-link{position:absolute;top:88.5%;left:0;right:0;font-family:Inconsolata,monospace;font-weight:600;font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;padding:0}
 .forgot-link:active{opacity:0.4}
 .login-footer{display:contents}
-.login-err{position:absolute;top:68%;left:45px;right:45px;font-family:var(--sans);font-size:10px;color:#B03030;letter-spacing:.04em}
+.login-err{position:absolute;top:70%;left:45px;right:45px;font-family:var(--sans);font-size:10px;color:#B03030;letter-spacing:.04em;text-align:center}
 .login-divider{position:absolute;top:72.5%;left:45px;right:45px;display:flex;align-items:center;gap:12px;font-family:var(--sans);font-size:11px;color:var(--warm-mid);letter-spacing:.08em}
 .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--rule)}
 .google-btn{position:absolute;top:78%;left:50%;transform:translateX(-50%);width:calc(100% - 90px);max-width:280px;height:48px;display:flex;align-items:center;justify-content:center;gap:10px;background:none;border:1.5px solid var(--ink);border-radius:4px;font-family:var(--sans);font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;letter-spacing:.04em;transition:opacity .15s}
