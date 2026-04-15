@@ -6,7 +6,7 @@ export const supabase = createClient(
   {
     auth: {
       detectSessionInUrl: true,
-      flowType: 'implicit',
+      flowType: 'pkce',
     },
   }
 );
