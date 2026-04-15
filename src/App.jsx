@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
-import { getPhoto, uploadPhoto, updateCaption, deletePhoto, listYear, thumbUrl, fullUrl, getFeedback, getCaptionSuggestion, getTodayPrompt, getTheme, getNextWeekTheme, requestAccess } from './api';
+import { getPhoto, uploadPhoto, updateCaption, deletePhoto, deleteAccount, listYear, thumbUrl, fullUrl, getFeedback, getCaptionSuggestion, getTodayPrompt, getTheme, getNextWeekTheme } from './api';
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { getSkill } from './skills';
 import { supabase } from './supabase.js';
@@ -699,11 +699,14 @@ export default function App() {
   const [resetMsg,     setResetMsg]     = useState(null);
   const [newPwVal,     setNewPwVal]     = useState('');
   const [resetBusy,    setResetBusy]    = useState(false);
-  const [accessView,   setAccessView]   = useState(false); // false | 'form' | 'success'
-const [showLanding,  setShowLanding]  = useState(true);
-  const [reqEmail,     setReqEmail]     = useState('');
-  const [reqBusy,      setReqBusy]      = useState(false);
-  const [reqErr,       setReqErr]       = useState(null);
+  const [signupView,   setSignupView]   = useState(false); // false | 'form' | 'success'
+  const [showLanding,  setShowLanding]  = useState(true);
+  const [signupEmail,  setSignupEmail]  = useState('');
+  const [signupPw,     setSignupPw]     = useState('');
+  const [signupPwConfirm, setSignupPwConfirm] = useState('');
+  const [signupBusy,   setSignupBusy]   = useState(false);
+  const [signupErr,    setSignupErr]    = useState('');
+  const [deleteAccBusy, setDeleteAccBusy] = useState(false);
 
   // ── Navigation state ──
   const [activeTab,     setActiveTab]     = useState('month');
@@ -1001,6 +1004,10 @@ const [showLanding,  setShowLanding]  = useState(true);
     if (m.includes('invalid login credentials')) return 'Wrong email or password.';
     if (m.includes('email not confirmed')) return 'Please confirm your email first.';
     if (m.includes('rate limit')) return 'Too many attempts. Try again in a moment.';
+    if (m.includes('user already registered') || m.includes('already been registered'))
+      return 'An account with this email already exists.';
+    if (m.includes('signups not allowed')) return 'Signups are temporarily disabled.';
+    if (m.includes('password should be')) return 'Password must be at least 8 characters.';
     return msg;
   };
 
@@ -1034,13 +1041,36 @@ const [showLanding,  setShowLanding]  = useState(true);
     setResetBusy(false);
   };
 
-  const handleRequestAccess = async (e) => {
-    e.preventDefault(); setReqBusy(true); setReqErr(null);
-    const result = await requestAccess({ email: reqEmail });
-    if (result.ok) { setAccessView('success'); }
-    else if (result.error === 'already_submitted') { setReqErr('This email has already been submitted. We\'ll be in touch!'); }
-    else { setReqErr(result.error); }
-    setReqBusy(false);
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setSignupErr('');
+    if (signupPw !== signupPwConfirm) { setSignupErr('Passwords do not match.'); return; }
+    if (signupPw.length < 8) { setSignupErr('Password must be at least 8 characters.'); return; }
+    setSignupBusy(true);
+    const { error } = await supabase.auth.signUp({
+      email: signupEmail.trim(),
+      password: signupPw,
+      options: { emailRedirectTo: window.location.origin },
+    });
+    setSignupBusy(false);
+    if (error) { setSignupErr(friendlyAuthError(error.message)); return; }
+    setSignupView('success');
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('Permanently delete your account and all photos? This cannot be undone.')) return;
+    setDeleteAccBusy(true);
+    const ok = await deleteAccount();
+    if (!ok) {
+      alert('Something went wrong. Please try again or contact eric@scoutphoto.app.');
+      setDeleteAccBusy(false);
+      return;
+    }
+    await supabase.auth.signOut();
+    setDeleteAccBusy(false);
+    setSettingsOpen(false);
+    setAuthed(false);
+    setShowLanding(true);
   };
 
   const handleSetNewPassword = async (e) => {
@@ -1446,7 +1476,7 @@ const [showLanding,  setShowLanding]  = useState(true);
         >SIGN IN &gt;</button>
         <button
           type="button"
-          onClick={()=>{ setShowLanding(false); setAccessView('form'); }}
+          onClick={()=>{ setShowLanding(false); setSignupView('form'); }}
           style={{marginTop:18,fontFamily:'var(--sans)',fontWeight:600,fontSize:14,color:'#F5F1EB',background:'none',border:'none',cursor:'pointer',letterSpacing:'0.06em',textTransform:'uppercase',padding:'8px 12px'}}
         >SIGN UP</button>
       </div>
@@ -1456,39 +1486,44 @@ const [showLanding,  setShowLanding]  = useState(true);
   if (!authed) return (
     <>
       {splash}
-      {accessView === 'success' ? (
+      {signupView === 'success' ? (
         <div className="pj-login" data-theme={theme}>
           <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
-          <div style={{position:'absolute',top:'37.7%',left:0,right:0,fontFamily:'Inconsolata,monospace',fontWeight:400,fontSize:16,lineHeight:1.7,color:'#000000',textAlign:'center'}}>
-            You're on the list!<br/>We'll be in touch soon.
+          <div style={{position:'absolute',top:'37.7%',left:45,right:45,fontFamily:'Inconsolata,monospace',fontWeight:400,fontSize:16,lineHeight:1.7,color:'var(--ink)',textAlign:'center'}}>
+            Check your email to confirm<br/>your account, then sign in.
           </div>
-          <button type="button" className="login-btn" onClick={()=>{ setAccessView(false); setReqEmail(''); }}>
+          <button type="button" className="login-btn" onClick={()=>{ setSignupView(false); setSignupEmail(''); setSignupPw(''); setSignupPwConfirm(''); setSignupErr(''); }}>
             BACK
           </button>
         </div>
-      ) : accessView === 'form' ? (
-        <form className="pj-login" onSubmit={handleRequestAccess} data-theme={theme}>
+      ) : signupView === 'form' ? (
+        <form className="pj-login" onSubmit={handleSignup} data-theme={theme}>
           <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
-          <div className="login-fields">
-            <div className="login-field-lbl" style={{top:'37.1%'}}>EMAIL</div>
-            <input className="login-in" type="email" value={reqEmail} style={{top:'41%'}}
-              onChange={e=>{setReqEmail(e.target.value);setReqErr(null);}}
-              placeholder="" autoComplete="email" />
-            {reqErr && <div className="login-err">{reqErr}</div>}
-            <button
-              className="login-btn"
-              type="submit"
-              style={{width:'auto',minWidth:150,padding:'0 28px'}}
-              disabled={reqBusy || !reqEmail.trim()}
-            >
-              {reqBusy ? 'Submitting…' : 'REQUEST ACCESS >'}
-            </button>
-          </div>
-          <div className="login-footer">
-            <button type="button" className="forgot-link" onClick={()=>{ setAccessView(false); setReqErr(null); }}>
-              Back to Sign in
-            </button>
-          </div>
+          <div className="login-field-lbl" style={{top:'31%'}}>EMAIL</div>
+          <input className="login-in" type="email" value={signupEmail} style={{top:'35%'}}
+            onChange={e=>{setSignupEmail(e.target.value);setSignupErr('');}}
+            placeholder="" autoComplete="email" required />
+          <div className="login-field-lbl" style={{top:'42%'}}>PASSWORD</div>
+          <input className="login-in" type="password" value={signupPw} style={{top:'46%'}}
+            onChange={e=>{setSignupPw(e.target.value);setSignupErr('');}}
+            placeholder="" autoComplete="new-password" required />
+          <div className="login-field-lbl" style={{top:'53%'}}>CONFIRM PASSWORD</div>
+          <input className="login-in" type="password" value={signupPwConfirm} style={{top:'57%'}}
+            onChange={e=>{setSignupPwConfirm(e.target.value);setSignupErr('');}}
+            placeholder="" autoComplete="new-password" required />
+          {signupErr && <div className="login-err" style={{top:'64%'}}>{signupErr}</div>}
+          <button
+            className="login-btn"
+            type="submit"
+            style={{top:'70%',width:'auto',minWidth:150,padding:'0 28px'}}
+            disabled={signupBusy || !signupEmail.trim() || !signupPw || !signupPwConfirm}
+          >
+            {signupBusy ? 'Creating…' : 'CREATE ACCOUNT >'}
+          </button>
+          <button type="button" className="forgot-link"
+            onClick={()=>{ setSignupView(false); setSignupEmail(''); setSignupPw(''); setSignupPwConfirm(''); setSignupErr(''); }}>
+            BACK TO SIGN IN
+          </button>
         </form>
       ) : forgotView === 'request' ? (
         <form className="pj-login" onSubmit={handleForgotRequest} data-theme={theme}>
@@ -2196,6 +2231,11 @@ const [showLanding,  setShowLanding]  = useState(true);
                 )}
                 <button className="settings-row-btn" onClick={handleSignOut}>
                   <span className="settings-row-label" style={{color:'#D9534F'}}>Sign Out</span>
+                </button>
+                <button className="settings-row-btn" onClick={handleDeleteAccount} disabled={deleteAccBusy}>
+                  <span className="settings-row-label" style={{color:'#D9534F'}}>
+                    {deleteAccBusy ? 'Deleting…' : 'Delete Account'}
+                  </span>
                 </button>
               </div>
             </div>
