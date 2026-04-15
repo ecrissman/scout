@@ -2,12 +2,16 @@ name = "scout"
 compatibility_date = "2024-09-02"
 pages_build_output_dir = "dist"
 
-[vars]
-SUPABASE_URL = "https://lcubjewkgpnqxeoktvgk.supabase.co"
-
-# Set these as secrets via Cloudflare dashboard or:
-#   wrangler pages secret put SUPABASE_ANON_KEY
-#   wrangler pages secret put ANTHROPIC_API_KEY
+# SUPABASE_URL is a Pages secret now. It was previously here as a [vars]
+# entry, but when we also added it as a secret (while configuring
+# SUPABASE_SERVICE_ROLE_KEY for the DELETE /api/account route), Cloudflare
+# rejected the deploy with "Binding name 'SUPABASE_URL' already in use".
+# Removing the [vars] entry lets the secret win. Functionally identical —
+# the URL is public and already appears in every client request.
+#
+# All secrets — set via `wrangler pages secret put <NAME>`:
+#   SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY,
+#   ANTHROPIC_API_KEY, RESEND_API_KEY, WEBHOOK_SECRET
 
 [[r2_buckets]]
 binding = "PHOTOS"
