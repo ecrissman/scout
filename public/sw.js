@@ -1,4 +1,4 @@
-const CACHE = 'scout-v23';
+const CACHE = 'scout-v24';
 const SHELL = ['/', '/index.html'];
 
 self.addEventListener('install', e => {
@@ -27,7 +27,12 @@ self.addEventListener('fetch', e => {
       caches.match(e.request).then(cached => {
         if (cached) return cached;
         return fetch(e.request).then(res => {
-          if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+          if (res.ok) {
+            // Clone synchronously, BEFORE the async caches.open() resolves —
+            // otherwise the body may already be consumed when .put() runs.
+            const resClone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, resClone));
+          }
           return res;
         });
       })
@@ -39,7 +44,10 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request).then(res => {
       if (res.ok && e.request.method === 'GET') {
-        caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+        // Same pattern: clone before the async put() so the body isn't
+        // consumed by the browser before we get a chance to cache it.
+        const resClone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, resClone));
       }
       return res;
     }).catch(() =>
