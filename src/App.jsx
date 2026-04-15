@@ -1047,13 +1047,20 @@ export default function App() {
     if (signupPw !== signupPwConfirm) { setSignupErr('Passwords do not match.'); return; }
     if (signupPw.length < 8) { setSignupErr('Password must be at least 8 characters.'); return; }
     setSignupBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: signupEmail.trim(),
       password: signupPw,
       options: { emailRedirectTo: window.location.origin },
     });
     setSignupBusy(false);
     if (error) { setSignupErr(friendlyAuthError(error.message)); return; }
+    // Supabase returns success (not an error) for an email that already exists,
+    // to prevent email enumeration attacks. Detect it via data.user.identities
+    // being an empty array and surface a friendly error.
+    if (data?.user && (data.user.identities?.length ?? 0) === 0) {
+      setSignupErr('An account with this email already exists.');
+      return;
+    }
     setSignupView('success');
   };
 
