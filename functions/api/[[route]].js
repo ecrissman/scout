@@ -189,6 +189,37 @@ export async function onRequest({ request, env, params }) {
   if (!user) return json({ error: 'Unauthorized' }, 401);
   const uid = user.id;
 
+  // ── DELETE /api/account — wipe all user data + delete Supabase user ──────
+  if (route === 'account' && method === 'DELETE') {
+    // 1. Delete every R2 object under photos/{uid}/ (handles >1000 via cursor)
+    let cursor = undefined;
+    do {
+      const listed = await env.PHOTOS.list({ prefix: `photos/${uid}/`, cursor });
+      const keys = listed.objects.map(o => o.key);
+      for (let i = 0; i < keys.length; i += 1000) {
+        await env.PHOTOS.delete(keys.slice(i, i + 1000));
+      }
+      cursor = listed.truncated ? listed.cursor : undefined;
+    } while (cursor);
+
+    // 2. Delete the Supabase auth user (requires service_role key)
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+      return json({ error: 'Server misconfigured: missing SUPABASE_SERVICE_ROLE_KEY' }, 500);
+    }
+    const delRes = await fetch(`${env.SUPABASE_URL}/auth/v1/admin/users/${uid}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+    });
+    if (!delRes.ok) {
+      const body = await delRes.text();
+      return json({ error: `Supabase admin delete failed: ${delRes.status} ${body}` }, 500);
+    }
+    return json({ ok: true });
+  }
+
   // ── GET /api/list/[year] ─────────────────────────────────────────────────
   if (/^list\/\d{4}$/.test(route) && method === 'GET') {
     const year = route.split('/')[1];

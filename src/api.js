@@ -99,6 +99,13 @@ export async function deletePhoto(date) {
   } catch { return false; }
 }
 
+export async function deleteAccount() {
+  try {
+    const r = await fetch(`${BASE}/account`, await req('DELETE'));
+    return r.ok;
+  } catch { return false; }
+}
+
 export async function getFeedback(date) {
   try {
     const r = await fetch(`${BASE}/ai/feedback/${date}`, await req('POST'));
