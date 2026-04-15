@@ -3,6 +3,7 @@ import { getPhoto, uploadPhoto, updateCaption, deletePhoto, deleteAccount, listY
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { getSkill } from './skills';
 import { supabase } from './supabase.js';
+import { initAnalytics, identify, resetIdentity, track, setAnalyticsOptOut } from './analytics';
 import { PRIVACY_POLICY, TERMS_OF_SERVICE } from './legal.js';
 
 // Mark standalone PWA mode before first paint so CSS can target it
@@ -746,6 +747,7 @@ export default function App() {
   useEffect(()=>{ localStorage.setItem('scout-ai-enabled', String(aiEnabled)); }, [aiEnabled]);
   const [tipsEnabled,  setTipsEnabled]  = useState(()=> localStorage.getItem('scout-tips-enabled') === 'true');
   useEffect(()=>{ localStorage.setItem('scout-tips-enabled', String(tipsEnabled)); }, [tipsEnabled]);
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(()=> localStorage.getItem('scout-analytics-optout') !== 'true');
   const [weekTheme,    setWeekTheme]    = useState(null);
   const [nextWeekTheme, setNextWeekTheme] = useState(null);
   const [tipPopupOpen,  setTipPopupOpen]  = useState(false);
@@ -763,9 +765,13 @@ export default function App() {
   const tipBtnRef      = useRef(null);
   const monthScrollRef = useRef(null);
   const promptFiredRef = useRef(null); // stores the date string the prompt was last fired for
+  const dayViewedRef   = useRef(new Set()); // dedupe day_viewed events per session
 
 
   useEffect(()=>{
+    // Initialize PostHog (no-op if opted out or env keys missing).
+    initAnalytics();
+
     // ── Safari → PWA cookie bridge ──
     // _isStandalone and _authInUrl are captured at module load (synchronously),
     // before Supabase has a chance to clear the URL hash.
@@ -804,7 +810,12 @@ export default function App() {
       const hasSession = !!session;
       setAuthed(hasSession);
       setUserEmail(session?.user?.email || null);
-      if (hasSession) setShowLanding(false);
+      if (hasSession) {
+        setShowLanding(false);
+        // Attach PostHog identity to the Supabase user id. Uses the user id
+        // (never email) so events never carry PII.
+        identify(session.user.id);
+      }
       if (hasSession && !localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
       setChecking(false);
     });
@@ -814,7 +825,27 @@ export default function App() {
       if (!_isStandalone && _authInUrl) return;
       setAuthed(!!session);
       setUserEmail(session?.user?.email || null);
-      if (event === 'SIGNED_IN' && !localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
+      if (event === 'SIGNED_IN') {
+        if (session?.user) {
+          identify(session.user.id);
+          const provider = session.user.app_metadata?.provider || 'email';
+          track('signin_succeeded', { method: provider });
+          // Detect freshly-confirmed signup: the user row was created in the
+          // last 5 minutes. Close enough to distinguish "first login after
+          // email confirmation" from "returning user signing in".
+          const createdAt = session.user.created_at
+            ? new Date(session.user.created_at).getTime()
+            : 0;
+          if (createdAt && Date.now() - createdAt < 5 * 60 * 1000) {
+            track('signup_confirmed', { method: provider });
+          }
+        }
+        if (!localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
+      }
+      if (event === 'SIGNED_OUT') {
+        track('signout');
+        resetIdentity();
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -947,6 +978,11 @@ export default function App() {
   }, [authed, cy]);
   useEffect(()=>{
     if (!authed||!sel) return;
+    // Track unique day views per session (deduped so swipes don't spam events)
+    if (!dayViewedRef.current.has(sel)) {
+      dayViewedRef.current.add(sel);
+      track('day_viewed', { is_today: sel === todayStr, has_photo: photoDates.has(sel) });
+    }
     setDayLoading(true);
     setFeedback(null);
     setFeedbackLoading(false);
@@ -982,6 +1018,7 @@ export default function App() {
     if (cached) {
       setShootPrompt(cached);
       promptFiredRef.current = todayStr;
+      track('ai_prompt_viewed', { date: todayStr, source: 'cache' });
       return;
     }
     promptFiredRef.current = todayStr;
@@ -990,6 +1027,7 @@ export default function App() {
       if (data?.prompt) {
         setShootPrompt(data.prompt);
         localStorage.setItem(cacheKey, data.prompt);
+        track('ai_prompt_viewed', { date: todayStr, source: 'fetch' });
       }
       setPromptLoading(false);
     });
@@ -1047,6 +1085,7 @@ export default function App() {
     if (signupPw !== signupPwConfirm) { setSignupErr('Passwords do not match.'); return; }
     if (signupPw.length < 8) { setSignupErr('Password must be at least 8 characters.'); return; }
     setSignupBusy(true);
+    track('signup_submitted');
     const { data, error } = await supabase.auth.signUp({
       email: signupEmail.trim(),
       password: signupPw,
@@ -1195,6 +1234,11 @@ export default function App() {
         const newPhotoDates = new Set([...photoDates, sel]);
         setPhotoDates(newPhotoDates);
         setPhotoVer(Date.now());
+        track('photo_uploaded', {
+          via: fromCamera ? 'camera' : 'library',
+          first_photo_ever: newPhotoDates.size === 1,
+          is_today: sel === todayStr,
+        });
         if (newPhotoDates.size === 1) setFirstPhotoModal(true);
         if (exif?.lat != null && exif?.lon != null) reverseGeocode(exif.lat, exif.lon).then(name => { if (name) setLocationName(name); });
         else setLocationName(null);
@@ -1266,7 +1310,10 @@ export default function App() {
   const handleCaptionSuggest = async () => {
     setCaptionSuggestLoad(true);
     const result = await getCaptionSuggestion(sel);
-    if (result?.caption) setCaptionSuggestion(result.caption);
+    if (result?.caption) {
+      setCaptionSuggestion(result.caption);
+      track('ai_caption_suggested', { accepted: false });
+    }
     setCaptionSuggestLoad(false);
   };
 
@@ -1275,6 +1322,8 @@ export default function App() {
     setCaptionSuggestion(null);
     updateCaption(sel, captionSuggestion);
     setDayMeta(prev => ({ ...prev, caption: captionSuggestion }));
+    track('ai_caption_suggested', { accepted: true });
+    track('caption_edited', { source: 'ai_suggestion', length: captionSuggestion.length });
   };
 
   const buildReviewCanvas = async () => {
@@ -1402,8 +1451,11 @@ export default function App() {
 
   const saveCaption = useCallback(async()=>{
     if (!sel||!dayMeta) return;
+    const prevCaption = dayMeta.caption || '';
+    if (caption === prevCaption) return;
     await updateCaption(sel, caption);
     setDayMeta(prev=>({...prev, caption}));
+    track('caption_edited', { source: 'manual', length: caption.length });
   }, [sel, dayMeta, caption]);
 
   const calCells = () => {
@@ -1483,7 +1535,7 @@ export default function App() {
         >SIGN IN &gt;</button>
         <button
           type="button"
-          onClick={()=>{ setShowLanding(false); setSignupView('form'); }}
+          onClick={()=>{ track('signup_started'); setShowLanding(false); setSignupView('form'); }}
           style={{marginTop:18,fontFamily:'var(--sans)',fontWeight:600,fontSize:14,color:'#F5F1EB',background:'none',border:'none',cursor:'pointer',letterSpacing:'0.06em',textTransform:'uppercase',padding:'8px 12px'}}
         >SIGN UP</button>
       </div>
@@ -1606,7 +1658,7 @@ export default function App() {
               checked.add(wd[0]);
               if (wd.every(dd => photoDates.has(dd))) {
                 return (
-                  <button className="week-header-line" onClick={()=>{ setWeekReview({dates:wd}); setReviewPhase('milestone'); }}>
+                  <button className="week-header-line" onClick={()=>{ track('week_review_completed', { source: 'milestone' }); setWeekReview({dates:wd}); setReviewPhase('milestone'); }}>
                     <span className="week-header-lbl">WEEK COMPLETE</span>
                     <span className="week-header-sep">|</span>
                     <span className="week-header-range">{formatWeekRange(wd)}</span>
@@ -1812,7 +1864,7 @@ export default function App() {
               {/* Feedback — collapsible, auto-triggered on upload */}
               {dayMeta&&aiEnabled&&(feedback||feedbackLoading||feedbackError)&&(
                 <div className="feedback-card">
-                  <div className="feedback-toggle" onClick={()=>setFeedbackExpanded(x=>!x)}>
+                  <div className="feedback-toggle" onClick={()=>setFeedbackExpanded(x=>{ if (!x) track('ai_feedback_viewed'); return !x; })}>
                     <div className="feedback-toggle-lbl">Scout's take</div>
                     <svg className={`feedback-toggle-chev${feedbackExpanded?' open':''}`} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                   </div>
@@ -2129,7 +2181,7 @@ export default function App() {
                                 if (filledInWeek.length===0) return null;
                                 return (
                                   <div key={weekStart} className="gallery-strip-row"
-                                    onClick={()=>{ setWeekReview({dates}); setReviewPhase('grid'); }}>
+                                    onClick={()=>{ track('week_review_completed', { source: 'year_grid' }); setWeekReview({dates}); setReviewPhase('grid'); }}>
                                     <div className="gallery-strip-cells">
                                       {dates.map(d=>(
                                         <div key={d} className="gallery-strip-cell">
@@ -2198,6 +2250,29 @@ export default function App() {
                     <div className="settings-row-sub">Weekly skill tips in the theme card</div>
                   </div>
                   <button className={`ai-toggle${tipsEnabled?' on':' off'}`} onClick={()=>setTipsEnabled(v=>!v)} aria-label={tipsEnabled?'Disable tips':'Enable tips'}>
+                    <div className="ai-toggle-thumb"/>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="settings-section">
+              <div className="settings-section-label">Privacy</div>
+              <div className="settings-group">
+                <div className="settings-row">
+                  <div style={{flex:1}}>
+                    <div className="settings-row-label">Analytics</div>
+                    <div className="settings-row-sub">Anonymous usage data to improve Scout</div>
+                  </div>
+                  <button
+                    className={`ai-toggle${analyticsEnabled?' on':' off'}`}
+                    onClick={()=>{
+                      const next = !analyticsEnabled;
+                      setAnalyticsEnabled(next);
+                      setAnalyticsOptOut(!next);
+                    }}
+                    aria-label={analyticsEnabled?'Disable analytics':'Enable analytics'}
+                  >
                     <div className="ai-toggle-thumb"/>
                   </button>
                 </div>
