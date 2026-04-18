@@ -761,7 +761,6 @@ function AuthImage({ src, alt, ...props }) {
 }
 
 export default function App() {
-  if (_composeSilo) return <ComposeScreen />;
   const todayStr = today();
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];
@@ -1654,8 +1653,10 @@ export default function App() {
   );
 
 
-  // Desktop/tablet lockout — show a single directive to open on mobile
-  if (!isMobile) return (
+  // Desktop/tablet lockout — show a single directive to open on mobile.
+  // The ?compose=1 silo bypasses the gate so design iteration can happen
+  // on desktop during the rebrand; gate resumes once the flag is gone.
+  if (!isMobile && !_composeSilo) return (
     <div className="mobile-gate">
       <div className="mobile-gate-inner">
         <h1 className="mobile-gate-title">Scout lives on your phone</h1>
@@ -1805,6 +1806,11 @@ export default function App() {
     }
     return false;
   })();
+
+  // Silo gate: ?compose=1 renders the v2 Compose screen for authed users
+  // only. Non-authed users fall through to the normal landing/login flow
+  // above so they can sign in first; after auth, this check takes over.
+  if (_composeSilo) return <ComposeScreen />;
 
   return (
     <>

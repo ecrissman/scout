@@ -49,6 +49,14 @@ const formatDispatchDate = (d) => {
   return `${m}.${day}.${yy}`;
 };
 
+// Day-of-year — the brief counter in the footer ("Brief 108 / 365"). Matches
+// the handoff's framing of the photographer's practice as a 365-day run.
+const dayOfYear = (d) => {
+  const start = new Date(d.getFullYear(), 0, 0);
+  const diff = (d - start) + ((start.getTimezoneOffset() - d.getTimezoneOffset()) * 60 * 1000);
+  return Math.floor(diff / 86400000);
+};
+
 // How far the tray must be dragged down (px) before a release dismisses it.
 // ~120px is a comfortable threshold — short enough to feel responsive, long
 // enough that accidental brush-gestures don't close the screen.
@@ -69,7 +77,12 @@ export default function ComposeScreen() {
   const [moodSheetOpen, setMoodSheetOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [brief, setBrief] = useState(null);
+  const [brief, setBrief] = useState(() => {
+    // Dev-only: ?brief=<text> renders the Brief reveal directly for design
+    // iteration without going through auth + the full compose round-trip.
+    const p = new URLSearchParams(window.location.search);
+    return p.get('brief') || null;
+  });
 
   // Drag-to-dismiss state. Refs avoid re-binding window listeners on every
   // move frame; state drives the translateY render.
@@ -178,34 +191,37 @@ export default function ComposeScreen() {
   // Header dateline: "Overcast · Capitol Hill · 8:17" (filtered for nulls).
   const headerBits = [autoLight, autoPlace, clock].filter(Boolean).join(' · ');
 
-  // ───────────── Brief reveal (minimal preview — Phase 3 builds the full screen) ─────────────
+  // ───────────── The Brief (brand moment 01 — anchor screen 2) ─────────────
+  // Paper surface, nothing competes with the brief itself. Stamp + dispatch
+  // dateline anchor the top; Fraunces carries the brief; mono counter +
+  // "File by 23:59" footer; Accept Assignment is the primary CTA (File a
+  // Take arrives in Phase 4). Tray chrome stays for drag-to-dismiss.
   if (brief) {
+    const briefNumber = dayOfYear(now);
     return (
       <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
         <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
           <div className="s2-sheet-handle" />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '14px 28px 28px' }}>
-          <div style={{ marginBottom: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px' }}>
+          <div style={{ marginBottom: 14 }}>
             <span className="s2-stamp-dispatch">New Assignment</span>
           </div>
-          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 40 }}>
+          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 44 }}>
             Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
-          <div className="s2-serif" style={{ fontSize: 28, color: 'var(--s2-text-primary)', lineHeight: 1.25, marginBottom: 'auto' }}>
+          <div className="s2-serif" style={{ fontSize: 30, color: 'var(--s2-text-primary)', lineHeight: 1.22, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
             {brief}
           </div>
-          <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 24, marginBottom: 20, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <span>{mood}</span>
+          <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span>Brief {briefNumber} / 365</span>
             <span style={{ color: 'var(--s2-bone)' }}>·</span>
-            <span>{time}</span>
-            <span style={{ color: 'var(--s2-bone)' }}>·</span>
-            <span>{constraint}</span>
+            <span>File by 23:59</span>
           </div>
-          <button className="s2-btn-primary" disabled title="File a Take arrives in Phase 4">
+          <button className="s2-btn-primary" onClick={dismiss}>
             Accept Assignment
           </button>
-          <button className="s2-btn-secondary" onClick={recompose} style={{ marginTop: 8, width: '100%' }}>
+          <button className="s2-btn-secondary" onClick={recompose} style={{ marginTop: 6, width: '100%' }}>
             Recompose
           </button>
         </div>
