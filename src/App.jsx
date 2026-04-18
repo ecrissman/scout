@@ -5,6 +5,10 @@ import { getSkill } from './skills';
 import { supabase } from './supabase.js';
 import { initAnalytics, identify, resetIdentity, track, setAnalyticsOptOut } from './analytics';
 import { PRIVACY_POLICY, TERMS_OF_SERVICE } from './legal.js';
+import ComposeScreen from './compose/ComposeScreen.jsx';
+
+// Dev flag: ?compose=1 isolates the compose flow for design/API iteration.
+const _composeSilo = new URLSearchParams(window.location.search).get('compose') === '1';
 
 // Mark standalone PWA mode before first paint so CSS can target it
 if (window.navigator.standalone) document.documentElement.classList.add('pwa');
@@ -626,6 +630,7 @@ function AuthImage({ src, alt, ...props }) {
 }
 
 export default function App() {
+  if (_composeSilo) return <ComposeScreen />;
   const todayStr = today();
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];

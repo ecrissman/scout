@@ -113,6 +113,13 @@ export async function getFeedback(date) {
   } catch { return null; }
 }
 
+export async function composeBrief({ mood, time, constraint, lat, lon }) {
+  try {
+    const r = await fetch(`${BASE}/ai/compose`, await req('POST', { mood, time, constraint, lat, lon }));
+    return r.json();
+  } catch { return { error: 'Network error' }; }
+}
+
 // Images are served directly by the Worker (token sent via Authorization header)
 export const thumbUrl = (date) => `${BASE}/image/${date}/thumb`;
 export const fullUrl  = (date) => `${BASE}/image/${date}/full`;

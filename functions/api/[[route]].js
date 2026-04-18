@@ -507,5 +507,92 @@ export async function onRequest({ request, env, params }) {
     return json({ caption: aiData.content?.[0]?.text ?? '' });
   }
 
+  // ── POST /api/ai/compose ─────────────────────────────────────────────────
+  // Compose flow: user supplies {mood, time, constraint} + optional {lat, lon}.
+  // Server fetches weather (autoLight) and reverse-geocodes (autoPlace), then
+  // asks Claude for a short, evocative brief. Returns {brief, autoLight, autoPlace}.
+  if (route === 'ai/compose' && method === 'POST') {
+    let body;
+    try { body = await request.json(); } catch { return json({ error: 'Bad JSON' }, 400); }
+    const { mood, time, constraint, lat, lon } = body || {};
+    if (!mood || !time || !constraint) return json({ error: 'Missing mood, time, or constraint' }, 400);
+
+    const lightLabel = (code) => {
+      if (code === 0)  return 'Clear';
+      if (code <= 3)   return 'Overcast';
+      if (code <= 48)  return 'Foggy';
+      if (code <= 55)  return 'Drizzle';
+      if (code <= 65)  return 'Rain';
+      if (code <= 75)  return 'Snow';
+      if (code <= 82)  return 'Showers';
+      return 'Storm';
+    };
+
+    let autoLight = 'Unknown light';
+    if (lat != null && lon != null) {
+      try {
+        const wx = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code&timezone=auto`
+        );
+        if (wx.ok) {
+          const wxData = await wx.json();
+          autoLight = lightLabel(wxData.current?.weather_code ?? 0);
+        }
+      } catch {}
+    }
+
+    let autoPlace = 'Unknown place';
+    if (lat != null && lon != null) {
+      try {
+        const geo = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`,
+          { headers: { 'User-Agent': 'Scout/1.0 (scout-app.pages.dev)' } }
+        );
+        if (geo.ok) {
+          const g = await geo.json();
+          const a = g.address || {};
+          autoPlace = a.neighbourhood || a.suburb || a.city_district || a.city || a.town || a.village || a.county || 'Unknown place';
+        }
+      } catch {}
+    }
+
+    const systemPrompt = `You are composing field notes for a photographer using Scout, a photo-a-day app with an editorial, field-journal sensibility. Given their current state and conditions, write a brief that is:
+
+- 4 to 15 words maximum. Shorter is better.
+- Fragment-style. Use periods to break phrases.
+- Evocative, not instructive. Literary, not technical.
+- Never use the words "photograph," "photo," "picture," "shoot," or "capture." The photography is implied.
+- Never explain the why. Trust the reader.
+- Draw from a quiet, literary vocabulary: light, edge, quiet, weight, seam, margin, shadow, texture, shape, breath, line.
+- Leave room for interpretation. Don't over-specify.
+
+Respond with ONLY the prompt text. No preamble, no quotes, no explanation.`;
+
+    const userPrompt = `Mood: ${mood}
+Light: ${autoLight}
+Place: ${autoPlace}
+Time available: ${time}
+Constraint: ${constraint}`;
+
+    const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: anthropicHeaders(env),
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 120,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      }),
+    });
+
+    if (!aiRes.ok) {
+      const errBody = await aiRes.json().catch(() => ({}));
+      return json({ error: `Anthropic ${aiRes.status}: ${errBody?.error?.message ?? JSON.stringify(errBody)}` }, 502);
+    }
+    const aiData = await aiRes.json();
+    const brief = (aiData.content?.[0]?.text ?? '').trim().replace(/^["']|["']$/g, '');
+    return json({ brief, autoLight, autoPlace });
+  }
+
   return new Response('Not found', { status: 404 });
 }
