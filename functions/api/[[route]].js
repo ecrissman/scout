@@ -37,6 +37,47 @@ function anthropicHeaders(env) {
   };
 }
 
+// v2 brand — photographer-facing weather labels, neutral press-work voice.
+function lightDescFromCode(code) {
+  if (code === 0) return 'Clear';
+  if (code === 1) return 'Mostly clear';
+  if (code === 2) return 'Partly cloudy';
+  if (code === 3) return 'Overcast';
+  if (code >= 45 && code <= 48) return 'Fog';
+  if (code >= 51 && code <= 55) return 'Drizzle';
+  if (code >= 61 && code <= 65) return 'Rain';
+  if (code >= 71 && code <= 75) return 'Snow';
+  if (code >= 80 && code <= 82) return 'Showers';
+  if (code >= 95) return 'Storm';
+  return 'Ambient';
+}
+
+// Fetches autoLight (from Open-Meteo) + autoPlace (from Nominatim) in parallel.
+// Used by /api/ai/context (display in Compose header) and /api/ai/brief
+// (composition input). Safe defaults: returns 'Ambient' + null on any failure.
+async function detectContext(lat, lon) {
+  const [lightResult, placeResult] = await Promise.allSettled([
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=weather_code&timezone=auto`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d ? lightDescFromCode(d.current?.weather_code ?? -1) : 'Ambient'),
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`, {
+      headers: { 'User-Agent': 'scout-app.pages.dev (hello@scout-app.pages.dev)' },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (!d?.address) return null;
+        const a = d.address;
+        const city = a.city || a.town || a.village || a.suburb || a.neighbourhood;
+        const state = a.state;
+        return city ? (state ? `${city}, ${state}` : city) : null;
+      }),
+  ]);
+  return {
+    autoLight: lightResult.status === 'fulfilled' ? lightResult.value : 'Ambient',
+    autoPlace: placeResult.status === 'fulfilled' ? placeResult.value : null,
+  };
+}
+
 export async function onRequest({ request, env, params }) {
   const route  = (params.route || []).join('/');
   const method = request.method;
@@ -243,7 +284,7 @@ export async function onRequest({ request, env, params }) {
   // ── POST /api/photo/[date] ───────────────────────────────────────────────
   if (/^photo\/\d{4}-\d{2}-\d{2}$/.test(route) && method === 'POST') {
     const date = route.split('/')[1];
-    const { fullSrc, thumbSrc, exif, caption } = await request.json();
+    const { fullSrc, thumbSrc, exif, caption, compose } = await request.json();
     if (!fullSrc || !thumbSrc) return json({ error: 'Missing image data' }, 400);
 
     const imgType = (src) => {
@@ -251,10 +292,13 @@ export async function onRequest({ request, env, params }) {
       if (src.startsWith('data:image/png'))  return 'image/png';
       return 'image/jpeg';
     };
+    // Compose stack (v2 brand) is optional — legacy uploads omit it and meta.json stays backwards-compatible.
+    const meta = { exif: exif || {}, caption: caption || '' };
+    if (compose && typeof compose === 'object') meta.compose = compose;
     await Promise.all([
       env.PHOTOS.put(`photos/${uid}/${date}/full.jpg`,  b64ToBytes(fullSrc),  { httpMetadata: { contentType: imgType(fullSrc) } }),
       env.PHOTOS.put(`photos/${uid}/${date}/thumb.jpg`, b64ToBytes(thumbSrc), { httpMetadata: { contentType: imgType(thumbSrc) } }),
-      env.PHOTOS.put(`photos/${uid}/${date}/meta.json`, JSON.stringify({ exif: exif || {}, caption: caption || '' }),
+      env.PHOTOS.put(`photos/${uid}/${date}/meta.json`, JSON.stringify(meta),
         { httpMetadata: { contentType: 'application/json' } }),
     ]);
     return json({ ok: true });
@@ -470,6 +514,161 @@ export async function onRequest({ request, env, params }) {
     }
     const aiData = await aiRes.json();
     return json({ prompt: aiData.content?.[0]?.text ?? '' });
+  }
+
+  // ── GET /api/ai/context ──────────────────────────────────────────────────
+  // v2 brand — thin read-only wrapper around detectContext(). Called on
+  // Compose mount so the header can show "{autoLight} · {autoPlace} · {time}"
+  // before the user generates a brief. Auth required (same gate as /ai/brief).
+  if (route === 'ai/context' && method === 'GET') {
+    const url = new URL(request.url);
+    const lat = parseFloat(url.searchParams.get('lat')) || 47.6062;
+    const lon = parseFloat(url.searchParams.get('lon')) || -122.3321;
+    const ctx = await detectContext(lat, lon);
+    return json(ctx);
+  }
+
+  // ── POST /api/ai/brief ───────────────────────────────────────────────────
+  // v2 brand — composes an editorial brief from user inputs (mood, time,
+  // constraint) plus server-fetched context (autoLight from weather, autoPlace
+  // from reverse-geocoding). Client passes lat/lon; server handles the rest
+  // so the Anthropic call, weather lookup, and Nominatim lookup all run in
+  // parallel on the edge.
+  if (route === 'ai/brief' && method === 'POST') {
+    const body = await request.json().catch(() => ({}));
+    const { mood, time, constraint, lat: inLat, lon: inLon } = body;
+    if (!mood || !time || !constraint) {
+      return json({ error: 'mood, time, and constraint are required' }, 400);
+    }
+
+    // Fall back to Seattle if no coords provided (mirrors /ai/prompt behavior).
+    const lat = typeof inLat === 'number' ? inLat : 47.6062;
+    const lon = typeof inLon === 'number' ? inLon : -122.3321;
+    const { autoLight, autoPlace } = await detectContext(lat, lon);
+
+    const systemPrompt = `You are composing field notes for a photographer using Scout, a photo-a-day app with an editorial, field-journal sensibility. Given their current state and conditions, write a brief that is:
+
+- 4 to 15 words maximum. Shorter is better.
+- Fragment-style. Use periods to break phrases.
+- Evocative, not instructive. Literary, not technical.
+- Never use the words "photograph," "photo," "picture," "shoot," or "capture." The photography is implied.
+- Never explain the why. Trust the reader.
+- Draw from a quiet, literary vocabulary: light, edge, quiet, weight, seam, margin, shadow, texture, shape, breath, line.
+- Leave room for interpretation. Don't over-specify.
+
+Respond with ONLY the prompt text. No preamble, no quotes, no explanation.`;
+
+    const userContent = [
+      `Mood: ${mood}`,
+      `Light: ${autoLight}`,
+      autoPlace ? `Place: ${autoPlace}` : null,
+      `Time available: ${time}`,
+      `Constraint: ${constraint}`,
+    ].filter(Boolean).join('\n');
+
+    const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: anthropicHeaders(env),
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 80,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userContent }],
+      }),
+    });
+
+    if (!aiRes.ok) {
+      const errBody = await aiRes.json().catch(() => ({}));
+      return json({ error: `Anthropic ${aiRes.status}: ${errBody?.error?.message ?? JSON.stringify(errBody)}` }, 502);
+    }
+    const aiData = await aiRes.json();
+    const brief = (aiData.content?.[0]?.text ?? '').trim();
+    return json({ brief, autoLight, autoPlace });
+  }
+
+  // ── POST /api/ai/editor-note/[date] ──────────────────────────────────────
+  // v2 brand — an editor's note on a filed photo. Uses the editorial voice
+  // from the brand handoff. If meta.compose.brief exists, passes it as
+  // context so the note can reference the assignment. Persists to
+  // meta.editorNote + meta.editorNoteAt.
+  if (/^ai\/editor-note\/\d{4}-\d{2}-\d{2}$/.test(route) && method === 'POST') {
+    const date = route.split('/')[2];
+    const imgObj = await env.PHOTOS.get(`photos/${uid}/${date}/full.jpg`);
+    if (!imgObj) return json({ error: 'No photo for this date' }, 404);
+
+    const imgBuf = await imgObj.arrayBuffer();
+    const b64 = bufToB64(imgBuf);
+    const imgMediaType = detectMediaType(imgBuf);
+
+    // Pull the brief (and caption) for context if present.
+    let brief = null;
+    let caption = null;
+    const metaObj = await env.PHOTOS.get(`photos/${uid}/${date}/meta.json`);
+    let meta = null;
+    if (metaObj) {
+      meta = await metaObj.json();
+      brief = meta?.compose?.brief || null;
+      caption = meta?.caption || null;
+    }
+
+    const systemPrompt = `You are the editor at Scout — a daily photography practice framed as press work. You've just received a photographer's take on today's assignment. Write a one or two sentence note in response.
+
+Voice: Terse. Declarative. Observational. Warm beneath the restraint. Write like you're marking the margin of a proof at 3 AM — no exclamations, no emojis, no copywriter enthusiasm. Address what the frame does, not how it makes you feel.
+
+Avoid:
+- "amazing," "beautiful," "great," "stunning," "capture," "journey"
+- generic praise or motivational language
+- explaining the photo back to the photographer
+- ending with a question
+- starting with "This photo..." or "The image..."
+
+Draw from a quiet vocabulary: light, edge, weight, seam, margin, shadow, texture, shape, line, breath.
+
+Respond with ONLY the note. No preamble, no sign-off, no quotes.`;
+
+    const contextLines = [
+      brief ? `The brief: ${brief}` : null,
+      caption ? `Photographer's caption: ${caption}` : null,
+    ].filter(Boolean);
+    const textBlock = contextLines.length
+      ? contextLines.join('\n') + '\n\nThe filed frame is attached.'
+      : 'The filed frame is attached.';
+
+    const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: anthropicHeaders(env),
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 160,
+        system: systemPrompt,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: imgMediaType, data: b64 } },
+            { type: 'text', text: textBlock },
+          ],
+        }],
+      }),
+    });
+
+    if (!aiRes.ok) {
+      const errBody = await aiRes.json().catch(() => ({}));
+      return json({ error: `Anthropic ${aiRes.status}: ${errBody?.error?.message ?? JSON.stringify(errBody)}` }, 502);
+    }
+    const aiData = await aiRes.json();
+    const editorNote = (aiData.content?.[0]?.text ?? '').trim();
+    const editorNoteAt = new Date().toISOString();
+
+    // Persist into meta.json.
+    if (meta) {
+      await env.PHOTOS.put(
+        `photos/${uid}/${date}/meta.json`,
+        JSON.stringify({ ...meta, editorNote, editorNoteAt }),
+        { httpMetadata: { contentType: 'application/json' } }
+      );
+    }
+
+    return json({ editorNote, editorNoteAt });
   }
 
   // ── POST /api/ai/caption/[date] ──────────────────────────────────────────

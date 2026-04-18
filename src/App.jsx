@@ -5,6 +5,16 @@ import { getSkill } from './skills';
 import { supabase } from './supabase.js';
 import { initAnalytics, identify, resetIdentity, track, setAnalyticsOptOut } from './analytics';
 import { PRIVACY_POLICY, TERMS_OF_SERVICE } from './legal.js';
+import ComposeScreen from './compose/ComposeScreen.jsx';
+
+// Dev flags:
+//   ?compose=1         — render the v2 Compose tray instead of the main app
+//                         (still gated behind the normal auth flow below)
+//   ?compose=1&dev=1   — also bypass auth for pure-design iteration. API
+//                         calls will 401, but dev params like ?brief= /
+//                         ?note= let us preview render states in isolation.
+const _composeSilo = new URLSearchParams(window.location.search).get('compose') === '1';
+const _composeDev = _composeSilo && new URLSearchParams(window.location.search).get('dev') === '1';
 
 // Mark standalone PWA mode before first paint so CSS can target it
 if (window.navigator.standalone) document.documentElement.classList.add('pwa');
@@ -52,6 +62,7 @@ function renderLegal(md) {
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wdth,wght@75..125,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Geist+Mono:wght@400;500;600&display=swap');
 @font-face{font-family:'Flapjack';src:url('/fonts/TAYFlapjack.woff2') format('woff2'),url('/fonts/TAYFlapjack.woff') format('woff'),url('/fonts/TAYFlapjack.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root,[data-theme="light"]{
@@ -64,6 +75,32 @@ const CSS = `
   --brand:'Flapjack','Inconsolata',system-ui,sans-serif;
   --serif:'Inconsolata',system-ui,monospace;
   --sans:'Inconsolata',system-ui,monospace;
+
+  /* ── v2 brand tokens (Scout rebrand) ── */
+  /* Core */
+  --s2-paper:#FFFDFA;--s2-paper-2:#F7F3EC;--s2-ink:#0C0C0C;
+  --s2-bone:#D8D7D4;--s2-smoke:#8A8680;--s2-archive:#3A3A35;
+  /* Grouped-list background (slightly deeper than paper) */
+  --s2-grouped-bg:#F2F1EC;
+  /* Green scale */
+  --s2-press-green:#007C04;
+  --s2-green-50:#F2F7F0;--s2-green-100:#E0ECDE;--s2-green-200:#B8D4B2;
+  --s2-green-300:#7FA876;--s2-green-500:#007C04;--s2-green-700:#005A03;
+  --s2-green-900:#00330A;
+  /* Support */
+  --s2-warn:#C8102E;--s2-caution:#C89A7E;
+  /* Role tokens (swap in dark mode) */
+  --s2-bg:var(--s2-paper);
+  --s2-surface:var(--s2-paper-2);
+  --s2-border:var(--s2-bone);
+  --s2-text-primary:var(--s2-ink);
+  --s2-text-secondary:var(--s2-archive);
+  --s2-text-muted:var(--s2-smoke);
+  --s2-accent:var(--s2-press-green);
+  /* Typography stacks */
+  --s2-serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --s2-mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  --s2-sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif;
 }
 [data-theme="dark"]{
   --bg:#0C0C0C;--bg-secondary:#2E2C2B;--surface:#2E2C2B;
@@ -72,6 +109,21 @@ const CSS = `
   --accent:#D6542D;--accent-fg:#FFFDFA;
   --terracotta:#D6542D;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
   --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
+
+  /* ── v2 brand tokens (dark mode) ── */
+  /* Press Green stays the same across modes — the "filed / active / noted" signal */
+  --s2-ink-2:#1A1A18;--s2-bone-dark:#2A2A26;
+  --s2-archive-dark:#B8B2A3;--s2-smoke-dark:#7A7668;
+  /* Deeper grouped-list background for dark */
+  --s2-grouped-bg:#050505;
+  /* Role tokens swap */
+  --s2-bg:var(--s2-ink);
+  --s2-surface:var(--s2-ink-2);
+  --s2-border:var(--s2-bone-dark);
+  --s2-text-primary:var(--s2-paper);
+  --s2-text-secondary:var(--s2-archive-dark);
+  --s2-text-muted:var(--s2-smoke-dark);
+  /* Accent unchanged: --s2-accent stays #007C04 */
 }
 html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
 
@@ -519,6 +571,94 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .gallery-strip-meta{display:flex;align-items:center;padding:6px 16px}
 .gallery-strip-dates{font-family:Inconsolata,monospace;font-size:10px;font-weight:500;letter-spacing:0.04em;color:var(--text-3);flex:1}
 .gallery-strip-count{font-family:Inconsolata,monospace;font-size:10px;color:var(--text-3)}
+
+/* ══════════════════════════════════════════════════════════════════
+   Scout v2 — brand primitives (prefix: .s2-)
+   "iOS defaults for function, Scout for emotion."
+   Coexists with v1 styles during the phased rebrand.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Screen shell: standard iOS grouped-list background */
+.s2-screen{min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased}
+
+/* Nav bar: 44pt, centered wordmark, SF Pro flanks */
+.s2-nav{position:sticky;top:0;z-index:10;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:44px;padding:0 16px;background:var(--s2-grouped-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px)}
+.s2-nav-left{justify-self:start}
+.s2-nav-center{justify-self:center;display:flex;align-items:center}
+.s2-nav-right{justify-self:end}
+.s2-nav-btn{background:none;border:none;padding:6px 0;font-family:var(--s2-sans);font-size:17px;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.s2-nav-btn:active{opacity:.4}
+.s2-nav-btn.accent{color:var(--s2-press-green)}
+
+/* Screen title: Fraunces */
+.s2-title-block{padding:8px 20px 20px}
+.s2-title{font-family:var(--s2-serif);font-size:32px;line-height:1.05;letter-spacing:-0.02em;color:var(--s2-text-primary);margin:0}
+.s2-dateline{font-family:var(--s2-mono);font-size:11px;letter-spacing:0.02em;color:var(--s2-text-muted);margin-top:6px}
+
+/* Section label: mono uppercase (MOOD, TIME, CONSTRAINT) */
+.s2-section-label{font-family:var(--s2-mono);font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.15em;color:var(--s2-text-muted);padding:20px 20px 6px;margin:0}
+
+/* Grouped list */
+.s2-list{margin:0 16px;background:var(--s2-bg);border-radius:10px;overflow:hidden}
+.s2-list-row{display:flex;align-items:center;min-height:44px;padding:10px 16px;background:var(--s2-bg);font-family:var(--s2-sans);font-size:16px;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative}
+.s2-list-row + .s2-list-row::before{content:'';position:absolute;top:0;left:16px;right:0;height:0.5px;background:rgba(0,0,0,0.1)}
+[data-theme="dark"] .s2-list-row + .s2-list-row::before{background:rgba(255,253,250,0.1)}
+.s2-list-row:active{background:rgba(0,0,0,0.04)}
+[data-theme="dark"] .s2-list-row:active{background:rgba(255,253,250,0.04)}
+.s2-list-row-label{flex:1;font-weight:400}
+.s2-list-row-value{color:var(--s2-text-muted);font-size:16px;margin-right:6px}
+.s2-list-row-trail{font-family:var(--s2-mono);font-size:12px;color:var(--s2-press-green);letter-spacing:0.02em;margin-left:8px}
+.s2-list-row-chevron{width:7px;height:12px;color:var(--s2-text-muted);opacity:0.5;flex-shrink:0;margin-left:8px}
+
+/* Segmented control (iOS-style) */
+.s2-segmented{display:flex;margin:0 16px;padding:2px;background:rgba(120,120,128,0.12);border-radius:9px;gap:0}
+.s2-segmented-option{flex:1;padding:7px 10px;background:transparent;border:none;font-family:var(--s2-sans);font-size:13px;font-weight:500;color:var(--s2-text-primary);cursor:pointer;border-radius:7px;-webkit-tap-highlight-color:transparent;transition:background .15s ease}
+.s2-segmented-option.active{background:var(--s2-bg);box-shadow:0 3px 8px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04)}
+[data-theme="dark"] .s2-segmented-option.active{box-shadow:0 3px 8px rgba(0,0,0,0.4)}
+
+/* Primary button: Scout-styled (Geist Mono, filled ink) */
+.s2-btn-primary{display:block;width:100%;padding:15px 0;background:var(--s2-text-primary);color:var(--s2-bg);font-family:var(--s2-mono);font-size:14px;font-weight:500;letter-spacing:0.1em;border:none;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s ease}
+.s2-btn-primary:active{opacity:0.75}
+.s2-btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+
+/* Secondary button: iOS text-only */
+.s2-btn-secondary{background:none;border:none;padding:12px;font-family:var(--s2-sans);font-size:17px;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.s2-btn-secondary:active{opacity:0.4}
+
+/* Filed stamp — rotated, Press Green, rubber-stamp feel */
+.s2-stamp-filed{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--s2-press-green);border-radius:2px;font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;color:var(--s2-press-green);transform:rotate(-1.5deg);background:transparent}
+
+/* Dispatch / New Assignment pill */
+.s2-stamp-dispatch{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border:1.5px solid var(--s2-press-green);border-radius:2px;font-family:var(--s2-mono);font-size:9px;font-weight:500;letter-spacing:0.25em;text-transform:uppercase;color:var(--s2-press-green);background:transparent}
+.s2-stamp-dispatch::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--s2-press-green);flex-shrink:0}
+
+/* Utility text styles */
+.s2-mono{font-family:var(--s2-mono);letter-spacing:0.02em}
+.s2-serif{font-family:var(--s2-serif);letter-spacing:-0.015em}
+.s2-muted{color:var(--s2-text-muted)}
+.s2-accent{color:var(--s2-press-green)}
+
+/* Tray — a full-surface bottom sheet that presents a screen-level flow
+   (e.g. Compose). Rounded top, drag-to-dismiss handle at the top. */
+.s2-tray{position:relative;min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;border-top-left-radius:16px;border-top-right-radius:16px;display:flex;flex-direction:column;overflow:hidden;transition:transform .28s cubic-bezier(0.2,0,0,1);will-change:transform}
+.s2-tray.is-dragging{transition:none}
+.s2-tray-handle-area{display:flex;align-items:center;justify-content:center;padding:10px 0 4px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
+.s2-tray-handle-area:active{cursor:grabbing}
+
+/* Bottom sheet (iOS-style action picker) */
+.s2-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:s2-sheet-fade .2s ease}
+.s2-sheet{width:100%;max-width:640px;background:var(--s2-bg);border-top-left-radius:16px;border-top-right-radius:16px;padding-bottom:env(safe-area-inset-bottom,20px);max-height:80dvh;display:flex;flex-direction:column;animation:s2-sheet-slide .25s cubic-bezier(0.2,0,0,1)}
+.s2-sheet-handle{width:36px;height:5px;background:rgba(0,0,0,0.18);border-radius:3px;margin:8px auto 4px}
+[data-theme="dark"] .s2-sheet-handle{background:rgba(255,253,250,0.24)}
+.s2-sheet-header{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 4px}
+.s2-sheet-list{overflow-y:auto;padding:4px 0 12px}
+.s2-sheet-row{width:100%;text-align:left;background:transparent;border:none}
+@keyframes s2-sheet-slide{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes s2-sheet-fade{from{opacity:0}to{opacity:1}}
+
+/* Loading spinner for primary button — tiny, inherits color */
+.s2-spinner{display:inline-block;width:14px;height:14px;border:1.5px solid currentColor;border-top-color:transparent;border-radius:50%;animation:s2-spin .7s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes s2-spin{to{transform:rotate(360deg)}}
 `;
 
 (() => {
@@ -626,6 +766,10 @@ function AuthImage({ src, alt, ...props }) {
 }
 
 export default function App() {
+  // Pure-design dev mode — render ComposeScreen without the auth + mobile
+  // gates. API calls won't work, but ?brief= / ?note= can still paint the
+  // anchor screens for visual review.
+  if (_composeDev) return <ComposeScreen />;
   const todayStr = today();
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];
@@ -1518,8 +1662,10 @@ export default function App() {
   );
 
 
-  // Desktop/tablet lockout — show a single directive to open on mobile
-  if (!isMobile) return (
+  // Desktop/tablet lockout — show a single directive to open on mobile.
+  // The ?compose=1 silo bypasses the gate so design iteration can happen
+  // on desktop during the rebrand; gate resumes once the flag is gone.
+  if (!isMobile && !_composeSilo) return (
     <div className="mobile-gate">
       <div className="mobile-gate-inner">
         <h1 className="mobile-gate-title">Scout lives on your phone</h1>
@@ -1669,6 +1815,11 @@ export default function App() {
     }
     return false;
   })();
+
+  // Silo gate: ?compose=1 renders the v2 Compose screen for authed users
+  // only. Non-authed users fall through to the normal landing/login flow
+  // above so they can sign in first; after auth, this check takes over.
+  if (_composeSilo) return <ComposeScreen />;
 
   return (
     <>
