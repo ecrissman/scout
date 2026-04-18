@@ -382,6 +382,14 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .auth-bridge-title{font-family:var(--brand);font-size:26px;color:#FFFDFA;letter-spacing:.02em;margin-bottom:10px}
 .auth-bridge-sub{font-family:var(--sans);font-size:13px;color:rgba(245,241,235,0.45);text-align:center;line-height:1.7;margin-bottom:52px;max-width:240px}
 .auth-bridge-hint{font-family:var(--sans);font-size:11px;color:rgba(245,241,235,0.25);letter-spacing:.08em;text-transform:uppercase;text-align:center}
+
+/* ── Mobile gate (desktop/tablet lockout) — dark only ── */
+.mobile-gate{position:fixed;inset:0;background:#0C0C0C;display:flex;align-items:center;justify-content:center;padding:40px;z-index:9999}
+.mobile-gate-inner{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:420px}
+.mobile-gate-title{font-family:var(--brand);font-size:34px;color:#FFFDFA;letter-spacing:.01em;margin:0 0 14px;font-weight:400;line-height:1.15}
+.mobile-gate-body{font-family:var(--sans);font-size:15px;color:rgba(245,241,235,0.55);line-height:1.7;margin:0 0 28px;font-weight:300}
+.mobile-gate-url{font-family:var(--sans);font-size:13px;color:#FFFDFA;font-weight:600;letter-spacing:.04em;padding:10px 16px;border:1px solid rgba(245,241,235,0.2);border-radius:4px;text-transform:uppercase}
+
 /* ── Login ── */
 .pj-login{position:fixed;inset:0;background:var(--paper)}
 .login-logo{position:absolute;top:10.3%;left:50%;transform:translateX(-50%);width:80px;height:80px}
@@ -652,6 +660,30 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('scout-theme-pref', themePref);
   }, [theme, themePref]);
+
+  // ── Mobile-only gate: desktop/tablet see a redirect screen ──
+  // Phone detection: shortest viewport edge <= 500px + coarse pointer.
+  // Capacitor native builds always pass through.
+  const [isMobile, setIsMobile] = useState(() => {
+    if (window.Capacitor?.isNativePlatform?.()) return true;
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const shortEdge = Math.min(window.innerWidth, window.innerHeight);
+    return coarse && shortEdge <= 500;
+  });
+  useEffect(() => {
+    const check = () => {
+      if (window.Capacitor?.isNativePlatform?.()) { setIsMobile(true); return; }
+      const coarse = window.matchMedia('(pointer: coarse)').matches;
+      const shortEdge = Math.min(window.innerWidth, window.innerHeight);
+      setIsMobile(coarse && shortEdge <= 500);
+    };
+    window.addEventListener('resize', check);
+    window.addEventListener('orientationchange', check);
+    return () => {
+      window.removeEventListener('resize', check);
+      window.removeEventListener('orientationchange', check);
+    };
+  }, []);
 
   // ── Splash ──
   const [splashDone,   setSplashDone]   = useState(false);
@@ -1486,26 +1518,25 @@ export default function App() {
   );
 
 
+  // Desktop/tablet lockout — show a single directive to open on mobile
+  if (!isMobile) return (
+    <div className="mobile-gate">
+      <div className="mobile-gate-inner">
+        <h1 className="mobile-gate-title">Scout lives on your phone</h1>
+        <p className="mobile-gate-body">
+          A photo a day, wherever you are. Open Scout on your phone to get started.
+        </p>
+        <span className="mobile-gate-url">scoutphoto.app</span>
+      </div>
+    </div>
+  );
+
   // PWA receiving OAuth callback directly — show clean dark screen instead of flash
   if (checking && _isStandalone && _authInUrl) return (
     <div style={{position:'fixed',inset:0,background:'#0C0C0C'}} />
   );
 
   if (checking) return splash || null;
-
-  if (showOnboarding) {
-    return (
-      <div className="ob-wrap">
-        <h2 className="ob-hed">ONE PHOTO<br/>EVERY DAY</h2>
-        <p className="ob-hint">
-          Follow Scout's lead or<br/>blaze your own trail
-        </p>
-        <button type="button" className="ob-cta" onClick={finishOnboarding}>
-          LET'S GO
-        </button>
-      </div>
-    );
-  }
 
   if (forgotView === 'set') return (
     <form className="pj-login" onSubmit={handleSetNewPassword} data-theme={theme}>
