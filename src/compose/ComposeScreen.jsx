@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { composeBrief, getContext } from '../api';
+import { composeBrief, getContext, uploadPhoto } from '../api';
+import { extractEXIF, compressFile, makeThumb } from '../exif';
 
 // Mood / constraint lists carried forward from the silo prototype. The brand
 // guide mockup shows "Quiet" and "Shoot through something" as representative
@@ -65,6 +66,12 @@ const DISMISS_THRESHOLD = 120;
 export default function ComposeScreen() {
   const now = useMemo(() => new Date(), []);
   const clock = useMemo(() => formatClock(now), [now]);
+  const todayKey = useMemo(() => {
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }, [now]);
 
   const [mood, setMood] = useState(null);
   const [timeIdx, setTimeIdx] = useState(1); // default "20 min"
@@ -83,6 +90,17 @@ export default function ComposeScreen() {
     const p = new URLSearchParams(window.location.search);
     return p.get('brief') || null;
   });
+
+  // File-a-take state machine. Advances Compose → Brief → Choose (pick
+  // camera/library) → Uploading → Filed. Starts at 'brief' if the dev
+  // ?brief= param was present on mount.
+  const [stage, setStage] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return p.get('brief') ? 'brief' : 'compose';
+  });
+  const [fileError, setFileError] = useState(null);
+  const fileRef = useRef(null);
+  const cameraRef = useRef(null);
 
   // Drag-to-dismiss state. Refs avoid re-binding window listeners on every
   // move frame; state drives the translateY render.
@@ -179,24 +197,154 @@ export default function ComposeScreen() {
       return;
     }
     setBrief(res.brief);
+    setStage('brief');
     if (res.autoLight) setAutoLight(res.autoLight);
     if (res.autoPlace) setAutoPlace(res.autoPlace);
   };
 
   const recompose = () => {
     setBrief(null);
+    setStage('compose');
     setError(null);
+    setFileError(null);
+  };
+
+  const acceptBrief = () => { setStage('choose'); };
+
+  // Read a selected image from camera or library, compress + thumb + EXIF,
+  // then upload with the full compose stack attached to meta. The backend's
+  // POST /api/photo/:date was extended in Phase 1 to accept the compose field.
+  const handleFileSelected = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fromCamera = e.target === cameraRef.current;
+    e.target.value = '';
+    setStage('uploading');
+    setFileError(null);
+    try {
+      const exif = await extractEXIF(file);
+      const fullSrc = await compressFile(file);
+      const thumbSrc = await makeThumb(fullSrc);
+      const composeStack = {
+        mood,
+        time,
+        constraint,
+        autoLight,
+        autoPlace,
+        brief,
+        filedAt: new Date().toISOString(),
+        via: fromCamera ? 'camera' : 'library',
+      };
+      const ok = await uploadPhoto(todayKey, { fullSrc, thumbSrc, exif, caption: '', compose: composeStack });
+      if (!ok) throw new Error('Upload failed. Check connection and retry.');
+      setStage('filed');
+    } catch (err) {
+      setFileError(err?.message || 'Could not file your take. Try again.');
+      setStage('choose');
+    }
   };
 
   // Header dateline: "Overcast · Capitol Hill · 8:17" (filtered for nulls).
   const headerBits = [autoLight, autoPlace, clock].filter(Boolean).join(' · ');
 
+  // Hidden file inputs — kept mounted at the component root so the same
+  // refs work whether triggered from the 'choose' screen or elsewhere.
+  const fileInputs = (
+    <>
+      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileSelected} />
+      <input ref={cameraRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handleFileSelected} />
+    </>
+  );
+
+  // ───────────── Filed (success — brand moment: the stamp lands) ─────────────
+  // Phase 4 terminal state. Phase 5 will replace this with the Editor's Note
+  // screen once the note endpoint is wired into the reveal flow.
+  if (stage === 'filed') {
+    return (
+      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
+        <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
+          <div className="s2-sheet-handle" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
+            <span className="s2-stamp-filed" style={{ fontSize: 14, padding: '10px 22px' }}>Filed</span>
+          </div>
+          <div className="s2-serif" style={{ fontSize: 24, color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.015em', textAlign: 'center', marginBottom: 16 }}>
+            Your take is in.
+          </div>
+          <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 'auto' }}>
+            Archive {formatDispatchDate(now)} · {clock}
+          </div>
+          <button className="s2-btn-primary" onClick={dismiss}>
+            Close
+          </button>
+        </div>
+        {fileInputs}
+      </div>
+    );
+  }
+
+  // ───────────── Uploading (compressing + POSTing with compose stack) ─────────────
+  if (stage === 'uploading') {
+    return (
+      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
+        <div className="s2-tray-handle-area">
+          <div className="s2-sheet-handle" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+          <div className="s2-spinner" style={{ width: 24, height: 24, borderWidth: 2, color: 'var(--s2-press-green)', marginBottom: 20 }} />
+          <div className="s2-mono" style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
+            Filing your take…
+          </div>
+        </div>
+        {fileInputs}
+      </div>
+    );
+  }
+
+  // ───────────── File a Take (choose source) ─────────────
+  if (stage === 'choose') {
+    return (
+      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
+        <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
+          <div className="s2-sheet-handle" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px' }}>
+          <div style={{ marginBottom: 14 }}>
+            <span className="s2-stamp-dispatch">Assignment {dayOfYear(now)}</span>
+          </div>
+          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 32 }}>
+            File by 23:59
+          </div>
+          <h1 className="s2-title" style={{ marginBottom: 14 }}>File a take</h1>
+          {brief && (
+            <div className="s2-mono" style={{ fontSize: 11, lineHeight: 1.55, color: 'var(--s2-text-secondary)', letterSpacing: '0.02em', marginBottom: 'auto', fontStyle: 'italic' }}>
+              {brief}
+            </div>
+          )}
+          {fileError && (
+            <div className="s2-mono" style={{ color: 'var(--s2-warn)', fontSize: 12, marginTop: 24, marginBottom: 8 }}>
+              {fileError}
+            </div>
+          )}
+          <button className="s2-btn-primary" onClick={() => cameraRef.current?.click()} style={{ marginTop: 24 }}>
+            Take photo
+          </button>
+          <button className="s2-btn-secondary" onClick={() => fileRef.current?.click()} style={{ marginTop: 6, width: '100%' }}>
+            Choose from library
+          </button>
+        </div>
+        {fileInputs}
+      </div>
+    );
+  }
+
   // ───────────── The Brief (brand moment 01 — anchor screen 2) ─────────────
   // Paper surface, nothing competes with the brief itself. Stamp + dispatch
   // dateline anchor the top; Fraunces carries the brief; mono counter +
-  // "File by 23:59" footer; Accept Assignment is the primary CTA (File a
-  // Take arrives in Phase 4). Tray chrome stays for drag-to-dismiss.
-  if (brief) {
+  // "File by 23:59" footer; Accept Assignment advances to the File stage.
+  // Tray chrome stays for drag-to-dismiss.
+  if (stage === 'brief' && brief) {
     const briefNumber = dayOfYear(now);
     return (
       <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
@@ -218,13 +366,14 @@ export default function ComposeScreen() {
             <span style={{ color: 'var(--s2-bone)' }}>·</span>
             <span>File by 23:59</span>
           </div>
-          <button className="s2-btn-primary" onClick={dismiss}>
+          <button className="s2-btn-primary" onClick={acceptBrief}>
             Accept Assignment
           </button>
           <button className="s2-btn-secondary" onClick={recompose} style={{ marginTop: 6, width: '100%' }}>
             Recompose
           </button>
         </div>
+        {fileInputs}
       </div>
     );
   }
