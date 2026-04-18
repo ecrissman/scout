@@ -7,9 +7,14 @@ import { initAnalytics, identify, resetIdentity, track, setAnalyticsOptOut } fro
 import { PRIVACY_POLICY, TERMS_OF_SERVICE } from './legal.js';
 import ComposeScreen from './compose/ComposeScreen.jsx';
 
-// Dev flag: ?compose=1 isolates the v2 Compose screen for iteration before
-// Phase 6 wires it into the Today state machine. Bypasses auth + mobile gates.
+// Dev flags:
+//   ?compose=1         — render the v2 Compose tray instead of the main app
+//                         (still gated behind the normal auth flow below)
+//   ?compose=1&dev=1   — also bypass auth for pure-design iteration. API
+//                         calls will 401, but dev params like ?brief= /
+//                         ?note= let us preview render states in isolation.
 const _composeSilo = new URLSearchParams(window.location.search).get('compose') === '1';
+const _composeDev = _composeSilo && new URLSearchParams(window.location.search).get('dev') === '1';
 
 // Mark standalone PWA mode before first paint so CSS can target it
 if (window.navigator.standalone) document.documentElement.classList.add('pwa');
@@ -761,6 +766,10 @@ function AuthImage({ src, alt, ...props }) {
 }
 
 export default function App() {
+  // Pure-design dev mode — render ComposeScreen without the auth + mobile
+  // gates. API calls won't work, but ?brief= / ?note= can still paint the
+  // anchor screens for visual review.
+  if (_composeDev) return <ComposeScreen />;
   const todayStr = today();
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];

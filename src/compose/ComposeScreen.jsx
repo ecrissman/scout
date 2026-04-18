@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { composeBrief, getContext, uploadPhoto } from '../api';
+import { composeBrief, getContext, uploadPhoto, getEditorNote } from '../api';
 import { extractEXIF, compressFile, makeThumb } from '../exif';
 
 // Mood / constraint lists carried forward from the silo prototype. The brand
@@ -92,15 +92,25 @@ export default function ComposeScreen() {
   });
 
   // File-a-take state machine. Advances Compose → Brief → Choose (pick
-  // camera/library) → Uploading → Filed. Starts at 'brief' if the dev
-  // ?brief= param was present on mount.
+  // camera/library) → Uploading → Filed → EditorNote. Starts at a later
+  // stage if a dev param was passed in (?brief= / ?note=).
   const [stage, setStage] = useState(() => {
     const p = new URLSearchParams(window.location.search);
-    return p.get('brief') ? 'brief' : 'compose';
+    if (p.get('note')) return 'editor-note';
+    if (p.get('brief')) return 'brief';
+    return 'compose';
   });
   const [fileError, setFileError] = useState(null);
   const fileRef = useRef(null);
   const cameraRef = useRef(null);
+
+  // Post-filing state: the thumbnail (base64) shown on the Editor's Note
+  // screen (instant render — no R2 round-trip) and the editor note itself.
+  const [filedPhoto, setFiledPhoto] = useState(null);
+  const [editorNote, setEditorNote] = useState(() =>
+    new URLSearchParams(window.location.search).get('note') || null
+  );
+  const [editorNoteAt, setEditorNoteAt] = useState(null);
 
   // Drag-to-dismiss state. Refs avoid re-binding window listeners on every
   // move frame; state drives the translateY render.
@@ -237,12 +247,28 @@ export default function ComposeScreen() {
       };
       const ok = await uploadPhoto(todayKey, { fullSrc, thumbSrc, exif, caption: '', compose: composeStack });
       if (!ok) throw new Error('Upload failed. Check connection and retry.');
+      setFiledPhoto(thumbSrc);
       setStage('filed');
     } catch (err) {
       setFileError(err?.message || 'Could not file your take. Try again.');
       setStage('choose');
     }
   };
+
+  // Kick off the editor's note request as soon as we hit 'filed'. On
+  // success, slide into 'editor-note'; on failure, leave the user on the
+  // bare Filed stamp screen (they can still Close without the note).
+  useEffect(() => {
+    if (stage !== 'filed') return;
+    let cancelled = false;
+    getEditorNote(todayKey).then((res) => {
+      if (cancelled || !res || res.error || !res.editorNote) return;
+      setEditorNote(res.editorNote);
+      setEditorNoteAt(res.editorNoteAt || new Date().toISOString());
+      setStage('editor-note');
+    });
+    return () => { cancelled = true; };
+  }, [stage, todayKey]);
 
   // Header dateline: "Overcast · Capitol Hill · 8:17" (filtered for nulls).
   const headerBits = [autoLight, autoPlace, clock].filter(Boolean).join(' · ');
@@ -256,9 +282,46 @@ export default function ComposeScreen() {
     </>
   );
 
+  // ───────────── Editor's Note (brand moment 02 — anchor screen 3) ─────────────
+  // Paper surface, photo thumbnail at top, mono "Editor's Note · HH:MM" in
+  // Press Green, serif italic body, bottom bar with rotated Filed stamp
+  // and archive datestamp. Tray chrome stays for drag-to-dismiss.
+  if (stage === 'editor-note' && editorNote) {
+    const noteDate = editorNoteAt ? new Date(editorNoteAt) : now;
+    return (
+      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
+        <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
+          <div className="s2-sheet-handle" />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '14px 28px 28px' }}>
+          {filedPhoto && (
+            <img
+              src={filedPhoto}
+              alt="Filed take"
+              style={{ width: '100%', aspectRatio: '4 / 5', objectFit: 'cover', borderRadius: 4, marginBottom: 24, background: 'var(--s2-bone)', display: 'block' }}
+            />
+          )}
+          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-press-green)', fontWeight: 500, marginBottom: 12 }}>
+            Editor's Note · {formatClock(noteDate)}
+          </div>
+          <div className="s2-serif" style={{ fontSize: 19, fontStyle: 'italic', color: 'var(--s2-text-primary)', lineHeight: 1.5, letterSpacing: '-0.005em', marginBottom: 'auto' }}>
+            {editorNote}
+          </div>
+          <div style={{ marginTop: 24, paddingTop: 14, borderTop: '0.5px solid rgba(12,12,12,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span className="s2-stamp-filed" style={{ fontSize: 10 }}>Filed</span>
+            <span className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+              {formatDispatchDate(now)}
+            </span>
+          </div>
+        </div>
+        {fileInputs}
+      </div>
+    );
+  }
+
   // ───────────── Filed (success — brand moment: the stamp lands) ─────────────
-  // Phase 4 terminal state. Phase 5 will replace this with the Editor's Note
-  // screen once the note endpoint is wired into the reveal flow.
+  // Shown briefly while the Editor's Note is being fetched; also the fallback
+  // terminal if the editor-note endpoint fails.
   if (stage === 'filed') {
     return (
       <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
