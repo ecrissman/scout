@@ -113,6 +113,39 @@ export async function getFeedback(date) {
   } catch { return null; }
 }
 
+// v2 brand: read-only context for the Compose header — autoLight from
+// weather + autoPlace from reverse-geocoding. Called on mount.
+// Returns { autoLight, autoPlace } or null on network failure.
+export async function getContext({ lat, lon }) {
+  try {
+    const qs = (typeof lat === 'number' && typeof lon === 'number') ? `?lat=${lat}&lon=${lon}` : '';
+    const r = await fetch(`${BASE}/ai/context${qs}`, await req('GET'));
+    if (!r.ok) return null;
+    return r.json();
+  } catch { return null; }
+}
+
+// v2 brand: compose a brief from user inputs + server-detected light/place.
+// Returns { brief, autoLight, autoPlace }. Client passes lat/lon; server
+// handles weather + reverse-geo so the Anthropic key stays on the edge.
+export async function composeBrief({ mood, time, constraint, lat, lon }) {
+  try {
+    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { mood, time, constraint, lat, lon }));
+    if (!r.ok) return null;
+    return r.json();
+  } catch { return null; }
+}
+
+// v2 brand: editor's note for a filed photo. Returns { editorNote, editorNoteAt }.
+// Persists the note into the photo's meta.json.
+export async function getEditorNote(date) {
+  try {
+    const r = await fetch(`${BASE}/ai/editor-note/${date}`, await req('POST'));
+    if (!r.ok) return null;
+    return r.json();
+  } catch { return null; }
+}
+
 // Images are served directly by the Worker (token sent via Authorization header)
 export const thumbUrl = (date) => `${BASE}/image/${date}/thumb`;
 export const fullUrl  = (date) => `${BASE}/image/${date}/full`;
