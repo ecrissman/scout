@@ -546,7 +546,7 @@ export async function onRequest({ request, env, params }) {
       try {
         const geo = await fetch(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`,
-          { headers: { 'User-Agent': 'Scout/1.0 (scout-app.pages.dev)' } }
+          { headers: { 'User-Agent': 'Scout/1.0 (sightful.pages.dev)' } }
         );
         if (geo.ok) {
           const g = await geo.json();
