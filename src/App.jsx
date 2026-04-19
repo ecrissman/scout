@@ -305,7 +305,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 [data-theme="dark"] .today-sheet-icon-btn{opacity:0.6}
 [data-theme="dark"] .today-sheet-icon-btn svg line,[data-theme="dark"] .today-sheet-icon-btn svg path{stroke:#FFFDFA}
 [data-theme="dark"] .nav-panel{background:#0C0C0C;box-shadow:6px 0 16px -8px rgba(0,0,0,0.5)}
-[data-theme="dark"] .nav-panel-close{color:#FFFDFA}
 [data-theme="dark"] .nav-panel-item{color:#FFFDFA}
 [data-theme="dark"] .nav-panel-signout{background:#FFFDFA;color:#0C0C0C}
 [data-theme="dark"] .nav-panel{box-shadow:4px 0 20px rgba(0,0,0,0.5)}
@@ -358,6 +357,41 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* ── Feedback (collapsible, auto-triggered) ── */
 .feedback-card{margin-top:0}
+
+/* ── Edition toast (in-app push stand-in) ── */
+.edition-toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:210;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--text);color:var(--bg);border:none;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,0.22);cursor:pointer;font-family:var(--sans);-webkit-tap-highlight-color:transparent;max-width:calc(100vw - 32px);animation:editionToastIn .32s cubic-bezier(0.32,0.72,0,1)}
+.edition-toast:active{opacity:.8}
+.edition-toast-stamp{font-size:10px;letter-spacing:.22em;text-transform:uppercase;padding:4px 8px;border:1px solid var(--bg);border-radius:2px;opacity:.85;flex-shrink:0}
+.edition-toast-msg{font-size:14px;font-weight:500;letter-spacing:-0.005em;flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.edition-toast-cta{font-size:12px;letter-spacing:.06em;opacity:.75;flex-shrink:0}
+@keyframes editionToastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ── Editor's Note full-screen reveal (first view) ── */
+.note-reveal{position:fixed;inset:0;z-index:220;background:var(--bg);display:flex;flex-direction:column;animation:pagePushIn .32s cubic-bezier(0.32,0.72,0,1);padding-bottom:env(safe-area-inset-bottom)}
+.note-reveal-inner{display:flex;flex-direction:column;flex:1;padding:0 28px 28px;overflow-y:auto}
+.note-reveal-stamp-wrap{display:flex;justify-content:center;margin-top:40px;margin-bottom:28px}
+.note-reveal-dateline{font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-3);text-align:center;margin-bottom:32px}
+.note-reveal-body{font-family:var(--serif);font-size:22px;line-height:1.35;letter-spacing:-0.015em;color:var(--text);margin-bottom:20px}
+.note-reveal-sig{font-family:var(--sans);font-size:13px;color:var(--text-3);letter-spacing:.02em}
+
+/* ── Editor's Note block (Today, under Field Note) ── */
+.editor-note{margin-top:18px;padding:16px 0 18px;border-top:1px solid var(--border)}
+.editor-note-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.editor-note-lbl{font-family:var(--sans);font-size:11px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.editor-note-stamp{font-family:var(--sans);font-size:10px;color:var(--text-3);letter-spacing:.15em;text-transform:uppercase}
+.editor-note-body{font-family:var(--serif);font-size:17px;color:var(--text);line-height:1.5;letter-spacing:-0.005em}
+.editor-note-pending{font-family:var(--sans);font-size:13px;color:var(--text-3);font-style:italic}
+
+/* ── "Read the brief" chip ── */
+.brief-chip{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.brief-chip-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;padding:6px 0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.brief-chip-toggle:active{opacity:.5}
+.brief-chip-lbl{font-family:var(--sans);font-size:12px;color:var(--text-2);letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.brief-chip-chev{width:14px;height:14px;stroke:var(--text-2);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;transition:transform .22s ease;flex-shrink:0}
+.brief-chip-chev.open{transform:rotate(180deg)}
+.brief-chip-body{overflow:hidden;max-height:0;transition:max-height .35s ease}
+.brief-chip-body.open{max-height:1000px}
+.brief-chip-body-inner{font-family:var(--serif);font-size:16px;color:var(--text-2);line-height:1.55;padding:12px 0 4px}
 .feedback-toggle{display:flex;align-items:center;justify-content:space-between;padding:20px 0 14px;cursor:pointer;border-top:1px solid var(--border);user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 .feedback-toggle-lbl{font-family:var(--sans);font-size:12px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;font-weight:500}
 .feedback-toggle-chev{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;transition:transform .22s ease;flex-shrink:0}
@@ -534,12 +568,10 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .nav-panel-backdrop{position:fixed;inset:0;z-index:200;background:transparent}
 .nav-panel{position:fixed;left:0;top:0;bottom:0;width:189px;z-index:201;background:#FFFDFA;box-shadow:4px 0 20px rgba(0,0,0,0.18);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);animation:navPanelIn 0.32s cubic-bezier(0.32,0.72,0,1)}
 .nav-panel.is-closing{animation:navPanelOut 0.28s cubic-bezier(0.32,0.72,0,1) forwards}
-.nav-panel-header{display:flex;align-items:center;padding:14px 21px;position:relative;flex-shrink:0}
-.nav-panel-wordmark{position:absolute;left:67px;display:inline-flex;align-items:center;pointer-events:none}
-.nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1;color:#0C0C0C}
-.nav-panel-close:active{opacity:.5}
-.nav-panel-nav{display:flex;flex-direction:column;gap:30px;padding:32px 21px 0;flex:1}
-.nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:var(--s2-mono);font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
+.nav-panel-header{display:flex;align-items:center;padding:18px 21px 10px;flex-shrink:0}
+.nav-panel-wordmark{display:inline-flex;align-items:center}
+.nav-panel-nav{display:flex;flex-direction:column;gap:22px;padding:32px 21px 0;flex:1}
+.nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:var(--s2-sans,-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif);font-weight:500;font-size:17px;color:#0C0C0C;letter-spacing:-0.01em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
 .nav-panel-item:active{opacity:.4}
 .nav-panel-footer{padding:21px;flex-shrink:0}
 .nav-panel-signout{width:109px;height:36px;background:#0C0C0C;border:none;border-radius:3px;cursor:pointer;font-family:var(--brand);font-size:16px;color:#FFFDFA;letter-spacing:0.02em;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
@@ -636,13 +668,14 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
    Uploading) override via s2-tray--paper to use --s2-bg (paper in light,
    ink in dark). NEVER hardcode --s2-paper — that made paper text +
    primary-button fills invisible in dark mode. */
-.s2-tray{position:relative;min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;border-top-left-radius:16px;border-top-right-radius:16px;display:flex;flex-direction:column;overflow:hidden;transition:transform .28s cubic-bezier(0.2,0,0,1);will-change:transform}
-.s2-tray.is-dragging{transition:none}
+.s2-tray{position:relative;min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden}
 .s2-tray.s2-tray--paper{background:var(--s2-bg)}
-/* Drag area is a 44px-tall touch target — the visible handle pill is small,
-   but the entire row reads to touch so close-the-tray gesture is easy. */
-.s2-tray-handle-area{display:flex;align-items:center;justify-content:center;min-height:44px;padding:14px 0;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
-.s2-tray-handle-area:active{cursor:grabbing}
+/* Push-nav page header — close × on the right. Replaces the old tray drag
+   handle with an explicit dismiss affordance. */
+.s2-page-header{display:flex;align-items:center;padding:8px 8px 0 8px;padding-top:calc(env(safe-area-inset-top,0px) + 8px);min-height:48px;flex-shrink:0}
+.s2-page-header--right{justify-content:flex-end}
+.s2-page-close{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:8px}
+.s2-page-close:active{opacity:0.5}
 
 /* Icon-only chrome button — used for things like Recompose-as-refresh on
    the Brief screen. Square 36px touch target, currentColor so the icon
@@ -973,6 +1006,16 @@ export default function App() {
   const [feedbackLoading,    setFeedbackLoading]    = useState(false);
   const [feedbackError,      setFeedbackError]      = useState(null);
   const [feedbackExpanded,   setFeedbackExpanded]   = useState(true);
+  const [briefExpanded,      setBriefExpanded]      = useState(false);
+  // Editor's Note full-screen reveal moment — fires once per note, on first
+  // view. Keyed by date in localStorage (`scout-note-seen-${date}`). After
+  // dismissal, the note lives inline on Today under Field Note.
+  const [noteReveal,         setNoteReveal]         = useState(null); // date key or null
+  const [noteRevealShown,    setNoteRevealShown]    = useState(0);
+  // Edition toast — in-app stand-in for the push notification. Fires when
+  // the 20:00 gate lifts while the app is already open. Taps it to open
+  // the full-screen reveal; auto-dismisses after 8 seconds.
+  const [editionToast,       setEditionToast]       = useState(null); // date key or null
   const [captionSuggestion,  setCaptionSuggestion]  = useState(null);
   const [captionSuggestLoad, setCaptionSuggestLoad] = useState(false);
   const [shootPrompt,        setShootPrompt]        = useState(null);
@@ -1240,13 +1283,56 @@ export default function App() {
       setCaption(data?.caption||'');
       // Prefer the v2 editor note (attached by the Compose flow) over the
       // v1 feedback field; both render inside the same Field Note block.
-      if (data?.editorNote) setFeedback(data.editorNote);
-      else if (data?.feedback) setFeedback(data.feedback);
+      const note = data?.editorNote || data?.feedback || null;
+      if (note) setFeedback(note);
+      // Evening-edition gate: for today's note, suppress the reveal until
+      // 20:00 local. Past-dated notes aren't gated (they were held back
+      // when originally filed). Seen flag is per-date.
+      const nowHour = new Date().getHours();
+      const gatedToday = sel === todayStr && nowHour < 20;
+      if (note && sel && !gatedToday && !localStorage.getItem(`scout-note-seen-${sel}`)) {
+        setNoteReveal(sel);
+        setNoteRevealShown(0);
+      }
       setDayLoading(false);
       const { lat, lon } = data?.exif || {};
       if (lat != null && lon != null) reverseGeocode(lat, lon).then(name => { if (name) setLocationName(name); });
     });
   }, [sel, authed]);
+
+  // ── Evening edition auto-open at 20:00 ──
+  // If the app is open when the gate lifts, fire the reveal on its own
+  // without requiring a reload or re-navigation. Recomputes the delay on
+  // every dep change, so filing a photo mid-afternoon arms the timer.
+  useEffect(() => {
+    if (!feedback || sel !== todayStr) return;
+    if (localStorage.getItem(`scout-note-seen-${todayStr}`)) return;
+    const now = new Date();
+    const target = new Date(now);
+    target.setHours(20, 0, 0, 0);
+    const delay = target - now;
+    if (delay <= 0) return; // already past 20:00 — the load-time trigger handled it
+    const t = setTimeout(() => {
+      if (localStorage.getItem(`scout-note-seen-${todayStr}`)) return;
+      setEditionToast(todayStr);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [feedback, sel, todayStr]);
+
+  // ── Edition toast auto-dismiss (8s) ──
+  useEffect(() => {
+    if (!editionToast) return;
+    const t = setTimeout(() => setEditionToast(null), 8000);
+    return () => clearTimeout(t);
+  }, [editionToast]);
+
+  // ── Typewriter reveal for the Editor's Note full-screen moment ──
+  useEffect(() => {
+    if (!noteReveal || !feedback) return;
+    if (noteRevealShown >= feedback.length) return;
+    const t = setTimeout(() => setNoteRevealShown(n => Math.min(feedback.length, n + 1)), 28);
+    return () => clearTimeout(t);
+  }, [noteReveal, feedback, noteRevealShown]);
 
   // ── Auto-fetch today's prompt when viewing today with no photo ──
   useEffect(()=>{
@@ -2151,10 +2237,49 @@ export default function App() {
                 </div>
               )}
 
-              {/* Field note (Editor's Note) is hidden on Today for now. The
-                  note is still persisted on the photo by the Compose flow;
-                  users will be pinged via push when it's ready, and surfaced
-                  on a dedicated review screen at that point. */}
+              {/* ── Editor's Note block ──
+                  Before 20:00 / no note yet: quiet placeholder.
+                  After available: header + full note inline. The payoff of
+                  the daily loop lives here. */}
+              {dayMeta&&(()=>{
+                const EDITION_HOUR = 20;
+                const nowH = new Date().getHours();
+                const isToday = sel === todayStr;
+                const hasNote = !!feedback;
+                const gated = isToday && nowH < EDITION_HOUR;
+                if (!hasNote && !gated) return null;
+                const showBody = hasNote && !gated;
+                return (
+                  <div className="editor-note">
+                    <div className="editor-note-head">
+                      <span className="editor-note-lbl">Editor's Note</span>
+                      <span className="editor-note-stamp">Edition · {String(EDITION_HOUR).padStart(2,'0')}:00</span>
+                    </div>
+                    {showBody ? (
+                      <div className="editor-note-body">{feedback}</div>
+                    ) : (
+                      <div className="editor-note-pending">Editor reviewing… posts at 20:00.</div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* ── The Brief chip ──
+                  Tap to expand inline. Surfaces the original assignment so
+                  the photo stays in context long after filing. */}
+              {dayMeta?.compose?.brief&&(
+                <div className="brief-chip">
+                  <button className="brief-chip-toggle" onClick={()=>setBriefExpanded(v=>!v)}>
+                    <span className="brief-chip-lbl">{briefExpanded ? 'Hide the brief' : 'Read the brief'}</span>
+                    <svg className={`brief-chip-chev${briefExpanded?' open':''}`} viewBox="0 0 14 14" aria-hidden="true">
+                      <path d="M3 5.5l4 4 4-4"/>
+                    </svg>
+                  </button>
+                  <div className={`brief-chip-body${briefExpanded?' open':''}`}>
+                    <div className="brief-chip-body-inner">{dayMeta.compose.brief}</div>
+                  </div>
+                </div>
+              )}
 
             </div>
           </>
@@ -2240,8 +2365,12 @@ export default function App() {
                   setCaption(m.caption || '');
                   // Prefer the v2 editor note if present; fall back to
                   // the v1 feedback field for legacy photos.
-                  if (m.editorNote) setFeedback(m.editorNote);
-                  else if (m.feedback) setFeedback(m.feedback);
+                  const note2 = m.editorNote || m.feedback || null;
+                  if (note2) setFeedback(note2);
+                  if (note2 && new Date().getHours() >= 20 && !localStorage.getItem(`scout-note-seen-${todayStr}`)) {
+                    setNoteReveal(todayStr);
+                    setNoteRevealShown(0);
+                  }
                   setPhotoDates(prev => new Set([...prev, todayStr]));
                   setPhotoVer(Date.now());
                 }
@@ -2255,6 +2384,58 @@ export default function App() {
           />
         </div>
       )}
+
+      {editionToast && (
+        <button
+          className="edition-toast"
+          onClick={() => {
+            setNoteReveal(editionToast);
+            setNoteRevealShown(0);
+            setEditionToast(null);
+          }}
+        >
+          <span className="edition-toast-stamp">Edition</span>
+          <span className="edition-toast-msg">Today's edition is out.</span>
+          <span className="edition-toast-cta">Read →</span>
+        </button>
+      )}
+
+      {noteReveal && feedback && (() => {
+        const [y, m, d] = noteReveal.split('-').map(Number);
+        const rd = new Date(y, m - 1, d);
+        const dispatchDate = `${String(m).padStart(2,'0')}.${String(d).padStart(2,'0')}.${String(y%100).padStart(2,'0')}`;
+        const revealed = feedback.slice(0, noteRevealShown);
+        const typing = noteRevealShown < feedback.length;
+        const dismiss = () => {
+          try { localStorage.setItem(`scout-note-seen-${noteReveal}`, '1'); } catch {}
+          setNoteReveal(null);
+          setNoteRevealShown(0);
+        };
+        return (
+          <div className="note-reveal">
+            <div className="s2-page-header s2-page-header--right">
+              <button className="s2-page-close" onClick={dismiss} aria-label="Close">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                  <path d="M5 5L17 17M17 5L5 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <div className="note-reveal-inner">
+              <div className="note-reveal-stamp-wrap">
+                <span className="s2-stamp-filed">Edition</span>
+              </div>
+              <div className="note-reveal-dateline">Dispatch · {dispatchDate} · Evening</div>
+              <div className="note-reveal-body">
+                {revealed}
+                {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
+              </div>
+              <div className="note-reveal-sig">— The Editor</div>
+              <div style={{ flex: 1 }} />
+              <button className="s2-btn-primary" onClick={dismiss}>Close</button>
+            </div>
+          </div>
+        );
+      })()}
 
       {firstPhotoModal && (
         <div className="first-photo-modal">
@@ -2389,22 +2570,19 @@ export default function App() {
         <div className="nav-panel-backdrop" onClick={dismissPanel}>
           <div className={`nav-panel${panelClosing?' is-closing':''}`} onClick={e=>e.stopPropagation()}>
             <div className="nav-panel-header">
-              <button className="nav-panel-close" onClick={dismissPanel} aria-label="Close menu">
-                <IcHamburger/>
-              </button>
               <span className="nav-panel-wordmark">
-                <ScoutWordmark size={26} color={theme === 'dark' ? '#FFFCF6' : '#0C0C0C'} ruleColor="#007C04" />
+                <ScoutWordmark size={26} color={theme === 'dark' ? '#FFFCF6' : '#0C0C0C'} hideRule />
               </span>
             </div>
             <nav className="nav-panel-nav">
-              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setAccountOpen(true); },310); }}>ACCOUNT</button>
-              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSettingsOpen(true); },310); }}>SETTINGS</button>
-              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSupportOpen(true); },310); }}>SUPPORT</button>
+              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setAccountOpen(true); },310); }}>Account</button>
+              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSettingsOpen(true); },310); }}>Settings</button>
+              <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setSupportOpen(true); },310); }}>Support</button>
               {userEmail==='ecrissman@gmail.com'&&(
-                <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setDevPanelOpen(true); },310); }}>DEVELOPER</button>
+                <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setDevPanelOpen(true); },310); }}>Developer</button>
               )}
               <hr style={{border:'none',borderTop:'1px solid var(--border)',margin:'4px 0'}}/>
-              <button className="nav-panel-item" style={{color:'var(--accent)'}} onClick={()=>{ dismissPanel(); handleSignOut(); }}>SIGN OUT</button>
+              <button className="nav-panel-item" style={{color:'var(--accent)'}} onClick={()=>{ dismissPanel(); handleSignOut(); }}>Sign Out</button>
             </nav>
           </div>
         </div>

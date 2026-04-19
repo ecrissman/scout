@@ -97,6 +97,12 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   const [fileError, setFileError] = useState(null);
   const fileRef = useRef(null);
 
+  // Multi-select review state. When the iOS picker returns >1 file, we
+  // stage them here and push to the 'review' screen — a dedicated
+  // "editor's desk" moment. Single picks skip this screen entirely.
+  const [picks, setPicks] = useState([]); // [{ file, url }]
+  const [pickIdx, setPickIdx] = useState(0);
+
   // Typewriter reveal for the brief body. Renders chars 1-by-1 so the
   // brief lands like a developing photo, not a paste-in. Skips on initial
   // mount with ?brief= dev param so design iteration isn't slowed by the
@@ -120,13 +126,13 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   const paperStage = stage === 'brief' || stage === 'filed' || stage === 'uploading';
   const trayClass = ['s2-tray', paperStage && 's2-tray--paper'].filter(Boolean).join(' ');
 
-  // Page header — left-aligned back chevron, nothing else. Replaces the
-  // drag-to-dismiss tray handle with an explicit affordance.
+  // Page header — right-aligned close button. An explicit dismiss
+  // affordance in place of the old drag-handle tray.
   const PageHeader = () => (
-    <div className="s2-page-header">
-      <button className="s2-page-back" onClick={dismiss} aria-label="Back">
+    <div className="s2-page-header s2-page-header--right">
+      <button className="s2-page-close" onClick={dismiss} aria-label="Close">
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-          <path d="M14 4L7 11L14 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5 5L17 17M17 5L5 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
       </button>
     </div>
@@ -196,10 +202,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // was extended in Phase 1 to accept the compose field. iOS's native picker
   // sheet (no `capture` attr) handles whether the file came from camera or
   // library — Scout doesn't need to distinguish.
-  const handleFileSelected = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    e.target.value = '';
+  const uploadOne = async (file) => {
     setStage('uploading');
     setFileError(null);
     try {
@@ -227,6 +230,37 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       setStage('brief');
     }
   };
+
+  const handleFileSelected = async (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (files.length === 0) return;
+    if (files.length === 1) {
+      picks.forEach(p => URL.revokeObjectURL(p.url));
+      setPicks([]);
+      await uploadOne(files[0]);
+      return;
+    }
+    // Multi-select → stage for review. Cap at 6 to keep the thumb strip sane.
+    picks.forEach(p => URL.revokeObjectURL(p.url));
+    const capped = files.slice(0, 6);
+    const next = capped.map(f => ({ file: f, url: URL.createObjectURL(f) }));
+    setPicks(next);
+    setPickIdx(0);
+    setStage('review');
+  };
+
+  const fileSelectedPick = async () => {
+    const chosen = picks[pickIdx];
+    if (!chosen) return;
+    const file = chosen.file;
+    picks.forEach(p => URL.revokeObjectURL(p.url));
+    setPicks([]);
+    await uploadOne(file);
+  };
+
+  // Cleanup object URLs on unmount.
+  useEffect(() => () => { picks.forEach(p => URL.revokeObjectURL(p.url)); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Typewriter: when the Brief stage first opens, reveal `brief` one char
   // every ~24ms. Reset to 0 each time `brief` text changes (Recompose) so
@@ -261,7 +295,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // instead of jumping straight to the camera. cameraRef is kept around
   // as an alias for legacy call sites; both refs point at the same input.
   const fileInputs = (
-    <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileSelected} />
+    <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleFileSelected} />
   );
 
   // ───────────── Filed (brand moment 02 — the stamp lands) ─────────────
@@ -276,10 +310,10 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
             <span className="s2-stamp-filed" style={{ fontSize: 'var(--fs-base)', padding: '10px 22px' }}>Filed</span>
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-xl)', color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.015em', textAlign: 'center', marginBottom: 14 }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 18 }}>
             Your take is in.
           </div>
-          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-base)', color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 280, margin: '0 auto 16px' }}>
+          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-md)', color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 320, margin: '0 auto 16px' }}>
             Your editor will review it. We'll let you know when their note is ready.
           </div>
           <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 'auto' }}>
@@ -294,6 +328,79 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     );
   }
 
+  // ───────────── Select Your Take (multi-pick review screen) ─────────────
+  // Lands when the iOS picker returns >1 file. Editor's-desk moment: spread
+  // out the contact sheet, pick the keeper. Single picks skip this entirely.
+  if (stage === 'review' && picks.length > 0) {
+    const hero = picks[pickIdx];
+    return (
+      <div className={trayClass}>
+        <div className="s2-page-header s2-page-header--right">
+          <button
+            className="s2-page-close"
+            onClick={() => {
+              picks.forEach(p => URL.revokeObjectURL(p.url));
+              setPicks([]);
+              setStage(brief ? 'brief' : 'compose');
+            }}
+            aria-label="Discard picks"
+          >
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <path d="M5 5L17 17M17 5L5 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '0 28px 28px' }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)', marginBottom: 10 }}>
+            Select Your Take
+          </div>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-lg)', color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.01em', marginBottom: 20 }}>
+            Pick the one that answers the brief.
+          </div>
+          <div className="s2-review-hero" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--s2-bone, #EFEBE3)', borderRadius: 2, overflow: 'hidden', marginBottom: 16, minHeight: 240 }}>
+            <img src={hero.url} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} />
+          </div>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            {picks.map((p, i) => (
+              <button
+                key={p.url}
+                onClick={() => setPickIdx(i)}
+                aria-label={`Preview ${i + 1}`}
+                style={{
+                  flex: '0 0 auto',
+                  width: 56,
+                  height: 56,
+                  padding: 0,
+                  border: i === pickIdx ? '2px solid var(--s2-text-primary)' : '2px solid transparent',
+                  background: 'var(--s2-bone, #EFEBE3)',
+                  cursor: 'pointer',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                <img src={p.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </button>
+            ))}
+          </div>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 18 }}>
+            Dispatch · {formatDispatchDate(now)} · {clock}
+          </div>
+          <button className="s2-btn-primary" onClick={fileSelectedPick}>
+            File this one
+          </button>
+          <button
+            onClick={() => fileRef.current?.click()}
+            style={{ background: 'none', border: 'none', color: 'var(--s2-text-secondary)', fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-sm)', padding: '14px 0 0', cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
+          >
+            Choose again
+          </button>
+        </div>
+        {fileInputs}
+      </div>
+    );
+  }
+
   // ───────────── Uploading (compressing + POSTing with compose stack) ─────────────
   if (stage === 'uploading') {
     return (
@@ -301,7 +408,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         <PageHeader />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <div className="s2-spinner" style={{ width: 24, height: 24, borderWidth: 2, color: 'var(--s2-press-green)', marginBottom: 20 }} />
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-xs)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-sm)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
             Filing your take…
           </div>
         </div>
@@ -369,7 +476,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       <PageHeader />
 
       <div className="s2-title-block">
-        <h1 className="s2-title">The Brief</h1>
+        <h1 className="s2-title">Daily Brief</h1>
         {headerBits && <div className="s2-dateline" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>{headerBits}</div>}
       </div>
 
