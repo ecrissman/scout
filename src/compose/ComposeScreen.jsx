@@ -410,6 +410,9 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <button className="s2-btn-primary" onClick={() => fileRef.current?.click()}>
             Add your shot
           </button>
+          <button className="s2-btn-tertiary" onClick={recompose} style={{ marginTop: 10, width: '100%' }}>
+            Recompose
+          </button>
         </div>
         {fileInputs}
       </div>
