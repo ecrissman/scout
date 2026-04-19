@@ -63,7 +63,7 @@ const dayOfYear = (d) => {
 // enough that accidental brush-gestures don't close the screen.
 const DISMISS_THRESHOLD = 120;
 
-export default function ComposeScreen() {
+export default function ComposeScreen({ onClose, onFiled } = {}) {
   const now = useMemo(() => new Date(), []);
   const clock = useMemo(() => formatClock(now), [now]);
   const todayKey = useMemo(() => {
@@ -117,9 +117,14 @@ export default function ComposeScreen() {
   const [dragY, setDragY] = useState(0);
   const dragState = useRef({ active: false, startY: 0 });
 
-  // Dismisses the tray. In silo mode (?compose=1) this drops the flag and
-  // returns to the root app. Phase 6 will wire this to the Today state machine.
-  const dismiss = () => { window.location.href = '/'; };
+  // Dismisses the tray. When embedded in the Today view, the parent passes
+  // onClose to handle closing + refreshing dayMeta. When mounted via the
+  // ?compose=1 silo there's no parent handler, so we fall back to routing
+  // to the root app.
+  const dismiss = () => {
+    if (typeof onClose === 'function') onClose();
+    else window.location.href = '/';
+  };
 
   const onDragStart = (e) => {
     const y = e.touches ? e.touches[0].clientY : e.clientY;
@@ -249,6 +254,9 @@ export default function ComposeScreen() {
       if (!ok) throw new Error('Upload failed. Check connection and retry.');
       setFiledPhoto(thumbSrc);
       setStage('filed');
+      if (typeof onFiled === 'function') {
+        try { onFiled({ date: todayKey, compose: composeStack }); } catch {}
+      }
     } catch (err) {
       setFileError(err?.message || 'Could not file your take. Try again.');
       setStage('choose');
