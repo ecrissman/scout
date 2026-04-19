@@ -91,26 +91,17 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     return p.get('brief') || null;
   });
 
-  // File-a-take state machine. Advances Compose → Brief → Choose (pick
-  // camera/library) → Uploading → Filed → EditorNote. Starts at a later
-  // stage if a dev param was passed in (?brief= / ?note=).
+  // File-a-take state machine. Advances Compose → Brief → Uploading →
+  // Filed. Filed is terminal — the editor's note is persisted on the
+  // photo via a background fetch and surfaced on the Today day detail.
   const [stage, setStage] = useState(() => {
     const p = new URLSearchParams(window.location.search);
-    if (p.get('note')) return 'editor-note';
     if (p.get('brief')) return 'brief';
     return 'compose';
   });
   const [fileError, setFileError] = useState(null);
   const fileRef = useRef(null);
   const cameraRef = useRef(null);
-
-  // Post-filing state: the thumbnail (base64) shown on the Editor's Note
-  // screen (instant render — no R2 round-trip) and the editor note itself.
-  const [filedPhoto, setFiledPhoto] = useState(null);
-  const [editorNote, setEditorNote] = useState(() =>
-    new URLSearchParams(window.location.search).get('note') || null
-  );
-  const [editorNoteAt, setEditorNoteAt] = useState(null);
 
   // Drag-to-dismiss state. Refs avoid re-binding window listeners on every
   // move frame; state drives the translateY render.
@@ -163,21 +154,25 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   const trayStyle = dragY
     ? { transform: `translateY(${dragY}px)`, transition: 'none' }
     : undefined;
-  const trayClass = dragState.current.active ? 's2-tray is-dragging' : 's2-tray';
+  // Brand-moment stages (Brief, Filed, Uploading) paint on a paper/ink
+  // surface via `s2-tray--paper`; Compose stays on the grouped-list bg so
+  // list cards pop. The is-dragging class disables the slide transition
+  // while a drag gesture is in flight.
+  const paperStage = stage === 'brief' || stage === 'filed' || stage === 'uploading';
+  const trayClass = [
+    's2-tray',
+    paperStage && 's2-tray--paper',
+    dragState.current.active && 'is-dragging',
+  ].filter(Boolean).join(' ');
 
-  // Tray chrome: drag handle + Cancel on the left, for a clear "this is a
-  // sheet" read. `trailing` lets a stage inject a right-aligned action
-  // (e.g. Recompose on the Brief screen) without duplicating markup.
-  const TrayChrome = ({ trailing = null, cancelLabel = 'Cancel', onCancel = dismiss } = {}) => (
-    <>
-      <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
-        <div className="s2-sheet-handle" />
-      </div>
-      <div className="s2-tray-header">
-        <button className="s2-tray-header-btn" onClick={onCancel}>{cancelLabel}</button>
-        {trailing || <div className="s2-tray-header-spacer" />}
-      </div>
-    </>
+  // Tray chrome: a single drag handle, nothing else. The handle signals
+  // "this is a sheet" and is the only top-edge affordance — Cancel text
+  // and bottom rule were removed per design feedback 2026-04-18. Dismiss
+  // is still reachable via drag-to-close.
+  const TrayChrome = () => (
+    <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
+      <div className="s2-sheet-handle" />
+    </div>
   );
 
   const time = TIMES[timeIdx];
@@ -265,7 +260,6 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       };
       const ok = await uploadPhoto(todayKey, { fullSrc, thumbSrc, exif, caption: '', compose: composeStack });
       if (!ok) throw new Error('Upload failed. Check connection and retry.');
-      setFiledPhoto(thumbSrc);
       setStage('filed');
       if (typeof onFiled === 'function') {
         try { onFiled({ date: todayKey, compose: composeStack }); } catch {}
@@ -276,19 +270,13 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     }
   };
 
-  // Kick off the editor's note request as soon as we hit 'filed'. On
-  // success, slide into 'editor-note'; on failure, leave the user on the
-  // bare Filed stamp screen (they can still Close without the note).
+  // Fire the editor's-note endpoint in the background once we hit 'filed'
+  // so the note is persisted on the photo's meta. Don't navigate — Filed
+  // is the terminal screen; the note is surfaced on the Today day detail
+  // (as the Field Note block) when the user closes this tray.
   useEffect(() => {
     if (stage !== 'filed') return;
-    let cancelled = false;
-    getEditorNote(todayKey).then((res) => {
-      if (cancelled || !res || res.error || !res.editorNote) return;
-      setEditorNote(res.editorNote);
-      setEditorNoteAt(res.editorNoteAt || new Date().toISOString());
-      setStage('editor-note');
-    });
-    return () => { cancelled = true; };
+    getEditorNote(todayKey).catch(() => {});
   }, [stage, todayKey]);
 
   // Header dateline: "Overcast · Capitol Hill · 8:17" (filtered for nulls).
@@ -303,48 +291,14 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     </>
   );
 
-  // ───────────── Editor's Note (brand moment 02 — anchor screen 3) ─────────────
-  // Paper surface, photo thumbnail at top, mono "Editor's Note · HH:MM" in
-  // Press Green, serif italic body, bottom bar with rotated Filed stamp
-  // and archive datestamp. Tray chrome stays for drag-to-dismiss.
-  if (stage === 'editor-note' && editorNote) {
-    const noteDate = editorNoteAt ? new Date(editorNoteAt) : now;
-    return (
-      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
-        <TrayChrome cancelLabel="Close" />
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '14px 28px 28px' }}>
-          {filedPhoto && (
-            <img
-              src={filedPhoto}
-              alt="Filed take"
-              style={{ width: '100%', aspectRatio: '4 / 5', objectFit: 'cover', borderRadius: 4, marginBottom: 24, background: 'var(--s2-bone)', display: 'block' }}
-            />
-          )}
-          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-press-green)', fontWeight: 500, marginBottom: 12 }}>
-            Editor's Note · {formatClock(noteDate)}
-          </div>
-          <div className="s2-serif" style={{ fontSize: 19, fontStyle: 'italic', color: 'var(--s2-text-primary)', lineHeight: 1.5, letterSpacing: '-0.005em', marginBottom: 'auto' }}>
-            {editorNote}
-          </div>
-          <div style={{ marginTop: 24, paddingTop: 14, borderTop: '0.5px solid rgba(12,12,12,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span className="s2-stamp-filed" style={{ fontSize: 10 }}>Filed</span>
-            <span className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-              {formatDispatchDate(now)}
-            </span>
-          </div>
-        </div>
-        {fileInputs}
-      </div>
-    );
-  }
-
-  // ───────────── Filed (success — brand moment: the stamp lands) ─────────────
-  // Shown briefly while the Editor's Note is being fetched; also the fallback
-  // terminal if the editor-note endpoint fails.
+  // ───────────── Filed (brand moment 02 — the stamp lands) ─────────────
+  // Terminal screen in the Compose loop. Close returns the user to Today,
+  // where the Editor's Note (fired in the background on entering 'filed')
+  // shows up under the photo as the Field Note.
   if (stage === 'filed') {
     return (
-      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
-        <TrayChrome cancelLabel="Close" />
+      <div className={trayClass} style={trayStyle}>
+        <TrayChrome />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'stretch' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
             <span className="s2-stamp-filed" style={{ fontSize: 14, padding: '10px 22px' }}>Filed</span>
@@ -367,13 +321,9 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // ───────────── Uploading (compressing + POSTing with compose stack) ─────────────
   if (stage === 'uploading') {
     return (
-      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
+      <div className={trayClass} style={trayStyle}>
         <div className="s2-tray-handle-area">
           <div className="s2-sheet-handle" />
-        </div>
-        <div className="s2-tray-header">
-          <button className="s2-tray-header-btn" disabled>Cancel</button>
-          <div className="s2-tray-header-spacer" />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <div className="s2-spinner" style={{ width: 24, height: 24, borderWidth: 2, color: 'var(--s2-press-green)', marginBottom: 20 }} />
@@ -394,8 +344,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   if (stage === 'brief' && brief) {
     const briefNumber = dayOfYear(now);
     return (
-      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
-        <TrayChrome trailing={<button className="s2-tray-header-btn" onClick={recompose}>Recompose</button>} />
+      <div className={trayClass} style={trayStyle}>
+        <TrayChrome />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '28px 28px 28px' }}>
           <div style={{ marginBottom: 14 }}>
             <span className="s2-stamp-dispatch">New Assignment</span>
@@ -421,6 +371,9 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           </button>
           <button className="s2-btn-secondary" onClick={() => fileRef.current?.click()} style={{ marginTop: 6, width: '100%' }}>
             Choose from library
+          </button>
+          <button className="s2-btn-tertiary" onClick={recompose} style={{ marginTop: 10, width: '100%' }}>
+            Recompose
           </button>
         </div>
         {fileInputs}

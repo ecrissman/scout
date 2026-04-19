@@ -617,6 +617,12 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-btn-secondary{background:none;border:none;padding:12px;font-family:var(--s2-sans);font-size:17px;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent}
 .s2-btn-secondary:active{opacity:0.4}
 
+/* Tertiary button: smaller, muted text link. Used for quiet "undo"-style
+   actions like Recompose on the Brief screen — always-present but visually
+   recessive so it doesn't compete with Take photo / Choose from library. */
+.s2-btn-tertiary{background:none;border:none;padding:8px;font-family:var(--s2-mono);font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:var(--s2-text-muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.s2-btn-tertiary:active{opacity:0.4}
+
 /* Filed stamp — rotated, Press Green, rubber-stamp feel */
 .s2-stamp-filed{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--s2-press-green);border-radius:2px;font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;color:var(--s2-press-green);transform:rotate(-1.5deg);background:transparent}
 
@@ -631,16 +637,17 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-accent{color:var(--s2-press-green)}
 
 /* Tray — a full-surface bottom sheet that presents a screen-level flow
-   (e.g. Compose). Rounded top, drag-to-dismiss handle at the top. */
+   (e.g. Compose). Rounded top, a single drag handle at the top (no bar,
+   no Cancel). Default surface is the iOS grouped-list background so card
+   rows pop on the Compose form; brand-moment stages (Brief/Filed/
+   Uploading) override via s2-tray--paper to use --s2-bg (paper in light,
+   ink in dark). NEVER hardcode --s2-paper — that made paper text +
+   primary-button fills invisible in dark mode. */
 .s2-tray{position:relative;min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;border-top-left-radius:16px;border-top-right-radius:16px;display:flex;flex-direction:column;overflow:hidden;transition:transform .28s cubic-bezier(0.2,0,0,1);will-change:transform}
 .s2-tray.is-dragging{transition:none}
-.s2-tray-handle-area{display:flex;align-items:center;justify-content:center;padding:8px 0 6px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
+.s2-tray.s2-tray--paper{background:var(--s2-bg)}
+.s2-tray-handle-area{display:flex;align-items:center;justify-content:center;padding:10px 0 8px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
 .s2-tray-handle-area:active{cursor:grabbing}
-.s2-tray-header{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:0 8px;border-bottom:0.5px solid var(--s2-bone);flex-shrink:0;background:inherit}
-[data-theme="dark"] .s2-tray-header{border-bottom-color:var(--s2-bone-dark)}
-.s2-tray-header-btn{background:none;border:none;padding:10px 12px;font-family:var(--s2-sans);font-size:17px;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:44px}
-.s2-tray-header-btn:disabled{opacity:0.35;cursor:default}
-.s2-tray-header-spacer{width:44px;min-height:44px}
 
 /* Bottom sheet (iOS-style action picker) */
 .s2-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:s2-sheet-fade .2s ease}
@@ -669,10 +676,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
    Continue buttons use Apple HIG shape (56h × 10r). SF Pro 14/700.
    ══════════════════════════════════════════════════════════════════ */
 
-/* Splash — paper surface, Scout wordmark + rule + tagline. */
-.s2-splash{position:fixed;inset:0;background:var(--s2-paper);color:var(--s2-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;font-family:var(--s2-sans);-webkit-font-smoothing:antialiased}
+/* Splash — theme-aware. Paper surface + ink type in light mode; ink
+   surface + paper type in dark. Hardcoding paper here caused the splash
+   to flash cream at dark-mode users before transitioning into the rest
+   of the (dark-adapted) app. */
+.s2-splash{position:fixed;inset:0;background:var(--s2-bg);color:var(--s2-text-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;font-family:var(--s2-sans);-webkit-font-smoothing:antialiased}
 .s2-splash.fading{opacity:0}
-.s2-splash-tag{font-family:var(--s2-sans);font-size:20px;line-height:1.45;color:var(--s2-ink);text-align:center;margin-top:32px;font-weight:400;letter-spacing:-0.005em}
+.s2-splash-tag{font-family:var(--s2-sans);font-size:20px;line-height:1.45;color:var(--s2-text-primary);text-align:center;margin-top:32px;font-weight:400;letter-spacing:-0.005em}
 
 /* Auth scene — ink surface for welcome + every sign-in form. */
 .s2-auth{position:fixed;inset:0;background:var(--s2-ink);color:var(--s2-paper);display:flex;flex-direction:column;font-family:var(--s2-sans);padding:0 24px env(safe-area-inset-bottom,24px);-webkit-font-smoothing:antialiased;overflow-y:auto}
@@ -1225,7 +1235,10 @@ export default function App() {
     getPhoto(sel).then(data=>{
       setDayMeta(data);
       setCaption(data?.caption||'');
-      if (data?.feedback) setFeedback(data.feedback);
+      // Prefer the v2 editor note (attached by the Compose flow) over the
+      // v1 feedback field; both render inside the same Field Note block.
+      if (data?.editorNote) setFeedback(data.editorNote);
+      else if (data?.feedback) setFeedback(data.feedback);
       setDayLoading(false);
       const { lat, lon } = data?.exif || {};
       if (lat != null && lon != null) reverseGeocode(lat, lon).then(name => { if (name) setLocationName(name); });
@@ -1713,7 +1726,7 @@ export default function App() {
 
   const splash = !splashDone && (
     <div className={`s2-splash${splashFading?' fading':''}`}>
-      <ScoutWordmark size={56} color="#0C0C0C" ruleColor="#007C04" />
+      <ScoutWordmark size={56} color={theme === 'dark' ? '#FFFCF6' : '#0C0C0C'} ruleColor="#007C04" />
       <div className="s2-splash-tag">
         One photograph a day.<br />Nothing more.
       </div>
@@ -2113,7 +2126,7 @@ export default function App() {
               {dayMeta&&aiEnabled&&(feedback||feedbackLoading||feedbackError)&&(
                 <div className="feedback-card">
                   <div className="feedback-toggle" onClick={()=>setFeedbackExpanded(x=>{ if (!x) track('ai_feedback_viewed'); return !x; })}>
-                    <div className="feedback-toggle-lbl">Scout's take</div>
+                    <div className="feedback-toggle-lbl">Field note</div>
                     <svg className={`feedback-toggle-chev${feedbackExpanded?' open':''}`} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                   </div>
                   <div className={`feedback-body${feedbackExpanded?' open':''}`}>
@@ -2138,17 +2151,24 @@ export default function App() {
         <div className="today-sheet-embed">
           <ComposeScreen
             onClose={() => {
+              // Close the tray and refetch today's photo. If the user
+              // filed, they land on the Today day detail — photo, caption,
+              // Field Note. If they dragged to dismiss without filing they
+              // stay on Today with the empty-state (no bounce to Month —
+              // that reset flow confused users during the v2 rebrand).
               setShowTodaySheet(false);
-              // Refetch today's photo in case the user filed one before dragging to close,
-              // then drop them on the month archive (same fallback the v1 tray used).
               getPhoto(todayStr).then(m => {
                 if (m) {
                   setDayMeta(m);
+                  setCaption(m.caption || '');
+                  // Prefer the v2 editor note if present; fall back to
+                  // the v1 feedback field for legacy photos.
+                  if (m.editorNote) setFeedback(m.editorNote);
+                  else if (m.feedback) setFeedback(m.feedback);
                   setPhotoDates(prev => new Set([...prev, todayStr]));
                   setPhotoVer(Date.now());
                 }
               });
-              setActiveTab('month');
             }}
             onFiled={() => {
               // Preemptively mark today as having a photo so the month grid fills in.
