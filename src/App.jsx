@@ -65,35 +65,18 @@ function renderLegal(md) {
 
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wdth,wght@75..125,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Geist+Mono:wght@400;500;600&display=swap');
-@font-face{font-family:'Flapjack';src:url('/fonts/TAYFlapjack.woff2') format('woff2'),url('/fonts/TAYFlapjack.woff') format('woff'),url('/fonts/TAYFlapjack.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root,[data-theme="light"]{
-  --bg:#FFFDFA;--bg-secondary:#F0EEEA;--surface:#F0EEEA;
-  --border:#E3E1DD;
-  --text:#1C1916;--text-2:#8C857C;--text-3:#B5AFA9;
-  --accent:#E2B554;--accent-fg:#1C1916;
-  --terracotta:#D6542D;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
-  --warm-mid:#8C857C;--rule:#E3E1DD;
-  --brand:'Flapjack','Inconsolata',system-ui,sans-serif;
-  --serif:'Inconsolata',system-ui,monospace;
-  --sans:'Inconsolata',system-ui,monospace;
-
-  /* ── v2 brand tokens (Scout rebrand) ── */
-  /* Core */
+  /* ── v2 brand tokens (source of truth) ── */
   --s2-paper:#FFFDFA;--s2-paper-2:#F7F3EC;--s2-ink:#0C0C0C;
   --s2-bone:#D8D7D4;--s2-smoke:#8A8680;--s2-archive:#3A3A35;
-  /* Grouped-list background (slightly deeper than paper) */
   --s2-grouped-bg:#F2F1EC;
-  /* Green scale */
   --s2-press-green:#007C04;
   --s2-green-50:#F2F7F0;--s2-green-100:#E0ECDE;--s2-green-200:#B8D4B2;
   --s2-green-300:#7FA876;--s2-green-500:#007C04;--s2-green-700:#005A03;
   --s2-green-900:#00330A;
-  /* Support */
   --s2-warn:#C8102E;--s2-caution:#C89A7E;
-  /* Role tokens (swap in dark mode) */
   --s2-bg:var(--s2-paper);
   --s2-surface:var(--s2-paper-2);
   --s2-border:var(--s2-bone);
@@ -101,33 +84,38 @@ const CSS = `
   --s2-text-secondary:var(--s2-archive);
   --s2-text-muted:var(--s2-smoke);
   --s2-accent:var(--s2-press-green);
-  /* Typography stacks */
   --s2-serif:'Fraunces',Georgia,'Times New Roman',serif;
   --s2-mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
   --s2-sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif;
+
+  /* ── v1 tokens aliased to v2 — unmigrated .pj-* / .cal-* / .dv-* / etc. now read v2 values ── */
+  --bg:var(--s2-paper);--bg-secondary:var(--s2-paper-2);--surface:var(--s2-paper-2);
+  --border:var(--s2-bone);
+  --text:var(--s2-ink);--text-2:var(--s2-archive);--text-3:var(--s2-smoke);
+  --accent:var(--s2-press-green);--accent-fg:var(--s2-paper);
+  --paper:var(--s2-paper);--ink:var(--s2-ink);
+  --warm-mid:var(--s2-smoke);--rule:var(--s2-bone);
+  /* Legacy accent names — neutralized. Kept alive so unmigrated usages don't break. */
+  --terracotta:var(--s2-press-green);--sage:var(--s2-ink);--gold:var(--s2-paper-2);
+  --brand:var(--s2-serif);--serif:var(--s2-sans);--sans:var(--s2-sans);
 }
 [data-theme="dark"]{
-  --bg:#0C0C0C;--bg-secondary:#2E2C2B;--surface:#2E2C2B;
-  --border:rgba(245,241,235,0.10);
-  --text:#FFFDFA;--text-2:rgba(245,241,235,0.60);--text-3:rgba(245,241,235,0.30);
-  --accent:#D6542D;--accent-fg:#FFFDFA;
-  --terracotta:#D6542D;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
-  --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
-
-  /* ── v2 brand tokens (dark mode) ── */
-  /* Press Green stays the same across modes — the "filed / active / noted" signal */
   --s2-ink-2:#1A1A18;--s2-bone-dark:#2A2A26;
   --s2-archive-dark:#B8B2A3;--s2-smoke-dark:#7A7668;
-  /* Deeper grouped-list background for dark */
   --s2-grouped-bg:#050505;
-  /* Role tokens swap */
   --s2-bg:var(--s2-ink);
   --s2-surface:var(--s2-ink-2);
   --s2-border:var(--s2-bone-dark);
   --s2-text-primary:var(--s2-paper);
   --s2-text-secondary:var(--s2-archive-dark);
   --s2-text-muted:var(--s2-smoke-dark);
-  /* Accent unchanged: --s2-accent stays #007C04 */
+
+  /* v1 dark tokens aliased to v2 */
+  --bg:var(--s2-ink);--bg-secondary:var(--s2-ink-2);--surface:var(--s2-ink-2);
+  --border:var(--s2-bone-dark);
+  --text:var(--s2-paper);--text-2:var(--s2-archive-dark);--text-3:var(--s2-smoke-dark);
+  --accent:var(--s2-press-green);--accent-fg:var(--s2-ink);
+  --rule:rgba(255,253,250,0.08);
 }
 html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
 
@@ -162,10 +150,10 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .pj-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
 .week-header-line{display:flex;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:4px 0;background:none;border:none}
 .week-header-line:active{opacity:0.5}
-.week-header-lbl{font-family:Inconsolata,monospace;font-weight:700;font-size:14px;color:#E2B554;letter-spacing:0.04em}
+.week-header-lbl{font-family:var(--s2-mono);font-weight:700;font-size:14px;color:#E2B554;letter-spacing:0.04em}
 [data-theme="dark"] .week-header-lbl{color:var(--terracotta)}
-.week-header-sep{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
-.week-header-range{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:#ABABAB;letter-spacing:0.02em}
+.week-header-sep{font-family:var(--s2-mono);font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
+.week-header-range{font-family:var(--s2-mono);font-weight:500;font-size:13px;color:#ABABAB;letter-spacing:0.02em}
 .week-header-arr{font-size:14px;color:#E2B554;margin-left:1px}
 [data-theme="dark"] .week-header-arr{color:var(--terracotta)}
 .pj-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E2B554;margin-left:4px;vertical-align:middle;flex-shrink:0}
@@ -236,7 +224,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .today-sheet-dismiss{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#F0EEEA;border:none;cursor:pointer;padding:0;flex-shrink:0}
 .today-sheet-dismiss:active{opacity:.6}
 .today-sheet-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 44px}
-.today-sheet-prompt-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:var(--accent);text-align:center;letter-spacing:0.06em;margin-bottom:14px}
+.today-sheet-prompt-lbl{font-family:var(--s2-mono);font-weight:500;font-size:13px;color:var(--accent);text-align:center;letter-spacing:0.06em;margin-bottom:14px}
 .today-sheet-prompt-txt{font-family:var(--sans);font-size:16px;color:var(--text);line-height:1.65;font-weight:300;text-align:center}
 .today-sheet-skel{background:#EBEBEB;border-radius:85px;height:12px;margin:5px auto;display:block}
 .today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
@@ -450,13 +438,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .pj-login{position:fixed;inset:0;background:var(--paper)}
 .login-logo{position:absolute;top:10.3%;left:50%;transform:translateX(-50%);width:80px;height:80px}
 .login-fields{display:contents}
-.login-field-lbl{position:absolute;left:45px;font-family:Inconsolata,monospace;font-weight:600;font-size:16px;line-height:1.51;color:var(--ink)}
+.login-field-lbl{position:absolute;left:45px;font-family:var(--s2-mono);font-weight:600;font-size:16px;line-height:1.51;color:var(--ink)}
 .login-in{position:absolute;left:45px;right:45px;background:none;border:none;border-bottom:4px solid var(--ink);font-family:var(--sans);font-size:20px;font-weight:300;color:var(--ink);padding:0 0 8px;outline:none;-webkit-appearance:none;border-radius:0}
 .login-in::placeholder{color:rgba(28,25,22,0.2)}
 .login-btn{position:absolute;top:60.9%;left:50%;transform:translateX(-50%);width:150px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;transition:opacity .15s;padding:0;white-space:nowrap}
 .login-btn:active{opacity:0.5}
 .login-btn:disabled{opacity:.3;cursor:default}
-.forgot-link{position:absolute;top:88.5%;left:0;right:0;font-family:Inconsolata,monospace;font-weight:600;font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;padding:0}
+.forgot-link{position:absolute;top:88.5%;left:0;right:0;font-family:var(--s2-mono);font-weight:600;font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;padding:0}
 .forgot-link:active{opacity:0.4}
 .login-footer{display:contents}
 .login-err{position:absolute;top:70%;left:45px;right:45px;font-family:var(--sans);font-size:10px;color:#B03030;letter-spacing:.04em;text-align:center}
@@ -536,7 +524,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1;color:#0C0C0C}
 .nav-panel-close:active{opacity:.5}
 .nav-panel-nav{display:flex;flex-direction:column;gap:30px;padding:32px 21px 0;flex:1}
-.nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:Inconsolata,monospace;font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
+.nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:var(--s2-mono);font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
 .nav-panel-item:active{opacity:.4}
 .nav-panel-footer{padding:21px;flex-shrink:0}
 .nav-panel-signout{width:109px;height:36px;background:#0C0C0C;border:none;border-radius:3px;cursor:pointer;font-family:var(--brand);font-size:16px;color:#FFFDFA;letter-spacing:0.02em;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
@@ -550,20 +538,20 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .grids-header{display:flex;align-items:center;padding:14px 20px;flex-shrink:0;gap:8px}
 .grids-back{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--text);-webkit-tap-highlight-color:transparent}
 .grids-back:active{opacity:.4}
-.grids-title{font-family:Inconsolata,monospace;font-weight:500;font-size:14px;letter-spacing:0.06em;color:#0C0C0C}
+.grids-title{font-family:var(--s2-mono);font-weight:500;font-size:14px;letter-spacing:0.06em;color:#0C0C0C}
 .grids-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 48px;gap:12px}
-.grids-empty-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;letter-spacing:0.06em;color:var(--accent)}
+.grids-empty-lbl{font-family:var(--s2-mono);font-weight:500;font-size:13px;letter-spacing:0.06em;color:var(--accent)}
 .grids-empty-sub{font-family:var(--sans);font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;font-weight:300}
 .gallery-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
-.gallery-year-header{position:sticky;top:0;z-index:2;background:#FFFDFA;padding:10px 20px 8px;font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;color:var(--text-3);border-bottom:1px solid var(--border)}
+.gallery-year-header{position:sticky;top:0;z-index:2;background:#FFFDFA;padding:10px 20px 8px;font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.1em;color:var(--text-3);border-bottom:1px solid var(--border)}
 .gallery-month-card{-webkit-tap-highlight-color:transparent;padding-bottom:24px}
 .gallery-triptych{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);cursor:pointer}
 .gallery-triptych:active{opacity:0.8}
 .gallery-triptych-cell{aspect-ratio:1;overflow:hidden;background:var(--surface);position:relative}
 .gallery-triptych-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery-month-meta{display:flex;align-items:center;padding:10px 16px;gap:8px;cursor:pointer}
-.gallery-month-label{font-family:Inconsolata,monospace;font-size:12px;font-weight:500;letter-spacing:0.08em;color:var(--text);flex:1}
-.gallery-month-count{font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--text-3)}
+.gallery-month-label{font-family:var(--s2-mono);font-size:12px;font-weight:500;letter-spacing:0.08em;color:var(--text);flex:1}
+.gallery-month-count{font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--text-3)}
 .gallery-month-chevron{width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--text-3);flex-shrink:0;transition:transform 0.2s}
 .gallery-month-chevron.open{transform:rotate(180deg)}
 .gallery-strips{border-bottom:1px solid var(--border)}
@@ -573,8 +561,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .gallery-strip-cell{aspect-ratio:1;overflow:hidden;background:var(--surface);position:relative}
 .gallery-strip-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery-strip-meta{display:flex;align-items:center;padding:6px 16px}
-.gallery-strip-dates{font-family:Inconsolata,monospace;font-size:10px;font-weight:500;letter-spacing:0.04em;color:var(--text-3);flex:1}
-.gallery-strip-count{font-family:Inconsolata,monospace;font-size:10px;color:var(--text-3)}
+.gallery-strip-dates{font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.04em;color:var(--text-3);flex:1}
+.gallery-strip-count{font-family:var(--s2-mono);font-size:10px;color:var(--text-3)}
 
 /* ══════════════════════════════════════════════════════════════════
    Scout v2 — brand primitives (prefix: .s2-)
@@ -892,7 +880,7 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const syncObColor = (step) => {
-    const color = step ? '#4F5E2E' : '#FFFDFA';
+    const color = '#FFFDFA';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
     document.documentElement.style.background = color;
     document.body.style.background = color;
@@ -1092,11 +1080,11 @@ export default function App() {
     let color;
     if (!splashDone)             color = '#FFFDFA';
     else if (showLanding)        color = '#0C0C0C';
-    else if (showOnboarding)     color = '#4F5E2E';
-    else if (!authed)            color = '#FFFDFA';
+    else if (showOnboarding)     color = '#FFFDFA';
+    else if (!authed)            color = '#0C0C0C';
     else if (lightboxOpen)        color = '#000000';
     else if (todaySheetVisible)  color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
-    else if (weekReview)         color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
+    else if (weekReview)         color = reviewPhase === 'milestone' ? '#007C04' : '#0C0C0C';
     else                         color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     const m = document.querySelector('meta[name="theme-color"]');
     if (m) m.content = color;
@@ -1928,48 +1916,14 @@ export default function App() {
     <div className={`pj-layout${activeTab==='month'?' month-active':''}`} data-theme={theme}>
 
       <aside className="pj-sidebar">
-        {/* Topbar — wordmark + settings. On desktop: always visible. On mobile: MONTH tab only. */}
+        {/* Topbar — wordmark + settings. On desktop: always visible. On mobile: MONTH tab only.
+            Weekly theme card + "WEEK COMPLETE" milestone chip removed for v2 brand; the
+            underlying weekTheme / getTheme / weekReview state stays wired for future surfaces. */}
         <div className="pj-topbar">
           <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu">
             <IcHamburger/>
           </button>
-          {(()=>{
-            const checked = new Set();
-            for (const d of [...photoDates].sort().reverse()) {
-              const wd = getWeekDates(d);
-              if (checked.has(wd[0])) continue;
-              checked.add(wd[0]);
-              if (wd.every(dd => photoDates.has(dd))) {
-                return (
-                  <button className="week-header-line" onClick={()=>{ track('week_review_completed', { source: 'milestone' }); setWeekReview({dates:wd}); setReviewPhase('milestone'); }}>
-                    <span className="week-header-lbl">WEEK COMPLETE</span>
-                    <span className="week-header-sep">|</span>
-                    <span className="week-header-range">{formatWeekRange(wd)}</span>
-                    <span className="week-header-arr">→</span>
-                  </button>
-                );
-              }
-            }
-            return null;
-          })()}
         </div>
-
-        {/* Weekly theme card — expandable: title always visible, desc + tips on expand */}
-        {weekTheme&&aiEnabled&&(
-          <div className="theme-card">
-            <div className="theme-card-toggle" onClick={()=>setThemeExpanded(v=>!v)}>
-              <div className="theme-card-left">
-                <div className="theme-card-lbl">THEME</div>
-                <div className="theme-card-title">{weekTheme.theme}</div>
-              </div>
-              <svg className={`theme-card-chev${themeExpanded?' open':''}`} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-            <div className={`theme-card-body${themeExpanded?' open':''}`}>
-              {weekTheme.description&&<div className="theme-card-desc">{weekTheme.description}</div>}
-              {nextWeekTheme&&nextWeekTheme.theme!==weekTheme?.theme&&<div className="theme-next-week">Next week's theme: {nextWeekTheme.theme}</div>}
-            </div>
-          </div>
-        )}
 
         {/* Scrollable month view — current month first, then past months */}
         <div className="month-scroll">
