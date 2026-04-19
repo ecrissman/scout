@@ -4,7 +4,7 @@
 
 A photo-a-day time-lapse PWA. One photo per day. Over time it builds a personal visual record and time-lapse reel. Part habit app, part journal, part creative practice tool.
 
-- **Live URL:** scout-app.pages.dev (Cloudflare Pages project; custom domain pending)
+- **Live URL:** sightful.pages.dev (Cloudflare Pages project name is still `sightful` from the pre-rename era; custom domain pending)
 - **App name in UI:** Scout
 - **PWA manifest name:** Scout
 
