@@ -407,39 +407,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .feedback-body.open{max-height:1000px}
 .feedback-txt{font-family:var(--sans);font-size:15px;color:var(--text);line-height:1.6;font-weight:300;padding-bottom:16px}
 
-/* ── Week Review ── */
-@keyframes reviewIn{from{opacity:0}to{opacity:1}}
-/* Phase 1: Milestone full-screen */
-.review-milestone{position:fixed;inset:0;background:#E2B554;z-index:900;animation:reviewIn .35s ease both}
-.review-ms-body{display:contents}
-.review-ms-num{position:absolute;top:27.2%;left:15px;right:15px;font-family:var(--brand);font-size:200px;line-height:1.2;color:var(--ink);text-transform:uppercase;text-align:center}
-.review-ms-unit{position:absolute;top:51.2%;left:15px;right:15px;font-family:var(--brand);font-size:56px;line-height:1.2;color:var(--ink);text-transform:uppercase;text-align:center}
-.review-ms-msg{position:absolute;top:23.9%;left:15px;right:15px;font-family:var(--brand);font-size:27px;line-height:1.51;color:var(--ink);text-transform:uppercase;text-align:center}
-.review-ms-next{position:absolute;top:86.4%;left:0;right:0;display:flex;justify-content:center}
-.review-ms-next-btn{width:150px;height:51px;background:#222222;border:none;border-radius:4px;cursor:pointer;font-family:var(--brand);font-size:20px;color:#FFFDFA;letter-spacing:0.01em;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center}
-.review-ms-next-btn:active{opacity:.7}
-/* Phase 2: Grid */
-.review-backdrop{position:fixed;inset:0;background:#0C0C0C;z-index:900;display:flex;flex-direction:column;animation:reviewIn .25s ease both}
-.review-header{padding:calc(env(safe-area-inset-top) + 8px) 8px 32px;flex-shrink:0;display:flex;flex-direction:column;align-items:stretch}
-.review-x{align-self:flex-end;background:none;border:none;color:rgba(245,241,235,0.5);cursor:pointer;font-size:20px;line-height:1;padding:4px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
-.review-x:active{opacity:0.5}
-.review-congrats{font-family:var(--brand);font-size:24px;color:#F5F1EB;line-height:1.51;text-align:center;padding:16px 20px}
-.review-grid{display:flex;gap:4px;flex:1;min-height:0;overflow:hidden;padding:0 20px 4px}
-.review-col{flex:1;display:flex;flex-direction:column;gap:4px;min-height:0}
-.review-strip{flex:1;overflow:hidden;background:#2C2C2C;min-height:0}
-.review-strip img{width:100%;height:100%;object-fit:cover;display:block}
-.review-actions{display:flex;justify-content:space-around;padding:36px 26px calc(env(safe-area-inset-bottom) + 56px);flex-shrink:0}
-.review-action-btn{background:none;border:none;color:#F5F1EB;font-family:var(--sans);font-size:21px;font-weight:400;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;padding:16px 24px;transition:opacity .15s}
-.review-action-btn:active{opacity:0.5}
-.review-action-btn:disabled{opacity:0.4}
-
-/* ── First photo congrats ── */
-.first-photo-modal{position:fixed;inset:0;background:#E2B554;z-index:900;animation:reviewIn .35s ease both}
-.fpm-l1{position:absolute;top:34%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.0;color:#0C0C0C;text-transform:uppercase;text-align:center}
-.fpm-l2{position:absolute;top:44%;left:15px;right:15px;font-family:var(--brand);font-size:72px;line-height:1.0;color:#0C0C0C;text-transform:uppercase;text-align:center}
-.fpm-cta{position:absolute;top:86%;left:50%;transform:translateX(-50%);width:180px;height:51px;font-family:var(--brand);font-size:20px;color:#FFFDFA;background:#0C0C0C;border:none;border-radius:4px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.fpm-cta:active{opacity:.5}
-
 /* ── Tips sheet ── */
 .tips-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:600;display:flex;align-items:flex-end}
 .tips-sheet{width:100%;background:var(--bg);border-radius:20px 20px 0 0;padding:0 0 calc(40px + env(safe-area-inset-bottom));border-top:1px solid var(--border);max-height:88dvh;overflow-y:auto;overscroll-behavior:contain}
@@ -460,20 +427,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .theme-tips-link:active{opacity:0.5}
 
 /* ── Week strip — removed ── */
-
-/* ── Week chip (day view) ── */
-@keyframes chipIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.week-chip{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--gold);border:none;border-radius:10px;cursor:pointer;margin-bottom:16px;animation:chipIn .22s ease both;-webkit-tap-highlight-color:transparent}
-.week-chip:active{opacity:0.75}
-.week-chip-dot{font-size:15px;color:rgba(28,25,22,0.7);flex-shrink:0;line-height:1}
-.week-chip-text{flex:1;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink);letter-spacing:.01em}
-.week-chip-sub{font-family:var(--sans);font-size:11px;color:rgba(28,25,22,0.55);margin-top:2px}
-.week-chip-arr{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.1em;color:var(--ink);flex-shrink:0;opacity:0.6}
-[data-theme="dark"] .week-chip{background:var(--terracotta)}
-[data-theme="dark"] .week-chip-dot{color:rgba(255,253,250,0.7)}
-[data-theme="dark"] .week-chip-text{color:var(--paper)}
-[data-theme="dark"] .week-chip-sub{color:rgba(255,253,250,0.55)}
-[data-theme="dark"] .week-chip-arr{color:var(--paper);opacity:0.8}
 
 /* ── Auth Bridge (Safari → PWA handoff) ── */
 @keyframes bridgeFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -1041,11 +994,6 @@ export default function App() {
   const [nextWeekTheme, setNextWeekTheme] = useState(null);
   const [tipPopupOpen,  setTipPopupOpen]  = useState(false);
   const [themeExpanded,setThemeExpanded]= useState(false);
-  const [weekReview,    setWeekReview]   = useState(null);
-  const [reviewPhase,   setReviewPhase]  = useState('milestone'); // 'milestone' | 'grid'
-  const [reviewImages,  setReviewImages] = useState([]); // {date,url,w,h}
-  const [reviewBuilding,setReviewBuilding]=useState(false);
-  const [firstPhotoModal, setFirstPhotoModal] = useState(false);
   const fileRef        = useRef(null);
   const cameraRef      = useRef(null);
   const captionRef     = useRef(null);
@@ -1159,14 +1107,13 @@ export default function App() {
     else if (!authed)            color = '#0C0C0C';
     else if (lightboxOpen)        color = '#000000';
     else if (todaySheetVisible)  color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
-    else if (weekReview)         color = reviewPhase === 'milestone' ? '#007C04' : '#0C0C0C';
     else                         color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     const m = document.querySelector('meta[name="theme-color"]');
     if (m) m.content = color;
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
   }, [splashDone, showLanding, showOnboarding, authed, lightboxOpen, showTodaySheet, sel, todayStr,
-      dayMeta, dayLoading, weekReview, reviewPhase, theme]);
+      dayMeta, dayLoading, theme]);
 
   useLayoutEffect(()=>{ applyStatusBarColor(); }, [applyStatusBarColor]);
 
@@ -1228,35 +1175,6 @@ export default function App() {
     document.addEventListener('click', close);
     return () => document.removeEventListener('click', close);
   }, [tipPopupOpen]);
-
-  useEffect(()=>{
-    if (!weekReview) { setReviewImages([]); return; }
-    let cancelled = false;
-    const urls = [];
-    (async () => {
-      const { data } = await supabase.auth.getSession();
-      const token = data?.session?.access_token;
-      const imgs = await Promise.all(weekReview.dates.map(async (date) => {
-        if (!photoDates.has(date)) return { date, url: null, w: 4, h: 3 };
-        try {
-          const r = await fetch(fullUrl(date), { headers: { Authorization: `Bearer ${token}` } });
-          if (!r.ok) return { date, url: null, w: 4, h: 3 };
-          const blob = await r.blob();
-          const url = URL.createObjectURL(blob);
-          urls.push(url);
-          const { w, h } = await new Promise(res => {
-            const img = new Image();
-            img.onload = () => res({ w: img.naturalWidth, h: img.naturalHeight });
-            img.onerror = () => res({ w: 4, h: 3 });
-            img.src = url;
-          });
-          return { date, url, w, h };
-        } catch { return { date, url: null, w: 4, h: 3 }; }
-      }));
-      if (!cancelled) setReviewImages(imgs);
-    })();
-    return () => { cancelled = true; urls.forEach(u => URL.revokeObjectURL(u)); };
-  }, [weekReview]);
 
   useEffect(()=>{
     if (!authed || cy === TY) return;
@@ -1488,9 +1406,7 @@ export default function App() {
   const [dlProgress,    setDlProgress]    = useState(null); // null | {done, total}
   const [pwExpanded,    setPwExpanded]    = useState(false);
   const [devDeleteMode,      setDevDeleteMode]      = useState(true);
-  const [devShowPromptTray,  setDevShowPromptTray]  = useState(false);
   const [tipsOpen,           setTipsOpen]           = useState(false);
-  const [justCompletedDate,  setJustCompletedDate]  = useState(null);
 
   const handleChangePassword = async () => {
     if (!pwNew || pwNew.length < 6) { setPwMsg({ ok: false, text: 'Min 6 characters' }); return; }
@@ -1588,13 +1504,8 @@ export default function App() {
           first_photo_ever: newPhotoDates.size === 1,
           is_today: sel === todayStr,
         });
-        if (newPhotoDates.size === 1) setFirstPhotoModal(true);
         if (exif?.lat != null && exif?.lon != null) reverseGeocode(exif.lat, exif.lon).then(name => { if (name) setLocationName(name); });
         else setLocationName(null);
-        // Check if Sun–Sat week is now complete
-        const weekDates = getWeekDates(sel);
-        const weekComplete = weekDates.every(d => newPhotoDates.has(d));
-        if (weekComplete) setJustCompletedDate(sel);
         // Auto-trigger feedback
         if (aiEnabled) {
           setFeedbackLoading(true);
@@ -1669,106 +1580,6 @@ export default function App() {
     setDayMeta(prev => ({ ...prev, caption: captionSuggestion }));
     track('ai_caption_suggested', { accepted: true });
     track('caption_edited', { source: 'ai_suggestion', length: captionSuggestion.length });
-  };
-
-  const buildReviewCanvas = async () => {
-    const { data } = await supabase.auth.getSession();
-    const token = data?.session?.access_token;
-    const cw = 1080, gap = 6, colW = Math.floor((cw - gap) / 2);
-    // Fetch full-res images
-    const loaded = await Promise.all((weekReview?.dates || []).map(async (date) => {
-      if (!photoDates.has(date)) return null;
-      try {
-        const r = await fetch(fullUrl(date), { headers: { Authorization: `Bearer ${token}` } });
-        if (!r.ok) return null;
-        const blob = await r.blob();
-        const url = URL.createObjectURL(blob);
-        return await new Promise(res => {
-          const img = new Image();
-          img.onload = () => res({ img, w: img.naturalWidth, h: img.naturalHeight, url });
-          img.onerror = () => { URL.revokeObjectURL(url); res(null); };
-          img.src = url;
-        });
-      } catch { return null; }
-    }));
-    // Distribute to 2 cols (shortest-weight first), then normalise both cols to same height
-    const cols = [[],[]]; const colWeight = [0,0];
-    loaded.forEach(item => {
-      const w = item ? item.h/item.w : 0.75;
-      const c = colWeight[0] <= colWeight[1] ? 0 : 1;
-      cols[c].push(item); colWeight[c] += w;
-    });
-    const targetH = 1920; // fixed canvas height for flush bottom
-    const drawCol = (colItems, xOffset, totalWeight) => {
-      let y = 0;
-      colItems.forEach((item, i) => {
-        const isLast = i === colItems.length - 1;
-        const w = item ? item.h/item.w : 0.75;
-        // Last item fills remaining height to guarantee flush bottom
-        const h = isLast ? targetH - y : Math.round((w / totalWeight) * (targetH - gap * (colItems.length - 1)));
-        ctx.save();
-        ctx.beginPath(); ctx.rect(xOffset, y, colW, h); ctx.clip();
-        if (item) {
-          const scale = Math.max(colW / item.img.naturalWidth, h / item.img.naturalHeight);
-          const sw = item.img.naturalWidth * scale, sh = item.img.naturalHeight * scale;
-          ctx.drawImage(item.img, xOffset + (colW - sw) / 2, y + (h - sh) / 2, sw, sh);
-        } else {
-          ctx.fillStyle = '#1c1c1c'; ctx.fillRect(xOffset, y, colW, h);
-        }
-        ctx.restore();
-        y += h + (isLast ? 0 : gap);
-      });
-    };
-    const canvas = document.createElement('canvas');
-    canvas.width = cw; canvas.height = targetH;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#0c0c0c';
-    ctx.fillRect(0, 0, cw, targetH);
-    drawCol(cols[0], 0, colWeight[0]);
-    drawCol(cols[1], colW + gap, colWeight[1]);
-    loaded.forEach(item => { if (item?.url) URL.revokeObjectURL(item.url); });
-    return canvas;
-  };
-
-  const canvasToBlob = (canvas, type) => new Promise(resolve => canvas.toBlob(resolve, type));
-
-  const handleDownloadReview = async () => {
-    if (reviewBuilding) return;
-    setReviewBuilding(true);
-    try {
-      const canvas = await buildReviewCanvas();
-      const blob = await canvasToBlob(canvas, 'image/png');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `scout-week-${weekReview.dates[0]}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
-    } finally { setReviewBuilding(false); }
-  };
-
-  const handleShareReview = async () => {
-    if (reviewBuilding) return;
-    setReviewBuilding(true);
-    try {
-      const canvas = await buildReviewCanvas();
-      const blob = await canvasToBlob(canvas, 'image/png');
-      const file = new File([blob], `scout-week-${weekReview.dates[0]}.png`, { type: 'image/png' });
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = file.name;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 2000);
-      }
-    } catch { /* user cancelled share */ } finally { setReviewBuilding(false); }
   };
 
   const handleFeedback = async () => {
@@ -2010,17 +1821,6 @@ export default function App() {
       )}
     </>
   );
-
-  const hasCompleteWeek = (() => {
-    const checked = new Set();
-    for (const d of [...photoDates].sort().reverse()) {
-      const wd = getWeekDates(d);
-      if (checked.has(wd[0])) continue;
-      checked.add(wd[0]);
-      if (wd.every(dd => photoDates.has(dd))) return true;
-    }
-    return false;
-  })();
 
   // Silo gate: ?compose=1 renders the v2 Compose screen for authed users
   // only. Non-authed users fall through to the normal landing/login flow
@@ -2444,60 +2244,6 @@ export default function App() {
         );
       })()}
 
-      {firstPhotoModal && (
-        <div className="first-photo-modal">
-          <div className="fpm-l1">DAY ONE</div>
-          <div className="fpm-l2">LOGGED</div>
-          <button className="fpm-cta" onClick={() => setFirstPhotoModal(false)}>KEEP GOING</button>
-        </div>
-      )}
-
-      {weekReview&&(()=>{
-        if (reviewPhase === 'milestone') return (
-          <div className="review-milestone">
-            <div className="review-ms-body">
-              <div className="review-ms-num">7</div>
-              <div className="review-ms-unit">DAYS</div>
-              <div className="review-ms-msg">NOT BAD AT ALL.</div>
-            </div>
-            <div className="review-ms-next">
-              <button className="review-ms-next-btn" onClick={()=>{ setReviewPhase('grid'); }}>
-                NEXT
-              </button>
-            </div>
-          </div>
-        );
-        // Phase 2: grid
-        const imgs = (reviewImages.length ? reviewImages : weekReview.dates.filter(d=>photoDates.has(d)).map(d=>({date:d,url:null,w:4,h:3}))).filter(img=>photoDates.has(img.date));
-        const cols = [[],[]]; const colW = [0,0];
-        imgs.forEach(img => { const c = colW[0]<=colW[1]?0:1; cols[c].push(img); colW[c]+=img.h/img.w; });
-        return (
-          <div className="review-backdrop">
-            <div className="review-header">
-              <button className="review-x" onClick={()=>{ setWeekReview(null); setReviewPhase('milestone'); }} aria-label="Close">✕</button>
-            </div>
-            <div className="review-grid">
-              {cols.map((colImgs, ci)=>(
-                <div className="review-col" key={ci}>
-                  {colImgs.map(imgData=>(
-                    <div className="review-strip" key={imgData.date} style={{flexGrow: imgData.h/imgData.w}}>
-                      {imgData.url
-                        ? <img src={imgData.url} alt=""/>
-                        : <div style={{width:'100%',height:'100%',background:'#2a2520'}}/>
-                      }
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-            <div className="review-actions">
-              <button className="review-action-btn" onClick={handleShareReview} disabled={reviewBuilding}>Share</button>
-              <button className="review-action-btn" onClick={handleDownloadReview} disabled={reviewBuilding}>Download</button>
-            </div>
-          </div>
-        );
-      })()}
-
       {tipPopupOpen&&(()=>{
         const tip = getSkill(sel);
         const rect = tipBtnRef.current?.getBoundingClientRect();
@@ -2791,26 +2537,9 @@ export default function App() {
                     <div className="ai-toggle-thumb"/>
                   </button>
                 </div>
-                <div className="settings-row">
-                  <div style={{flex:1}}>
-                    <div className="settings-row-label">Show Prompt Tray</div>
-                    <div className="settings-row-sub">display even when photo exists</div>
-                  </div>
-                  <button className={`ai-toggle${devShowPromptTray?' on':' off'}`} onClick={()=>setDevShowPromptTray(v=>!v)} aria-label="Toggle prompt tray">
-                    <div className="ai-toggle-thumb"/>
-                  </button>
-                </div>
-                <button className="settings-row-btn" onClick={()=>{ Object.keys(localStorage).filter(k=>k.startsWith('scout-reviewed-')).forEach(k=>localStorage.removeItem(k)); }}>
-                  <span className="settings-row-label">Reset Week Reviews</span>
-                  <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>clears seen flags</span>
-                </button>
                 <button className="settings-row-btn" onClick={()=>{ localStorage.removeItem('scout-onboarded'); setShowOnboarding(true); setDevPanelOpen(false); }}>
                   <span className="settings-row-label">Reset Onboarding</span>
                   <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay first-run flow</span>
-                </button>
-                <button className="settings-row-btn" onClick={()=>{ setFirstPhotoModal(true); setDevPanelOpen(false); }}>
-                  <span className="settings-row-label">Show First Photo Screen</span>
-                  <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>DAY ONE LOGGED modal</span>
                 </button>
               </div>
             </div>
