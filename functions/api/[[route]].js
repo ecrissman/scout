@@ -1,6 +1,8 @@
 // functions/api/[[route]].js
 // Cloudflare Pages Function — handles all /api/* routes
 
+import { sendWebPush } from './_webpush.js';
+
 // Module-level JWKS cache — persists across requests on the same Worker instance
 let cachedJWKS = null;
 let jwksCachedAt = 0;
@@ -197,6 +199,130 @@ export async function onRequest({ request, env, params }) {
     return json({ ok: true });
   }
 
+  // ── POST /api/push/send-edition — webhook-secret protected, no JWT ──────
+  // Designed to be hit by a scheduled trigger every hour on the hour. Walks
+  // every push_subscriptions row, computes local hour from each row's IANA
+  // tz, and only sends to those whose local hour is 20 AND who have filed a
+  // photo today (in their tz).
+  //
+  // Recommended cron: a separate Cloudflare Worker with a `0 * * * *` cron
+  // trigger that POSTs here with x-webhook-secret. External cron services
+  // (cron-job.org, GitHub Actions schedule, Upstash QStash) also work.
+  if (route === 'push/send-edition' && method === 'POST') {
+    if (!env.WEBHOOK_SECRET) return json({ error: 'Server misconfigured: missing WEBHOOK_SECRET' }, 500);
+    const provided = request.headers.get('x-webhook-secret') || '';
+    if (provided !== env.WEBHOOK_SECRET) return json({ error: 'Forbidden' }, 403);
+
+    if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) {
+      return json({ error: 'Server misconfigured: missing VAPID keys' }, 500);
+    }
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+      return json({ error: 'Server misconfigured: missing SUPABASE_SERVICE_ROLE_KEY' }, 500);
+    }
+
+    const subRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/push_subscriptions?select=id,user_id,endpoint,p256dh,auth,tz`,
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        },
+      }
+    );
+    if (!subRes.ok) return json({ error: 'Failed to load subscriptions' }, 500);
+    const subs = await subRes.json();
+
+    const byTz = new Map();
+    for (const s of subs) {
+      if (!byTz.has(s.tz)) byTz.set(s.tz, []);
+      byTz.get(s.tz).push(s);
+    }
+
+    const localParts = (tz) => {
+      try {
+        const fmt = new Intl.DateTimeFormat('en-US', {
+          timeZone: tz,
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: 'numeric', hour12: false,
+        });
+        const parts = fmt.formatToParts(new Date());
+        const get = (t) => parts.find(p => p.type === t)?.value;
+        const hour = parseInt(get('hour'), 10);
+        const date = `${get('year')}-${get('month')}-${get('day')}`;
+        return { hour, date };
+      } catch { return null; }
+    };
+
+    const photoCache = new Map();
+    const hasPhotoToday = async (uid, date) => {
+      const k = `${uid}|${date}`;
+      if (photoCache.has(k)) return photoCache.get(k);
+      const obj = await env.PHOTOS.head(`photos/${uid}/${date}/meta.json`);
+      const present = !!obj;
+      photoCache.set(k, present);
+      return present;
+    };
+
+    let sent = 0, skipped = 0, gone = 0, failed = 0;
+    const goneEndpoints = [];
+
+    for (const [tz, group] of byTz) {
+      const lp = localParts(tz);
+      if (!lp || lp.hour !== 20) { skipped += group.length; continue; }
+      const { date } = lp;
+
+      for (const s of group) {
+        try {
+          const ok = await hasPhotoToday(s.user_id, date);
+          if (!ok) { skipped++; continue; }
+
+          const res = await sendWebPush({
+            subscription: { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+            payload: JSON.stringify({
+              title: "Today's edition is in",
+              body: 'Tap to read the Editor\u2019s Note.',
+              date,
+            }),
+            vapid: {
+              publicKey: env.VAPID_PUBLIC_KEY,
+              privateKey: env.VAPID_PRIVATE_KEY,
+              subject: env.VAPID_SUBJECT || 'mailto:eric@scoutphoto.app',
+            },
+          });
+
+          if (res.status === 404 || res.status === 410) {
+            gone++;
+            goneEndpoints.push(s.endpoint);
+          } else if (res.ok || res.status === 201 || res.status === 202) {
+            sent++;
+          } else {
+            failed++;
+          }
+        } catch (err) {
+          failed++;
+          console.error('[push] send error', err);
+        }
+      }
+    }
+
+    if (goneEndpoints.length) {
+      const chunks = [];
+      for (let i = 0; i < goneEndpoints.length; i += 50) chunks.push(goneEndpoints.slice(i, i + 50));
+      for (const chunk of chunks) {
+        const inList = chunk.map(e => `"${e.replace(/"/g, '\\"')}"`).join(',');
+        await fetch(`${env.SUPABASE_URL}/rest/v1/push_subscriptions?endpoint=in.(${encodeURIComponent(inList)})`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+        }).catch(() => {});
+      }
+    }
+
+    return json({ ok: true, sent, skipped, gone, failed });
+  }
+
   // ── POST /api/waitlist — public, no auth required ───────────────────────
   if (route === 'waitlist' && method === 'POST') {
     const { name, email, note } = await request.json().catch(() => ({}));
@@ -229,6 +355,55 @@ export async function onRequest({ request, env, params }) {
   const user = await getUser();
   if (!user) return json({ error: 'Unauthorized' }, 401);
   const uid = user.id;
+
+  // ── POST /api/push/subscribe ────────────────────────────────────────────
+  // Body: { subscription: PushSubscriptionJSON, tz: 'America/Los_Angeles' }
+  if (route === 'push/subscribe' && method === 'POST') {
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+      return json({ error: 'Server misconfigured: missing SUPABASE_SERVICE_ROLE_KEY' }, 500);
+    }
+    const { subscription, tz } = await request.json().catch(() => ({}));
+    const endpoint = subscription?.endpoint;
+    const p256dh = subscription?.keys?.p256dh;
+    const authKey = subscription?.keys?.auth;
+    if (!endpoint || !p256dh || !authKey || !tz) {
+      return json({ error: 'subscription (with keys) and tz are required' }, 400);
+    }
+    const r = await fetch(`${env.SUPABASE_URL}/rest/v1/push_subscriptions?on_conflict=endpoint`, {
+      method: 'POST',
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify({ user_id: uid, endpoint, p256dh, auth: authKey, tz }),
+    });
+    if (!r.ok) {
+      console.error('[push/subscribe] supabase error', r.status, await r.text());
+      return json({ error: 'Failed to save subscription' }, 500);
+    }
+    return json({ ok: true });
+  }
+
+  // ── POST /api/push/unsubscribe ──────────────────────────────────────────
+  if (route === 'push/unsubscribe' && method === 'POST') {
+    if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+      return json({ error: 'Server misconfigured: missing SUPABASE_SERVICE_ROLE_KEY' }, 500);
+    }
+    const { endpoint } = await request.json().catch(() => ({}));
+    if (!endpoint) return json({ error: 'endpoint is required' }, 400);
+    const qs = `endpoint=eq.${encodeURIComponent(endpoint)}&user_id=eq.${encodeURIComponent(uid)}`;
+    const r = await fetch(`${env.SUPABASE_URL}/rest/v1/push_subscriptions?${qs}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      },
+    });
+    if (!r.ok) return json({ error: 'Failed to remove subscription' }, 500);
+    return json({ ok: true });
+  }
 
   // ── DELETE /api/account — wipe all user data + delete Supabase user ──────
   if (route === 'account' && method === 'DELETE') {
