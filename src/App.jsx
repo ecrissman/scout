@@ -1094,6 +1094,12 @@ export default function App() {
           identify(session.user.id);
           const provider = session.user.app_metadata?.provider || 'email';
           track('signin_succeeded', { method: provider });
+          const meta = session.user.user_metadata || {};
+          const raw = meta.first_name || meta.given_name ||
+            (meta.full_name || meta.name || '').split(' ')[0] ||
+            (session.user.email || '').split('@')[0];
+          const first = (raw || '').trim();
+          if (first) localStorage.setItem('scout-last-name', first);
           // Detect freshly-confirmed signup: the user row was created in the
           // last 5 minutes. Close enough to distinguish "first login after
           // email confirmation" from "returning user signing in".
@@ -1109,6 +1115,7 @@ export default function App() {
       if (event === 'SIGNED_OUT') {
         track('signout');
         resetIdentity();
+        localStorage.removeItem('scout-last-name');
       }
     });
     return () => subscription.unsubscribe();
@@ -1816,7 +1823,7 @@ export default function App() {
       <div className="s2-auth">
         <div className="s2-auth-wordmark">
           <ScoutWordmark size={45} color="#FFFCF6" ruleColor="#007C04" gap={40} />
-          <div className="s2-auth-hed">Welcome back</div>
+          <div className="s2-auth-hed">{(() => { const n = localStorage.getItem('scout-last-name'); return n ? `Welcome back, ${n}` : 'Welcome back'; })()}</div>
         </div>
         <div style={{marginTop:'auto', paddingTop:24}}>
           <button type="button" className="s2-auth-btn s2-auth-btn-primary" onClick={handleAppleLogin} disabled={loginBusy}>
