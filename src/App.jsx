@@ -652,6 +652,12 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-spinner{display:inline-block;width:14px;height:14px;border:1.5px solid currentColor;border-top-color:transparent;border-radius:50%;animation:s2-spin .7s linear infinite;vertical-align:-2px;margin-right:8px}
 @keyframes s2-spin{to{transform:rotate(360deg)}}
 
+/* Today tray embed — full-viewport ComposeScreen on mobile only. Hidden on
+   tablet+ since the main panel renders day detail side-by-side with the
+   sidebar there. */
+.today-sheet-embed{position:fixed;inset:0;z-index:50;animation:sheetSlideUp 0.38s cubic-bezier(0.32,0.72,0,1)}
+@media(min-width:640px){.today-sheet-embed{display:none}}
+
 /* ══════════════════════════════════════════════════════════════════
    Scout v2 — Auth flow (splash, welcome, sign-in forms)
    Paper splash → ink welcome → ink sign-in.
@@ -2119,50 +2125,32 @@ export default function App() {
       </main>
 
 
-      {/* Today Sheet — mobile only, shows when no photo for today (or dev override) */}
-      {showTodaySheet&&sel===todayStr&&(!dayMeta||devShowPromptTray)&&!dayLoading&&(
-        <div className={`today-sheet${sheetClosing?' is-closing':''}`}>
-          <div className="today-sheet-tray">
-            <div className="today-sheet-topbar">
-              <button className="today-sheet-dismiss" onClick={dismissTodaySheet} aria-label="Dismiss">
-                <svg width="14" height="8" viewBox="0 0 14 8" fill="none">
-                  <polyline points="1,1 7,7 13,1" stroke="#0C0C0C" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
-            <div className="today-sheet-body">
-              <div className="today-sheet-prompt-lbl">TODAY'S SHOT</div>
-              {aiEnabled&&shootPrompt&&!promptLoading ? (
-                <div className="today-sheet-prompt-txt">{shootPrompt}</div>
-              ) : (
-                <>
-                  <div className="today-sheet-skel" style={{width:'80%'}}/>
-                  <div className="today-sheet-skel" style={{width:'80%'}}/>
-                  <div className="today-sheet-skel" style={{width:'52%'}}/>
-                </>
-              )}
-            </div>
-            <div className="today-sheet-btns">
-              <button className="today-sheet-icon-btn" onClick={()=>fileRef.current?.click()} aria-label="Upload from library">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M10 13V4M10 4L7 7M10 4L13 7" stroke="#292929" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M3 14v1a2 2 0 002 2h10a2 2 0 002-2v-1" stroke="#292929" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-              </button>
-              <button className="today-sheet-cam" onClick={()=>cameraRef.current?.click()} disabled={busy} aria-label="Take photo">
-                <svg width="88" height="88" viewBox="0 0 80 80" fill="none">
-                  <rect width="80" height="80" rx="40" className="cam-outer"/>
-                  <rect x="3.5" y="3.5" width="73" height="73" rx="36.5" className="cam-border"/>
-                  <rect x="7" y="7" width="66" height="66" rx="33" className="cam-center"/>
-                </svg>
-              </button>
-              {tipsEnabled
-                ? <button ref={tipBtnRef} className="tip-icon-btn" onClick={e=>{e.stopPropagation();setTipPopupOpen(v=>!v);}} aria-label="Today's tip"><IcTip/></button>
-                : <div style={{width:44,margin:'0 36px'}}/>
-              }
-
-            </div>
-          </div>
+      {/* v2 Compose tray — mobile only, shows when no photo for today.
+          Replaces the v1 today-sheet. Drag-to-dismiss handle is built into
+          ComposeScreen; onClose bounces the tab back to MONTH + refetches
+          dayMeta so a just-filed photo appears in the main panel. */}
+      {showTodaySheet&&sel===todayStr&&!dayMeta&&!dayLoading&&(
+        <div className="today-sheet-embed">
+          <ComposeScreen
+            onClose={() => {
+              setShowTodaySheet(false);
+              // Refetch today's photo in case the user filed one before dragging to close,
+              // then drop them on the month archive (same fallback the v1 tray used).
+              getPhoto(todayStr).then(m => {
+                if (m) {
+                  setDayMeta(m);
+                  setPhotoDates(prev => new Set([...prev, todayStr]));
+                  setPhotoVer(Date.now());
+                }
+              });
+              setActiveTab('month');
+            }}
+            onFiled={() => {
+              // Preemptively mark today as having a photo so the month grid fills in.
+              setPhotoDates(prev => new Set([...prev, todayStr]));
+              setPhotoVer(Date.now());
+            }}
+          />
         </div>
       )}
 
