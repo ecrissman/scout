@@ -519,8 +519,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .nav-panel{position:fixed;left:0;top:0;bottom:0;width:189px;z-index:201;background:#FFFDFA;box-shadow:4px 0 20px rgba(0,0,0,0.18);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);animation:navPanelIn 0.32s cubic-bezier(0.32,0.72,0,1)}
 .nav-panel.is-closing{animation:navPanelOut 0.28s cubic-bezier(0.32,0.72,0,1) forwards}
 .nav-panel-header{display:flex;align-items:center;padding:14px 21px;position:relative;flex-shrink:0}
-.nav-panel-wordmark{position:absolute;left:67px;right:0;text-align:left;font-family:var(--brand);font-size:30px;line-height:1.2;color:var(--ink);pointer-events:none;letter-spacing:0.01em}
-[data-theme="dark"] .nav-panel-wordmark{color:var(--paper)}
+.nav-panel-wordmark{position:absolute;left:67px;display:inline-flex;align-items:center;pointer-events:none}
 .nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1;color:#0C0C0C}
 .nav-panel-close:active{opacity:.5}
 .nav-panel-nav{display:flex;flex-direction:column;gap:30px;padding:32px 21px 0;flex:1}
@@ -646,8 +645,22 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-tray{position:relative;min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;border-top-left-radius:16px;border-top-right-radius:16px;display:flex;flex-direction:column;overflow:hidden;transition:transform .28s cubic-bezier(0.2,0,0,1);will-change:transform}
 .s2-tray.is-dragging{transition:none}
 .s2-tray.s2-tray--paper{background:var(--s2-bg)}
-.s2-tray-handle-area{display:flex;align-items:center;justify-content:center;padding:10px 0 8px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
+/* Drag area is a 44px-tall touch target — the visible handle pill is small,
+   but the entire row reads to touch so close-the-tray gesture is easy. */
+.s2-tray-handle-area{display:flex;align-items:center;justify-content:center;min-height:44px;padding:14px 0;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
 .s2-tray-handle-area:active{cursor:grabbing}
+
+/* Icon-only chrome button — used for things like Recompose-as-refresh on
+   the Brief screen. Square 36px touch target, currentColor so the icon
+   inherits press-green / ink based on context. */
+.s2-icon-btn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:none;border:none;color:var(--s2-text-muted);cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:8px;transition:color .15s ease,background .15s ease}
+.s2-icon-btn:active{opacity:0.5}
+.s2-icon-btn:hover{color:var(--s2-text-primary)}
+
+/* Typewriter caret — blinks at the end of the brief while characters are
+   still being revealed. Inline so it sits flush against the last char. */
+.s2-typewriter-caret{display:inline-block;margin-left:1px;color:var(--s2-press-green);animation:s2-caret-blink 1s steps(1) infinite;font-family:var(--s2-mono);font-size:0.75em;vertical-align:0.05em}
+@keyframes s2-caret-blink{50%{opacity:0}}
 
 /* Bottom sheet (iOS-style action picker) */
 .s2-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:s2-sheet-fade .2s ease}
@@ -2122,20 +2135,10 @@ export default function App() {
                 </div>
               )}
 
-              {/* Feedback — collapsible, auto-triggered on upload */}
-              {dayMeta&&aiEnabled&&(feedback||feedbackLoading||feedbackError)&&(
-                <div className="feedback-card">
-                  <div className="feedback-toggle" onClick={()=>setFeedbackExpanded(x=>{ if (!x) track('ai_feedback_viewed'); return !x; })}>
-                    <div className="feedback-toggle-lbl">Field note</div>
-                    <svg className={`feedback-toggle-chev${feedbackExpanded?' open':''}`} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-                  </div>
-                  <div className={`feedback-body${feedbackExpanded?' open':''}`}>
-                    {feedbackLoading&&<div style={{fontFamily:'var(--sans)',fontSize:13,color:'var(--text-3)',paddingBottom:16}}>Reading the frame…</div>}
-                    {feedbackError&&<div style={{fontFamily:'var(--sans)',fontSize:12,color:'#B03030',paddingBottom:16}}>{feedbackError}</div>}
-                    {feedback&&<div className="feedback-txt">{stripFeedback(feedback)}</div>}
-                  </div>
-                </div>
-              )}
+              {/* Field note (Editor's Note) is hidden on Today for now. The
+                  note is still persisted on the photo by the Compose flow;
+                  users will be pinged via push when it's ready, and surfaced
+                  on a dedicated review screen at that point. */}
 
             </div>
           </>
@@ -2315,7 +2318,9 @@ export default function App() {
               <button className="nav-panel-close" onClick={dismissPanel} aria-label="Close menu">
                 <IcHamburger/>
               </button>
-              <span className="nav-panel-wordmark">SCOUT</span>
+              <span className="nav-panel-wordmark">
+                <ScoutWordmark size={26} color={theme === 'dark' ? '#FFFCF6' : '#0C0C0C'} ruleColor="#007C04" />
+              </span>
             </div>
             <nav className="nav-panel-nav">
               <button className="nav-panel-item" onClick={()=>{ dismissPanel(); setTimeout(()=>{ setGridsOpen(true); },310); }}>GALLERY</button>
