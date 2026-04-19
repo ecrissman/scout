@@ -6,6 +6,7 @@ import { supabase } from './supabase.js';
 import { initAnalytics, identify, resetIdentity, track, setAnalyticsOptOut } from './analytics';
 import { PRIVACY_POLICY, TERMS_OF_SERVICE } from './legal.js';
 import ComposeScreen from './compose/ComposeScreen.jsx';
+import ScoutWordmark from './ScoutWordmark.jsx';
 
 // Dev flags:
 //   ?compose=1         — render the v2 Compose tray instead of the main app
@@ -15,6 +16,9 @@ import ComposeScreen from './compose/ComposeScreen.jsx';
 //                         ?note= let us preview render states in isolation.
 const _composeSilo = new URLSearchParams(window.location.search).get('compose') === '1';
 const _composeDev = _composeSilo && new URLSearchParams(window.location.search).get('dev') === '1';
+// ?design=1 bypasses the mobile gate so auth + splash screens can be
+// previewed at desktop width during design iteration.
+const _designPreview = new URLSearchParams(window.location.search).get('design') === '1';
 
 // Mark standalone PWA mode before first paint so CSS can target it
 if (window.navigator.standalone) document.documentElement.classList.add('pwa');
@@ -61,35 +65,18 @@ function renderLegal(md) {
 
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wdth,wght@75..125,200..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Geist+Mono:wght@400;500;600&display=swap');
-@font-face{font-family:'Flapjack';src:url('/fonts/TAYFlapjack.woff2') format('woff2'),url('/fonts/TAYFlapjack.woff') format('woff'),url('/fonts/TAYFlapjack.otf') format('opentype');font-weight:400;font-style:normal;font-display:swap}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root,[data-theme="light"]{
-  --bg:#FFFDFA;--bg-secondary:#F0EEEA;--surface:#F0EEEA;
-  --border:#E3E1DD;
-  --text:#1C1916;--text-2:#8C857C;--text-3:#B5AFA9;
-  --accent:#E2B554;--accent-fg:#1C1916;
-  --terracotta:#D6542D;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
-  --warm-mid:#8C857C;--rule:#E3E1DD;
-  --brand:'Flapjack','Inconsolata',system-ui,sans-serif;
-  --serif:'Inconsolata',system-ui,monospace;
-  --sans:'Inconsolata',system-ui,monospace;
-
-  /* ── v2 brand tokens (Scout rebrand) ── */
-  /* Core */
+  /* ── v2 brand tokens (source of truth) ── */
   --s2-paper:#FFFDFA;--s2-paper-2:#F7F3EC;--s2-ink:#0C0C0C;
   --s2-bone:#D8D7D4;--s2-smoke:#8A8680;--s2-archive:#3A3A35;
-  /* Grouped-list background (slightly deeper than paper) */
   --s2-grouped-bg:#F2F1EC;
-  /* Green scale */
   --s2-press-green:#007C04;
   --s2-green-50:#F2F7F0;--s2-green-100:#E0ECDE;--s2-green-200:#B8D4B2;
   --s2-green-300:#7FA876;--s2-green-500:#007C04;--s2-green-700:#005A03;
   --s2-green-900:#00330A;
-  /* Support */
   --s2-warn:#C8102E;--s2-caution:#C89A7E;
-  /* Role tokens (swap in dark mode) */
   --s2-bg:var(--s2-paper);
   --s2-surface:var(--s2-paper-2);
   --s2-border:var(--s2-bone);
@@ -97,33 +84,38 @@ const CSS = `
   --s2-text-secondary:var(--s2-archive);
   --s2-text-muted:var(--s2-smoke);
   --s2-accent:var(--s2-press-green);
-  /* Typography stacks */
   --s2-serif:'Fraunces',Georgia,'Times New Roman',serif;
   --s2-mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
   --s2-sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif;
+
+  /* ── v1 tokens aliased to v2 — unmigrated .pj-* / .cal-* / .dv-* / etc. now read v2 values ── */
+  --bg:var(--s2-paper);--bg-secondary:var(--s2-paper-2);--surface:var(--s2-paper-2);
+  --border:var(--s2-bone);
+  --text:var(--s2-ink);--text-2:var(--s2-archive);--text-3:var(--s2-smoke);
+  --accent:var(--s2-press-green);--accent-fg:var(--s2-paper);
+  --paper:var(--s2-paper);--ink:var(--s2-ink);
+  --warm-mid:var(--s2-smoke);--rule:var(--s2-bone);
+  /* Legacy accent names — neutralized. Kept alive so unmigrated usages don't break. */
+  --terracotta:var(--s2-press-green);--sage:var(--s2-ink);--gold:var(--s2-paper-2);
+  --brand:var(--s2-serif);--serif:var(--s2-sans);--sans:var(--s2-sans);
 }
 [data-theme="dark"]{
-  --bg:#0C0C0C;--bg-secondary:#2E2C2B;--surface:#2E2C2B;
-  --border:rgba(245,241,235,0.10);
-  --text:#FFFDFA;--text-2:rgba(245,241,235,0.60);--text-3:rgba(245,241,235,0.30);
-  --accent:#D6542D;--accent-fg:#FFFDFA;
-  --terracotta:#D6542D;--sage:#4F5E2E;--gold:#E2B554;--paper:#FFFDFA;--ink:#0C0C0C;
-  --warm-mid:#8C857C;--rule:rgba(28,25,22,0.1);
-
-  /* ── v2 brand tokens (dark mode) ── */
-  /* Press Green stays the same across modes — the "filed / active / noted" signal */
   --s2-ink-2:#1A1A18;--s2-bone-dark:#2A2A26;
   --s2-archive-dark:#B8B2A3;--s2-smoke-dark:#7A7668;
-  /* Deeper grouped-list background for dark */
   --s2-grouped-bg:#050505;
-  /* Role tokens swap */
   --s2-bg:var(--s2-ink);
   --s2-surface:var(--s2-ink-2);
   --s2-border:var(--s2-bone-dark);
   --s2-text-primary:var(--s2-paper);
   --s2-text-secondary:var(--s2-archive-dark);
   --s2-text-muted:var(--s2-smoke-dark);
-  /* Accent unchanged: --s2-accent stays #007C04 */
+
+  /* v1 dark tokens aliased to v2 */
+  --bg:var(--s2-ink);--bg-secondary:var(--s2-ink-2);--surface:var(--s2-ink-2);
+  --border:var(--s2-bone-dark);
+  --text:var(--s2-paper);--text-2:var(--s2-archive-dark);--text-3:var(--s2-smoke-dark);
+  --accent:var(--s2-press-green);--accent-fg:var(--s2-ink);
+  --rule:rgba(255,253,250,0.08);
 }
 html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
 
@@ -158,10 +150,10 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .pj-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
 .week-header-line{display:flex;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:4px 0;background:none;border:none}
 .week-header-line:active{opacity:0.5}
-.week-header-lbl{font-family:Inconsolata,monospace;font-weight:700;font-size:14px;color:#E2B554;letter-spacing:0.04em}
+.week-header-lbl{font-family:var(--s2-mono);font-weight:700;font-size:14px;color:#E2B554;letter-spacing:0.04em}
 [data-theme="dark"] .week-header-lbl{color:var(--terracotta)}
-.week-header-sep{font-family:Inconsolata,monospace;font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
-.week-header-range{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:#ABABAB;letter-spacing:0.02em}
+.week-header-sep{font-family:var(--s2-mono);font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
+.week-header-range{font-family:var(--s2-mono);font-weight:500;font-size:13px;color:#ABABAB;letter-spacing:0.02em}
 .week-header-arr{font-size:14px;color:#E2B554;margin-left:1px}
 [data-theme="dark"] .week-header-arr{color:var(--terracotta)}
 .pj-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E2B554;margin-left:4px;vertical-align:middle;flex-shrink:0}
@@ -232,7 +224,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .today-sheet-dismiss{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#F0EEEA;border:none;cursor:pointer;padding:0;flex-shrink:0}
 .today-sheet-dismiss:active{opacity:.6}
 .today-sheet-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 44px}
-.today-sheet-prompt-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;color:var(--accent);text-align:center;letter-spacing:0.06em;margin-bottom:14px}
+.today-sheet-prompt-lbl{font-family:var(--s2-mono);font-weight:500;font-size:13px;color:var(--accent);text-align:center;letter-spacing:0.06em;margin-bottom:14px}
 .today-sheet-prompt-txt{font-family:var(--sans);font-size:16px;color:var(--text);line-height:1.65;font-weight:300;text-align:center}
 .today-sheet-skel{background:#EBEBEB;border-radius:85px;height:12px;margin:5px auto;display:block}
 .today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
@@ -446,13 +438,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .pj-login{position:fixed;inset:0;background:var(--paper)}
 .login-logo{position:absolute;top:10.3%;left:50%;transform:translateX(-50%);width:80px;height:80px}
 .login-fields{display:contents}
-.login-field-lbl{position:absolute;left:45px;font-family:Inconsolata,monospace;font-weight:600;font-size:16px;line-height:1.51;color:var(--ink)}
+.login-field-lbl{position:absolute;left:45px;font-family:var(--s2-mono);font-weight:600;font-size:16px;line-height:1.51;color:var(--ink)}
 .login-in{position:absolute;left:45px;right:45px;background:none;border:none;border-bottom:4px solid var(--ink);font-family:var(--sans);font-size:20px;font-weight:300;color:var(--ink);padding:0 0 8px;outline:none;-webkit-appearance:none;border-radius:0}
 .login-in::placeholder{color:rgba(28,25,22,0.2)}
 .login-btn{position:absolute;top:60.9%;left:50%;transform:translateX(-50%);width:150px;height:51px;font-family:var(--brand);font-size:20px;line-height:1.51;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;transition:opacity .15s;padding:0;white-space:nowrap}
 .login-btn:active{opacity:0.5}
 .login-btn:disabled{opacity:.3;cursor:default}
-.forgot-link{position:absolute;top:88.5%;left:0;right:0;font-family:Inconsolata,monospace;font-weight:600;font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;padding:0}
+.forgot-link{position:absolute;top:88.5%;left:0;right:0;font-family:var(--s2-mono);font-weight:600;font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;text-align:center;padding:0}
 .forgot-link:active{opacity:0.4}
 .login-footer{display:contents}
 .login-err{position:absolute;top:70%;left:45px;right:45px;font-family:var(--sans);font-size:10px;color:#B03030;letter-spacing:.04em;text-align:center}
@@ -532,7 +524,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .nav-panel-close{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;position:relative;z-index:1;color:#0C0C0C}
 .nav-panel-close:active{opacity:.5}
 .nav-panel-nav{display:flex;flex-direction:column;gap:30px;padding:32px 21px 0;flex:1}
-.nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:Inconsolata,monospace;font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
+.nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:var(--s2-mono);font-weight:500;font-size:14px;color:#0C0C0C;letter-spacing:0.04em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
 .nav-panel-item:active{opacity:.4}
 .nav-panel-footer{padding:21px;flex-shrink:0}
 .nav-panel-signout{width:109px;height:36px;background:#0C0C0C;border:none;border-radius:3px;cursor:pointer;font-family:var(--brand);font-size:16px;color:#FFFDFA;letter-spacing:0.02em;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
@@ -546,20 +538,20 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .grids-header{display:flex;align-items:center;padding:14px 20px;flex-shrink:0;gap:8px}
 .grids-back{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--text);-webkit-tap-highlight-color:transparent}
 .grids-back:active{opacity:.4}
-.grids-title{font-family:Inconsolata,monospace;font-weight:500;font-size:14px;letter-spacing:0.06em;color:#0C0C0C}
+.grids-title{font-family:var(--s2-mono);font-weight:500;font-size:14px;letter-spacing:0.06em;color:#0C0C0C}
 .grids-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 48px;gap:12px}
-.grids-empty-lbl{font-family:Inconsolata,monospace;font-weight:500;font-size:13px;letter-spacing:0.06em;color:var(--accent)}
+.grids-empty-lbl{font-family:var(--s2-mono);font-weight:500;font-size:13px;letter-spacing:0.06em;color:var(--accent)}
 .grids-empty-sub{font-family:var(--sans);font-size:15px;color:var(--text-2);text-align:center;line-height:1.6;font-weight:300}
 .gallery-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom)}
-.gallery-year-header{position:sticky;top:0;z-index:2;background:#FFFDFA;padding:10px 20px 8px;font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.1em;color:var(--text-3);border-bottom:1px solid var(--border)}
+.gallery-year-header{position:sticky;top:0;z-index:2;background:#FFFDFA;padding:10px 20px 8px;font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.1em;color:var(--text-3);border-bottom:1px solid var(--border)}
 .gallery-month-card{-webkit-tap-highlight-color:transparent;padding-bottom:24px}
 .gallery-triptych{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);cursor:pointer}
 .gallery-triptych:active{opacity:0.8}
 .gallery-triptych-cell{aspect-ratio:1;overflow:hidden;background:var(--surface);position:relative}
 .gallery-triptych-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery-month-meta{display:flex;align-items:center;padding:10px 16px;gap:8px;cursor:pointer}
-.gallery-month-label{font-family:Inconsolata,monospace;font-size:12px;font-weight:500;letter-spacing:0.08em;color:var(--text);flex:1}
-.gallery-month-count{font-family:Inconsolata,monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--text-3)}
+.gallery-month-label{font-family:var(--s2-mono);font-size:12px;font-weight:500;letter-spacing:0.08em;color:var(--text);flex:1}
+.gallery-month-count{font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--text-3)}
 .gallery-month-chevron{width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--text-3);flex-shrink:0;transition:transform 0.2s}
 .gallery-month-chevron.open{transform:rotate(180deg)}
 .gallery-strips{border-bottom:1px solid var(--border)}
@@ -569,8 +561,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .gallery-strip-cell{aspect-ratio:1;overflow:hidden;background:var(--surface);position:relative}
 .gallery-strip-cell img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery-strip-meta{display:flex;align-items:center;padding:6px 16px}
-.gallery-strip-dates{font-family:Inconsolata,monospace;font-size:10px;font-weight:500;letter-spacing:0.04em;color:var(--text-3);flex:1}
-.gallery-strip-count{font-family:Inconsolata,monospace;font-size:10px;color:var(--text-3)}
+.gallery-strip-dates{font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.04em;color:var(--text-3);flex:1}
+.gallery-strip-count{font-family:var(--s2-mono);font-size:10px;color:var(--text-3)}
 
 /* ══════════════════════════════════════════════════════════════════
    Scout v2 — brand primitives (prefix: .s2-)
@@ -659,6 +651,50 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* Loading spinner for primary button — tiny, inherits color */
 .s2-spinner{display:inline-block;width:14px;height:14px;border:1.5px solid currentColor;border-top-color:transparent;border-radius:50%;animation:s2-spin .7s linear infinite;vertical-align:-2px;margin-right:8px}
 @keyframes s2-spin{to{transform:rotate(360deg)}}
+
+/* ══════════════════════════════════════════════════════════════════
+   Scout v2 — Auth flow (splash, welcome, sign-in forms)
+   Paper splash → ink welcome → ink sign-in.
+   Continue buttons use Apple HIG shape (56h × 10r). SF Pro 14/700.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Splash — paper surface, Scout wordmark + rule + tagline. */
+.s2-splash{position:fixed;inset:0;background:var(--s2-paper);color:var(--s2-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;font-family:var(--s2-sans);-webkit-font-smoothing:antialiased}
+.s2-splash.fading{opacity:0}
+.s2-splash-tag{font-family:var(--s2-sans);font-size:20px;line-height:1.45;color:var(--s2-ink);text-align:center;margin-top:32px;font-weight:400;letter-spacing:-0.005em}
+
+/* Auth scene — ink surface for welcome + every sign-in form. */
+.s2-auth{position:fixed;inset:0;background:var(--s2-ink);color:var(--s2-paper);display:flex;flex-direction:column;font-family:var(--s2-sans);padding:0 24px env(safe-area-inset-bottom,24px);-webkit-font-smoothing:antialiased;overflow-y:auto}
+.s2-auth-wordmark{display:flex;flex-direction:column;align-items:center;margin-top:14vh}
+.s2-auth-hed{margin-top:22px;font-family:var(--s2-sans);font-size:20px;font-weight:400;color:var(--s2-paper);letter-spacing:-0.005em;text-align:center}
+
+/* Continue buttons — 56px tall, 10px radius, SF Pro 700 14/0.01em. */
+.s2-auth-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:56px;border-radius:10px;font-family:var(--s2-sans);font-size:14px;font-weight:700;letter-spacing:0.01em;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s;border:1px solid rgba(255,253,250,0.28);background:var(--s2-ink);color:var(--s2-paper)}
+.s2-auth-btn + .s2-auth-btn{margin-top:12px}
+.s2-auth-btn:active{opacity:0.65}
+.s2-auth-btn:disabled{opacity:0.4;cursor:not-allowed}
+.s2-auth-btn-primary{background:var(--s2-paper);color:var(--s2-ink);border-color:var(--s2-bone)}
+.s2-auth-btn-primary:active{opacity:0.75}
+
+/* Footer link — "Don't have an account? Sign up" */
+.s2-auth-footer{font-family:var(--s2-sans);font-size:14px;color:rgba(255,253,250,0.6);text-align:center;margin-top:20px;padding-bottom:16px}
+.s2-auth-footer .s2-auth-link{color:var(--s2-paper)}
+.s2-auth-link{color:var(--s2-paper);font-weight:700;background:none;border:none;padding:0;cursor:pointer;font-family:inherit;font-size:inherit;letter-spacing:inherit;-webkit-tap-highlight-color:transparent}
+.s2-auth-link:active{opacity:0.6}
+
+/* Inputs — dark w/ 1px white-alpha border; swap to paper fill on focus/filled. */
+.s2-auth-fields{margin-top:40px;display:flex;flex-direction:column;gap:12px}
+.s2-auth-input{width:100%;height:56px;padding:0 18px;border-radius:10px;font-family:var(--s2-sans);font-size:16px;color:var(--s2-paper);background:var(--s2-ink);border:1px solid rgba(255,253,250,0.28);outline:none;transition:background .15s,color .15s,border-color .15s;-webkit-appearance:none;appearance:none}
+.s2-auth-input::placeholder{color:rgba(255,253,250,0.36)}
+.s2-auth-input:focus,.s2-auth-input:not(:placeholder-shown){background:var(--s2-paper);color:var(--s2-ink);border-color:rgba(255,253,250,0.28)}
+.s2-auth-input:focus::placeholder,.s2-auth-input:not(:placeholder-shown)::placeholder{color:var(--s2-smoke)}
+
+/* Inline errors + helpers */
+.s2-auth-err{font-family:var(--s2-sans);font-size:13px;color:#E06D6D;margin-top:4px;text-align:center}
+.s2-auth-helper{font-family:var(--s2-sans);font-size:13px;color:rgba(255,253,250,0.6);margin-top:4px;text-align:center}
+.s2-auth-actions{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.s2-auth-text-btn{background:none;border:none;padding:12px 4px;font-family:var(--s2-sans);font-size:14px;font-weight:500;color:rgba(255,253,250,0.75);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.s2-auth-text-btn:active{opacity:0.5}
 `;
 
 (() => {
@@ -833,6 +869,8 @@ export default function App() {
   const [splashDone,   setSplashDone]   = useState(false);
   const [splashFading, setSplashFading] = useState(false);
   useEffect(()=>{
+    // ?splash=1 holds the splash indefinitely for design iteration.
+    if (new URLSearchParams(window.location.search).get('splash') === '1') return;
     const t1 = setTimeout(()=>setSplashFading(true), 2200);
     const t2 = setTimeout(()=>setSplashDone(true),   2900);
     return ()=>{ clearTimeout(t1); clearTimeout(t2); };
@@ -842,7 +880,7 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const syncObColor = (step) => {
-    const color = step ? '#4F5E2E' : '#FFFDFA';
+    const color = '#FFFDFA';
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
     document.documentElement.style.background = color;
     document.body.style.background = color;
@@ -1040,13 +1078,13 @@ export default function App() {
     // Mirror the exact JSX render condition — only treat sheet as "visible" when it actually renders
     const todaySheetVisible = showTodaySheet && sel === todayStr && !dayMeta && !dayLoading;
     let color;
-    if (!splashDone)             color = '#0C0C0C';
+    if (!splashDone)             color = '#FFFDFA';
     else if (showLanding)        color = '#0C0C0C';
-    else if (showOnboarding)     color = '#4F5E2E';
-    else if (!authed)            color = '#FFFDFA';
+    else if (showOnboarding)     color = '#FFFDFA';
+    else if (!authed)            color = '#0C0C0C';
     else if (lightboxOpen)        color = '#000000';
     else if (todaySheetVisible)  color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
-    else if (weekReview)         color = reviewPhase === 'milestone' ? '#E2B554' : '#0C0C0C';
+    else if (weekReview)         color = reviewPhase === 'milestone' ? '#007C04' : '#0C0C0C';
     else                         color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     const m = document.querySelector('meta[name="theme-color"]');
     if (m) m.content = color;
@@ -1236,6 +1274,20 @@ export default function App() {
     setLoginBusy(true); setLoginErr('');
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        skipBrowserRedirect: true,
+      },
+    });
+    if (error) { setLoginErr(friendlyAuthError(error.message)); setLoginBusy(false); return; }
+    if (data?.url) window.location.href = data.url;
+    setLoginBusy(false);
+  };
+
+  const handleAppleLogin = async () => {
+    setLoginBusy(true); setLoginErr('');
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
       options: {
         redirectTo: window.location.origin,
         skipBrowserRedirect: true,
@@ -1649,23 +1701,20 @@ export default function App() {
   const lbLabel   = sel ? new Date(sel + 'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
 
   const splash = !splashDone && (
-    <div className={`pj-splash${splashFading?' fading':''}`}>
-      <svg className="splash-logo" width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M107.208 0.00366211C130.892 0.303702 150 19.5966 150 43.3525V62.333C150 65.4455 147.477 67.9688 144.364 67.9688C141.252 67.9688 138.728 65.4455 138.728 62.333V43.3525C138.728 25.6348 124.365 11.2716 106.647 11.2715H87.667C84.5545 11.2715 82.0312 8.7483 82.0312 5.63576C82.0312 2.52321 84.5545 0 87.667 0H106.647L107.208 0.00366211Z" fill="#4F5E2E"/>
-        <path d="M11.2715 106.647C11.2716 124.365 25.6348 138.728 43.3525 138.728H62.333C65.4455 138.728 67.9688 141.252 67.9688 144.364C67.9688 147.477 65.4455 150 62.333 150H43.3525C19.5966 150 0.303705 130.892 0.00366211 107.208L0 106.647V87.667C0 84.5545 2.52321 82.0312 5.63576 82.0312C8.7483 82.0312 11.2715 84.5545 11.2715 87.667V106.647Z" fill="#F5F1EB"/>
-        <path d="M150 106.647L149.996 107.208C149.699 130.706 130.706 149.699 107.208 149.996L106.647 150H87.667C84.5545 150 82.0312 147.477 82.0312 144.364C82.0312 141.252 84.5545 138.728 87.667 138.728H106.647C124.365 138.728 138.728 124.365 138.728 106.647V87.667C138.728 84.5545 141.252 82.0312 144.364 82.0312C147.477 82.0312 150 84.5545 150 87.667V106.647Z" fill="#F5F1EB"/>
-        <path d="M67.9688 5.63576C67.9688 8.7483 65.4455 11.2715 62.333 11.2715H43.3525C25.6348 11.2716 11.2716 25.6348 11.2715 43.3525V62.333C11.2715 65.4455 8.7483 67.9688 5.63576 67.9688C2.52321 67.9688 0 65.4455 0 62.333V43.3525C4.83256e-05 19.4096 19.4096 5.07358e-05 43.3525 0H62.333C65.4455 0 67.9688 2.52321 67.9688 5.63576Z" fill="#F5F1EB"/>
-        <path d="M79.0104 115.671C71.0927 115.441 62.9312 112.611 57.7619 108.287C55.036 106.063 52.8696 103.952 50.9748 101.694C49.6673 100.236 49.6341 99.4132 50.6814 97.8602C52.3881 95.4564 54.1058 93.327 55.6906 91.3402C56.2226 90.7693 56.749 90.0614 57.026 90.0502C57.4416 90.0334 58.0233 90.6967 58.7381 91.2172C59.3198 91.8805 59.9015 92.5437 60.4778 93.0698C61.3476 93.9962 62.356 94.9169 63.3644 95.8376C66.3895 98.5998 71.6586 101.958 75.997 102.882C76.4181 103.002 77.1162 103.111 77.6703 103.089L77.8088 103.083C81.4048 102.801 85.8653 99.8741 86.2534 95.7381C86.5638 93.116 86.2038 91.0704 85.0348 89.6067C81.8158 85.4789 77.2448 82.2297 72.962 79.2436C70.6792 77.6876 68.3965 76.1315 66.3908 74.5643L66.2468 74.4328C63.5208 72.2079 60.9224 69.7032 58.1632 66.6556C54.1021 62.2871 52.6728 57.8124 53.5762 52.6941C55.3997 42.8691 61.5282 36.5786 71.5793 34.6622C72.6819 34.4804 73.7846 34.2985 74.8927 34.2538C75.0312 34.2482 75.3083 34.2371 75.4468 34.2315C80.018 34.047 84.6389 35.0967 89.5867 37.3692C92.8446 39.0233 95.2603 40.4366 97.4045 41.9982C98.701 43.182 99.4324 44.1139 99.4711 45.0737C99.5043 45.8965 99.1274 46.8731 98.058 47.8777C97.6591 48.3058 97.3986 48.7284 96.9996 49.1565C95.8028 50.4409 94.6114 51.8624 93.1264 52.8838C92.3119 53.3287 91.7689 53.6253 91.3533 53.642C90.7992 53.6644 90.2341 53.4125 89.5194 52.892C87.6577 51.4563 85.9291 49.8779 84.35 48.5681C81.7682 46.4748 78.8371 46.0437 75.9171 45.8868C75.6401 45.898 75.5015 45.9036 75.2245 45.9148L75.086 45.9204C72.4541 46.0266 69.6005 47.5152 68.0434 50.1875C66.4697 52.4486 66.7244 55.3225 68.5194 58.5464C71.0569 62.9764 75.6112 65.8142 79.4841 68.9542L79.6281 69.0858C80.631 69.8694 81.4897 70.5214 82.4871 71.1679C83.3458 71.82 84.1991 72.335 85.0634 73.1242C86.6369 74.2968 88.3545 75.6009 89.9225 76.6364L90.6428 77.2941C95.0752 80.5488 97.8731 84.5563 99.3411 89.9909C101.452 97.597 99.0799 104.148 92.1147 110.335C88.4909 113.365 84.2631 115.184 79.0104 115.671Z" fill="#F5F1EB"/>
-        <path d="M107.208 0.00366211C130.892 0.303702 150 19.5966 150 43.3525V62.333C150 65.4455 147.477 67.9688 144.364 67.9688C141.252 67.9688 138.728 65.4455 138.728 62.333V43.3525C138.728 25.6348 124.365 11.2716 106.647 11.2715H87.667C84.5545 11.2715 82.0312 8.7483 82.0312 5.63576C82.0312 2.52321 84.5545 0 87.667 0H106.647L107.208 0.00366211Z" fill="#4F5E2E"/>
-      </svg>
+    <div className={`s2-splash${splashFading?' fading':''}`}>
+      <ScoutWordmark size={56} color="#0C0C0C" ruleColor="#007C04" />
+      <div className="s2-splash-tag">
+        One photograph a day.<br />Nothing more.
+      </div>
     </div>
   );
 
 
   // Desktop/tablet lockout — show a single directive to open on mobile.
-  // The ?compose=1 silo bypasses the gate so design iteration can happen
-  // on desktop during the rebrand; gate resumes once the flag is gone.
-  if (!isMobile && !_composeSilo) return (
+  // The ?compose=1 silo and ?design=1 flag bypass the gate so design
+  // iteration can happen on desktop during the rebrand; gate resumes
+  // once the flags are gone.
+  if (!isMobile && !_composeSilo && !_designPreview) return (
     <div className="mobile-gate">
       <div className="mobile-gate-inner">
         <h1 className="mobile-gate-title">Scout lives on your phone</h1>
@@ -1685,36 +1734,55 @@ export default function App() {
   if (checking) return splash || null;
 
   if (forgotView === 'set') return (
-    <form className="pj-login" onSubmit={handleSetNewPassword} data-theme={theme}>
-      <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
-      <div className="login-fields">
-        <div className="login-field-lbl" style={{top:'37.1%'}}>NEW PASSWORD</div>
-        <input className="login-in" type="password" value={newPwVal} style={{top:'41%'}}
-          onChange={e=>setNewPwVal(e.target.value)} placeholder="" autoComplete="new-password" />
-        {resetMsg && <div className={resetMsg.ok ? '' : 'login-err'} style={resetMsg.ok?{fontFamily:'var(--sans)',fontSize:12,color:'var(--accent)',marginTop:8}:{}}>{resetMsg.text}</div>}
-        <button className="login-btn" type="submit" disabled={resetBusy || !newPwVal}>
-          {resetBusy ? 'Saving…' : 'SET PASSWORD -->'}
+    <form className="s2-auth" onSubmit={handleSetNewPassword} data-theme={theme}>
+      <div className="s2-auth-wordmark">
+        <ScoutWordmark size={56} color="#FFFCF6" ruleColor="#007C04" />
+        <div className="s2-auth-hed">Set a new password</div>
+      </div>
+      <div className="s2-auth-fields">
+        <input className="s2-auth-input" type="password" value={newPwVal}
+          onChange={e=>setNewPwVal(e.target.value)} placeholder="New password"
+          autoComplete="new-password" autoFocus />
+        {resetMsg && (
+          resetMsg.ok
+            ? <div className="s2-auth-helper" style={{color:'var(--s2-press-green)'}}>{resetMsg.text}</div>
+            : <div className="s2-auth-err">{resetMsg.text}</div>
+        )}
+      </div>
+      <div style={{marginTop:20}}>
+        <button className="s2-auth-btn s2-auth-btn-primary" type="submit" disabled={resetBusy || !newPwVal}>
+          {resetBusy ? 'Saving…' : 'Set password'}
         </button>
       </div>
-      <div/>
     </form>
   );
 
   if (!authed && showLanding) return (
     <>
       {splash}
-      <div style={{position:'fixed',inset:0,background:'#0C0C0C',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:0}}>
-        <img src="/scout-lockup.svg" alt="Scout" style={{width:150,marginBottom:80}} />
-        <button
-          type="button"
-          onClick={()=>setShowLanding(false)}
-          style={{width:150,height:51,background:'#222222',border:'none',borderRadius:4,cursor:'pointer',fontFamily:'var(--brand)',fontSize:20,color:'#FFFDFA',letterSpacing:'0.01em'}}
-        >SIGN IN &gt;</button>
-        <button
-          type="button"
-          onClick={()=>{ track('signup_started'); setShowLanding(false); setSignupView('form'); }}
-          style={{marginTop:18,fontFamily:'var(--sans)',fontWeight:600,fontSize:14,color:'#F5F1EB',background:'none',border:'none',cursor:'pointer',letterSpacing:'0.06em',textTransform:'uppercase',padding:'8px 12px'}}
-        >SIGN UP</button>
+      <div className="s2-auth">
+        <div className="s2-auth-wordmark">
+          <ScoutWordmark size={56} color="#FFFCF6" ruleColor="#007C04" />
+          <div className="s2-auth-hed">Welcome back</div>
+        </div>
+        <div style={{marginTop:'auto', paddingTop:24}}>
+          <button type="button" className="s2-auth-btn s2-auth-btn-primary" onClick={handleAppleLogin} disabled={loginBusy}>
+             Continue with Apple
+          </button>
+          <button type="button" className="s2-auth-btn" onClick={handleGoogleLogin} disabled={loginBusy}>
+            Continue with Google
+          </button>
+          <button type="button" className="s2-auth-btn" onClick={()=>setShowLanding(false)} disabled={loginBusy}>
+            Continue with Email
+          </button>
+          {loginErr && <div className="s2-auth-err" style={{marginTop:12}}>{loginErr}</div>}
+          <div className="s2-auth-footer">
+            Don't have an account?{' '}
+            <button type="button" className="s2-auth-link" onClick={()=>{ track('signup_started'); setShowLanding(false); setSignupView('form'); }}>
+              Sign up
+            </button>
+          </div>
+        </div>
       </div>
     </>
   );
@@ -1723,83 +1791,104 @@ export default function App() {
     <>
       {splash}
       {signupView === 'success' ? (
-        <div className="pj-login" data-theme={theme}>
-          <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
-          <div style={{position:'absolute',top:'37.7%',left:45,right:45,fontFamily:'Inconsolata,monospace',fontWeight:400,fontSize:16,lineHeight:1.7,color:'var(--ink)',textAlign:'center'}}>
-            Check your email to confirm<br/>your account, then sign in.
+        <div className="s2-auth">
+          <div className="s2-auth-wordmark">
+            <ScoutWordmark size={56} color="#FFFCF6" ruleColor="#007C04" />
+            <div className="s2-auth-hed">Check your email</div>
           </div>
-          <button type="button" className="login-btn" onClick={()=>{ setSignupView(false); setSignupEmail(''); setSignupPw(''); setSignupPwConfirm(''); setSignupErr(''); }}>
-            BACK
-          </button>
-        </div>
-      ) : signupView === 'form' ? (
-        <form className="pj-login" onSubmit={handleSignup} data-theme={theme}>
-          <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
-          <div className="login-field-lbl" style={{top:'31%'}}>EMAIL</div>
-          <input className="login-in" type="email" value={signupEmail} style={{top:'35%'}}
-            onChange={e=>{setSignupEmail(e.target.value);setSignupErr('');}}
-            placeholder="" autoComplete="email" required />
-          <div className="login-field-lbl" style={{top:'42%'}}>PASSWORD</div>
-          <input className="login-in" type="password" value={signupPw} style={{top:'46%'}}
-            onChange={e=>{setSignupPw(e.target.value);setSignupErr('');}}
-            placeholder="" autoComplete="new-password" required />
-          <div className="login-field-lbl" style={{top:'53%'}}>CONFIRM PASSWORD</div>
-          <input className="login-in" type="password" value={signupPwConfirm} style={{top:'57%'}}
-            onChange={e=>{setSignupPwConfirm(e.target.value);setSignupErr('');}}
-            placeholder="" autoComplete="new-password" required />
-          {signupErr && <div className="login-err" style={{top:'64%'}}>{signupErr}</div>}
-          <button
-            className="login-btn"
-            type="submit"
-            style={{top:'70%',width:'auto',minWidth:150,padding:'0 28px'}}
-            disabled={signupBusy || !signupEmail.trim() || !signupPw || !signupPwConfirm}
-          >
-            {signupBusy ? 'Creating…' : 'CREATE ACCOUNT >'}
-          </button>
-          <button type="button" className="forgot-link"
-            onClick={()=>{ setSignupView(false); setSignupEmail(''); setSignupPw(''); setSignupPwConfirm(''); setSignupErr(''); }}>
-            BACK TO SIGN IN
-          </button>
-        </form>
-      ) : forgotView === 'request' ? (
-        <form className="pj-login" onSubmit={handleForgotRequest} data-theme={theme}>
-          <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
-          <div className="login-fields">
-            <div className="login-field-lbl" style={{top:'37.1%'}}>EMAIL</div>
-            <input className="login-in" type="email" value={email} style={{top:'41%'}}
-              onChange={e=>setEmail(e.target.value)} placeholder="" autoComplete="email" />
-            {resetMsg && <div style={resetMsg.ok?{fontFamily:'var(--sans)',fontSize:12,color:'var(--accent)',position:'absolute',top:'48%',left:45}:{fontFamily:'var(--sans)',fontSize:10,color:'#B03030',position:'absolute',top:'48%',left:45}}>{resetMsg.text}</div>}
-            <button className="login-btn" type="submit" disabled={resetBusy || !email}>
-              {resetBusy ? 'Sending…' : 'RESET >'}
+          <div className="s2-auth-helper" style={{marginTop:20}}>
+            We sent a confirmation link. Open it, then sign in.
+          </div>
+          <div style={{marginTop:'auto', paddingTop:24}}>
+            <button type="button" className="s2-auth-btn s2-auth-btn-primary" onClick={()=>{ setSignupView(false); setSignupEmail(''); setSignupPw(''); setSignupPwConfirm(''); setSignupErr(''); }}>
+              Back to sign in
             </button>
           </div>
-          <div className="login-footer">
-            <button type="button" className="forgot-link" onClick={()=>{setForgotView(false);setResetMsg(null);}}>
-              BACK TO SIGN IN
+        </div>
+      ) : signupView === 'form' ? (
+        <form className="s2-auth" onSubmit={handleSignup} data-theme={theme}>
+          <div className="s2-auth-wordmark">
+            <ScoutWordmark size={56} color="#FFFCF6" ruleColor="#007C04" />
+            <div className="s2-auth-hed">Create your account</div>
+          </div>
+          <div className="s2-auth-fields">
+            <input className="s2-auth-input" type="email" value={signupEmail}
+              onChange={e=>{setSignupEmail(e.target.value);setSignupErr('');}}
+              placeholder="Email" autoComplete="email" required autoFocus />
+            <input className="s2-auth-input" type="password" value={signupPw}
+              onChange={e=>{setSignupPw(e.target.value);setSignupErr('');}}
+              placeholder="Password" autoComplete="new-password" required />
+            <input className="s2-auth-input" type="password" value={signupPwConfirm}
+              onChange={e=>{setSignupPwConfirm(e.target.value);setSignupErr('');}}
+              placeholder="Confirm password" autoComplete="new-password" required />
+            {signupErr && <div className="s2-auth-err">{signupErr}</div>}
+          </div>
+          <div style={{marginTop:20}}>
+            <button className="s2-auth-btn s2-auth-btn-primary" type="submit"
+              disabled={signupBusy || !signupEmail.trim() || !signupPw || !signupPwConfirm}>
+              {signupBusy ? 'Creating…' : 'Create account'}
+            </button>
+          </div>
+          <div className="s2-auth-footer">
+            <button type="button" className="s2-auth-link" onClick={()=>{ setSignupView(false); setSignupEmail(''); setSignupPw(''); setSignupPwConfirm(''); setSignupErr(''); }}>
+              Back to sign in
+            </button>
+          </div>
+        </form>
+      ) : forgotView === 'request' ? (
+        <form className="s2-auth" onSubmit={handleForgotRequest} data-theme={theme}>
+          <div className="s2-auth-wordmark">
+            <ScoutWordmark size={56} color="#FFFCF6" ruleColor="#007C04" />
+            <div className="s2-auth-hed">Reset your password</div>
+          </div>
+          <div className="s2-auth-fields">
+            <input className="s2-auth-input" type="email" value={email}
+              onChange={e=>setEmail(e.target.value)} placeholder="Email"
+              autoComplete="email" required autoFocus />
+            {resetMsg && (
+              resetMsg.ok
+                ? <div className="s2-auth-helper" style={{color:'var(--s2-press-green)'}}>{resetMsg.text}</div>
+                : <div className="s2-auth-err">{resetMsg.text}</div>
+            )}
+          </div>
+          <div style={{marginTop:20}}>
+            <button className="s2-auth-btn s2-auth-btn-primary" type="submit" disabled={resetBusy || !email}>
+              {resetBusy ? 'Sending…' : 'Send reset link'}
+            </button>
+          </div>
+          <div className="s2-auth-footer">
+            <button type="button" className="s2-auth-link" onClick={()=>{setForgotView(false);setResetMsg(null);}}>
+              Back to sign in
             </button>
           </div>
         </form>
       ) : (
-        <form className="pj-login" onSubmit={handleLogin} data-theme={theme}>
-          <img src="/scout-logo-m.svg" className="login-logo" alt="Scout" />
-          <div className="login-field-lbl" style={{top:'37.1%'}}>EMAIL</div>
-          <input className="login-in" type="email" value={email} style={{top:'41%'}}
-            onChange={e=>setEmail(e.target.value)} placeholder="" autoComplete="email" />
-          <div className="login-field-lbl" style={{top:'48.3%'}}>PASSWORD</div>
-          <input className="login-in" type="password" value={pw} style={{top:'52%'}}
-            onChange={e=>setPw(e.target.value)} placeholder="" autoComplete="current-password" />
-          {loginErr && <div className="login-err">{loginErr}</div>}
-          <button className="login-btn" type="submit" disabled={loginBusy || !email || !pw}>
-            {loginBusy ? 'Signing in…' : 'SIGN IN >'}
-          </button>
-          <div className="login-divider">OR</div>
-          <button type="button" className="google-btn" onClick={handleGoogleLogin} disabled={loginBusy}>
-            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
-            SIGN IN WITH GOOGLE
-          </button>
-          <button type="button" className="forgot-link" onClick={()=>{setForgotView('request');setResetMsg(null);}}>
-            FORGOT PASSWORD?
-          </button>
+        <form className="s2-auth" onSubmit={handleLogin} data-theme={theme}>
+          <div className="s2-auth-wordmark">
+            <ScoutWordmark size={56} color="#FFFCF6" ruleColor="#007C04" />
+          </div>
+          <div className="s2-auth-fields">
+            <input className="s2-auth-input" type="email" value={email}
+              onChange={e=>setEmail(e.target.value)} placeholder="Email"
+              autoComplete="email" required autoFocus />
+            <input className="s2-auth-input" type="password" value={pw}
+              onChange={e=>setPw(e.target.value)} placeholder="Enter your password"
+              autoComplete="current-password" required />
+            {loginErr && <div className="s2-auth-err">{loginErr}</div>}
+          </div>
+          <div style={{marginTop:20}}>
+            <button className="s2-auth-btn s2-auth-btn-primary" type="submit" disabled={loginBusy || !email || !pw}>
+              {loginBusy ? 'Signing in…' : 'Continue'}
+            </button>
+          </div>
+          <div className="s2-auth-actions">
+            <button type="button" className="s2-auth-text-btn" onClick={()=>setShowLanding(true)}>
+              Back
+            </button>
+            <button type="button" className="s2-auth-text-btn" onClick={()=>{setForgotView('request');setResetMsg(null);}}>
+              Forgot password?
+            </button>
+          </div>
         </form>
       )}
     </>
@@ -1827,48 +1916,14 @@ export default function App() {
     <div className={`pj-layout${activeTab==='month'?' month-active':''}`} data-theme={theme}>
 
       <aside className="pj-sidebar">
-        {/* Topbar — wordmark + settings. On desktop: always visible. On mobile: MONTH tab only. */}
+        {/* Topbar — wordmark + settings. On desktop: always visible. On mobile: MONTH tab only.
+            Weekly theme card + "WEEK COMPLETE" milestone chip removed for v2 brand; the
+            underlying weekTheme / getTheme / weekReview state stays wired for future surfaces. */}
         <div className="pj-topbar">
           <button className="settings-btn" onClick={()=>setPanelOpen(true)} aria-label="Menu">
             <IcHamburger/>
           </button>
-          {(()=>{
-            const checked = new Set();
-            for (const d of [...photoDates].sort().reverse()) {
-              const wd = getWeekDates(d);
-              if (checked.has(wd[0])) continue;
-              checked.add(wd[0]);
-              if (wd.every(dd => photoDates.has(dd))) {
-                return (
-                  <button className="week-header-line" onClick={()=>{ track('week_review_completed', { source: 'milestone' }); setWeekReview({dates:wd}); setReviewPhase('milestone'); }}>
-                    <span className="week-header-lbl">WEEK COMPLETE</span>
-                    <span className="week-header-sep">|</span>
-                    <span className="week-header-range">{formatWeekRange(wd)}</span>
-                    <span className="week-header-arr">→</span>
-                  </button>
-                );
-              }
-            }
-            return null;
-          })()}
         </div>
-
-        {/* Weekly theme card — expandable: title always visible, desc + tips on expand */}
-        {weekTheme&&aiEnabled&&(
-          <div className="theme-card">
-            <div className="theme-card-toggle" onClick={()=>setThemeExpanded(v=>!v)}>
-              <div className="theme-card-left">
-                <div className="theme-card-lbl">THEME</div>
-                <div className="theme-card-title">{weekTheme.theme}</div>
-              </div>
-              <svg className={`theme-card-chev${themeExpanded?' open':''}`} viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-            <div className={`theme-card-body${themeExpanded?' open':''}`}>
-              {weekTheme.description&&<div className="theme-card-desc">{weekTheme.description}</div>}
-              {nextWeekTheme&&nextWeekTheme.theme!==weekTheme?.theme&&<div className="theme-next-week">Next week's theme: {nextWeekTheme.theme}</div>}
-            </div>
-          </div>
-        )}
 
         {/* Scrollable month view — current month first, then past months */}
         <div className="month-scroll">
