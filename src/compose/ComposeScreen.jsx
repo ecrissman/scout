@@ -310,10 +310,10 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
             <span className="s2-stamp-filed" style={{ fontSize: 'var(--fs-base)', padding: '10px 22px' }}>Filed</span>
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 18 }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-3xl)', color: 'var(--s2-text-primary)', lineHeight: 1.15, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 14 }}>
             Your take is in.
           </div>
-          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-md)', color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 320, margin: '0 auto 16px' }}>
+          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-base)', color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 320, margin: '0 auto 16px' }}>
             Your editor will review it. We'll let you know when their note is ready.
           </div>
           <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 'auto' }}>
@@ -350,17 +350,17 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
             </svg>
           </button>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '0 28px 28px' }}>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)', marginBottom: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '0 20px 20px', paddingBottom: 'calc(20px + env(safe-area-inset-bottom))', minHeight: 0 }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)', marginBottom: 8 }}>
             Select Your Take
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-lg)', color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.01em', marginBottom: 20 }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-lg)', color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.01em', marginBottom: 14 }}>
             Pick the one that answers the brief.
           </div>
-          <div className="s2-review-hero" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--s2-bone, #EFEBE3)', borderRadius: 2, overflow: 'hidden', marginBottom: 16, minHeight: 240 }}>
+          <div className="s2-review-hero" style={{ flex: '1 1 0', minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--s2-bone, #EFEBE3)', borderRadius: 2, overflow: 'hidden', marginBottom: 12 }}>
             <img src={hero.url} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }} />
           </div>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 12, overflowX: 'auto', WebkitOverflowScrolling: 'touch', flexShrink: 0 }}>
             {picks.map((p, i) => (
               <button
                 key={p.url}
@@ -383,15 +383,15 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
               </button>
             ))}
           </div>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 18 }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 12, flexShrink: 0 }}>
             Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
-          <button className="s2-btn-primary" onClick={fileSelectedPick}>
+          <button className="s2-btn-primary" onClick={fileSelectedPick} style={{ flexShrink: 0 }}>
             File this one
           </button>
           <button
             onClick={() => fileRef.current?.click()}
-            style={{ background: 'none', border: 'none', color: 'var(--s2-text-secondary)', fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-sm)', padding: '14px 0 0', cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
+            style={{ background: 'none', border: 'none', color: 'var(--s2-text-secondary)', fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-sm)', padding: '10px 0 0', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', flexShrink: 0 }}
           >
             Choose again
           </button>
@@ -408,7 +408,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         <PageHeader />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <div className="s2-spinner" style={{ width: 24, height: 24, borderWidth: 2, color: 'var(--s2-press-green)', marginBottom: 20 }} />
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-sm)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-xs)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
             Filing your take…
           </div>
         </div>
@@ -447,7 +447,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
             Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.22, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-3xl)', color: 'var(--s2-text-primary)', lineHeight: 1.18, letterSpacing: '-0.02em', marginBottom: 'auto' }}>
             {revealed}
             {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
           </div>

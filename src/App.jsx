@@ -88,6 +88,10 @@ const CSS = `
   --s2-mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
   --s2-sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display','Helvetica Neue',Helvetica,Arial,sans-serif;
 
+  /* ── Type scale (1.18 ratio, 16px base) ── */
+  --fs-2xs:10px;--fs-xs:12px;--fs-sm:14px;--fs-base:16px;--fs-md:18px;
+  --fs-lg:21px;--fs-xl:25px;--fs-2xl:30px;--fs-3xl:36px;--fs-4xl:44px;
+
   /* ── v1 tokens aliased to v2 — unmigrated .pj-* / .cal-* / .dv-* / etc. now read v2 values ── */
   --bg:var(--s2-paper);--bg-secondary:var(--s2-paper-2);--surface:var(--s2-paper-2);
   --border:var(--s2-bone);
@@ -183,10 +187,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 /* TODAY date row — sits below the shared topbar in the main panel */
-.today-date-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;flex-shrink:0;gap:8px}
-.today-date-left{flex:1;min-width:0}
-.today-date-lg{font-family:var(--sans);font-size:20px;font-weight:300;letter-spacing:-0.01em;color:var(--text);line-height:1}
-.today-dow-sm{font-family:var(--sans);font-size:12px;color:var(--text-2);letter-spacing:0.04em;text-transform:uppercase;margin-top:3px}
 .today-date-nav{display:flex;align-items:center;flex-shrink:0}
 /* On desktop the sidebar already has the wordmark — hide the mobile brand row in main panel */
 .main-brand-row{display:flex}
@@ -327,8 +327,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* ── Caption ── */
 .cap-row{padding:12px 0;position:relative}
 .cap-top{display:flex;align-items:flex-start}
-.cap-in{flex:1;background:none;border:none;font-family:var(--sans);font-size:16px;color:var(--text);padding:0;outline:none;caret-color:var(--accent);font-weight:300;min-width:0;line-height:1.55;-webkit-tap-highlight-color:transparent;width:100%;resize:none;overflow:hidden;display:block}
-.cap-in::placeholder{color:var(--text-3)}
+.cap-in{flex:1;background:none;border:none;font-family:var(--sans);font-size:14px;color:var(--text);padding:0;outline:none;caret-color:var(--accent);font-weight:400;min-width:0;line-height:1.55;-webkit-tap-highlight-color:transparent;width:100%;resize:none;overflow:hidden;display:block}
+.cap-in::placeholder{color:var(--text-3);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
 .cap-suggest-btn{position:absolute;top:0;right:0;background:none;border:none;color:var(--text);cursor:pointer;padding:0;width:44px;height:44px;display:flex;align-items:center;justify-content:flex-end;opacity:0.85}
 .cap-suggest-btn:active{opacity:0.4}
 .cap-suggest-btn:disabled{opacity:.3;cursor:default}
@@ -374,13 +374,20 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .note-reveal-body{font-family:var(--serif);font-size:22px;line-height:1.35;letter-spacing:-0.015em;color:var(--text);margin-bottom:20px}
 .note-reveal-sig{font-family:var(--sans);font-size:13px;color:var(--text-3);letter-spacing:.02em}
 
-/* ── Editor's Note block (Today, under Field Note) ── */
-.editor-note{margin-top:18px;padding:16px 0 18px;border-top:1px solid var(--border)}
-.editor-note-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
-.editor-note-lbl{font-family:var(--sans);font-size:11px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;font-weight:500}
-.editor-note-stamp{font-family:var(--sans);font-size:10px;color:var(--text-3);letter-spacing:.15em;text-transform:uppercase}
-.editor-note-body{font-family:var(--serif);font-size:17px;color:var(--text);line-height:1.5;letter-spacing:-0.005em}
-.editor-note-pending{font-family:var(--sans);font-size:13px;color:var(--text-3);font-style:italic}
+/* ── Editor's Note banner (top of Today) ── */
+.note-banner{display:flex;align-items:center;gap:8px;width:calc(100% - 40px);margin:4px 20px 0;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;font-family:var(--sans);color:var(--text);text-align:left;cursor:default;-webkit-tap-highlight-color:transparent}
+.note-banner.is-ready{cursor:pointer;border-color:var(--accent)}
+.note-banner.is-ready:active{opacity:.7}
+.note-banner-dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);flex-shrink:0}
+.note-banner.is-ready .note-banner-dot{background:var(--accent);box-shadow:0 0 0 3px rgba(0,124,4,0.16)}
+.note-banner-lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;color:var(--accent);flex-shrink:0}
+.note-banner-sep{color:var(--text-3);flex-shrink:0}
+.note-banner-msg{font-size:13px;color:var(--text-2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-banner-cta{font-size:12px;color:var(--text);letter-spacing:.02em;font-weight:500;flex-shrink:0}
+
+/* ── Dispatch dateline above photo (Today) ── */
+.today-dispatch-row{padding:14px 20px 10px;flex-shrink:0}
+.today-dispatch{font-family:var(--s2-mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--text-3)}
 
 /* ── "Read the brief" chip ── */
 .brief-chip{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
@@ -2167,12 +2174,39 @@ export default function App() {
         {/* Today with photo or past day */}
         {!(sel===todayStr&&!dayMeta) ? (
           <>
-            {/* Row 2: date text + photo actions */}
-            <div className="today-date-row">
-              <div className="today-date-left">
-                {selParsed&&<div className="today-date-lg">{selParsed.d} {MONTHS[selParsed.m]}</div>}
-                {selParsed&&<div className="today-dow-sm">{WDAYS[new Date(selParsed.y,selParsed.m,selParsed.d).getDay()]} · {selParsed.y}</div>}
-              </div>
+            {/* Editor's Note banner — top-of-page notification strip.
+                Pending: quiet reviewing state. Available: press-green dot +
+                CTA, taps to open the full-screen Edition reveal. */}
+            {dayMeta&&(()=>{
+              const EDITION_HOUR = 20;
+              const nowH = new Date().getHours();
+              const isToday = sel === todayStr;
+              const hasNote = !!feedback;
+              const gated = isToday && nowH < EDITION_HOUR;
+              if (!hasNote && !gated) return null;
+              const ready = hasNote && !gated;
+              return (
+                <button
+                  className={`note-banner${ready?' is-ready':''}`}
+                  onClick={() => { if (ready) { setNoteReveal(sel); setNoteRevealShown(0); } }}
+                  disabled={!ready}
+                >
+                  <span className="note-banner-dot" aria-hidden="true"/>
+                  <span className="note-banner-lbl">Editor's Note</span>
+                  <span className="note-banner-sep">·</span>
+                  <span className="note-banner-msg">{ready ? "Today's edition is in." : 'Reviewing… posts at 20:00.'}</span>
+                  {ready && <span className="note-banner-cta">Read →</span>}
+                </button>
+              );
+            })()}
+
+            {/* Compact dispatch dateline above the photo */}
+            <div className="today-dispatch-row">
+              {selParsed&&(
+                <div className="today-dispatch">
+                  Dispatch · {String(selParsed.m+1).padStart(2,'0')}.{String(selParsed.d).padStart(2,'0')}.{String(selParsed.y%100).padStart(2,'0')} · {WDAYS[new Date(selParsed.y,selParsed.m,selParsed.d).getDay()].toUpperCase()}
+                </div>
+              )}
             </div>
 
             <div className="pj-main-inner">
@@ -2236,33 +2270,6 @@ export default function App() {
                   )}
                 </div>
               )}
-
-              {/* ── Editor's Note block ──
-                  Before 20:00 / no note yet: quiet placeholder.
-                  After available: header + full note inline. The payoff of
-                  the daily loop lives here. */}
-              {dayMeta&&(()=>{
-                const EDITION_HOUR = 20;
-                const nowH = new Date().getHours();
-                const isToday = sel === todayStr;
-                const hasNote = !!feedback;
-                const gated = isToday && nowH < EDITION_HOUR;
-                if (!hasNote && !gated) return null;
-                const showBody = hasNote && !gated;
-                return (
-                  <div className="editor-note">
-                    <div className="editor-note-head">
-                      <span className="editor-note-lbl">Editor's Note</span>
-                      <span className="editor-note-stamp">Edition · {String(EDITION_HOUR).padStart(2,'0')}:00</span>
-                    </div>
-                    {showBody ? (
-                      <div className="editor-note-body">{feedback}</div>
-                    ) : (
-                      <div className="editor-note-pending">Editor reviewing… posts at 20:00.</div>
-                    )}
-                  </div>
-                );
-              })()}
 
               {/* ── The Brief chip ──
                   Tap to expand inline. Surfaces the original assignment so
