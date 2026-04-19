@@ -165,6 +165,21 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     : undefined;
   const trayClass = dragState.current.active ? 's2-tray is-dragging' : 's2-tray';
 
+  // Tray chrome: drag handle + Cancel on the left, for a clear "this is a
+  // sheet" read. `trailing` lets a stage inject a right-aligned action
+  // (e.g. Recompose on the Brief screen) without duplicating markup.
+  const TrayChrome = ({ trailing = null, cancelLabel = 'Cancel', onCancel = dismiss } = {}) => (
+    <>
+      <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
+        <div className="s2-sheet-handle" />
+      </div>
+      <div className="s2-tray-header">
+        <button className="s2-tray-header-btn" onClick={onCancel}>{cancelLabel}</button>
+        {trailing || <div className="s2-tray-header-spacer" />}
+      </div>
+    </>
+  );
+
   const time = TIMES[timeIdx];
   const constraint = CONSTRAINTS[constraintIdx % CONSTRAINTS.length];
 
@@ -224,8 +239,6 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     setFileError(null);
   };
 
-  const acceptBrief = () => { setStage('choose'); };
-
   // Read a selected image from camera or library, compress + thumb + EXIF,
   // then upload with the full compose stack attached to meta. The backend's
   // POST /api/photo/:date was extended in Phase 1 to accept the compose field.
@@ -259,7 +272,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       }
     } catch (err) {
       setFileError(err?.message || 'Could not file your take. Try again.');
-      setStage('choose');
+      setStage('brief');
     }
   };
 
@@ -298,9 +311,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     const noteDate = editorNoteAt ? new Date(editorNoteAt) : now;
     return (
       <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
-        <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
-          <div className="s2-sheet-handle" />
-        </div>
+        <TrayChrome cancelLabel="Close" />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '14px 28px 28px' }}>
           {filedPhoto && (
             <img
@@ -333,9 +344,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   if (stage === 'filed') {
     return (
       <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
-        <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
-          <div className="s2-sheet-handle" />
-        </div>
+        <TrayChrome cancelLabel="Close" />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'stretch' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
             <span className="s2-stamp-filed" style={{ fontSize: 14, padding: '10px 22px' }}>Filed</span>
@@ -362,6 +371,10 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         <div className="s2-tray-handle-area">
           <div className="s2-sheet-handle" />
         </div>
+        <div className="s2-tray-header">
+          <button className="s2-tray-header-btn" disabled>Cancel</button>
+          <div className="s2-tray-header-spacer" />
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <div className="s2-spinner" style={{ width: 24, height: 24, borderWidth: 2, color: 'var(--s2-press-green)', marginBottom: 20 }} />
           <div className="s2-mono" style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
@@ -373,32 +386,37 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     );
   }
 
-  // ───────────── File a Take (choose source) ─────────────
-  if (stage === 'choose') {
+  // ───────────── The Brief + File a Take (brand moment 01, anchor screen 2) ─────────────
+  // One screen: New Assignment stamp · dispatch dateline · brief body (Fraunces) ·
+  // Brief counter footer · Take photo (primary) + Choose from library (secondary) ·
+  // Recompose in the tray header as a trailing action. Paper surface, nothing
+  // competes with the brief itself.
+  if (stage === 'brief' && brief) {
+    const briefNumber = dayOfYear(now);
     return (
       <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
-        <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
-          <div className="s2-sheet-handle" />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px' }}>
+        <TrayChrome trailing={<button className="s2-tray-header-btn" onClick={recompose}>Recompose</button>} />
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '28px 28px 28px' }}>
           <div style={{ marginBottom: 14 }}>
-            <span className="s2-stamp-dispatch">Assignment {dayOfYear(now)}</span>
+            <span className="s2-stamp-dispatch">New Assignment</span>
           </div>
-          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 32 }}>
-            File by 23:59
+          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
+            Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
-          <h1 className="s2-title" style={{ marginBottom: 14 }}>File a take</h1>
-          {brief && (
-            <div className="s2-mono" style={{ fontSize: 11, lineHeight: 1.55, color: 'var(--s2-text-secondary)', letterSpacing: '0.02em', marginBottom: 'auto', fontStyle: 'italic' }}>
-              {brief}
-            </div>
-          )}
+          <div className="s2-serif" style={{ fontSize: 30, color: 'var(--s2-text-primary)', lineHeight: 1.22, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
+            {brief}
+          </div>
+          <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span>Brief {briefNumber} / 365</span>
+            <span style={{ color: 'var(--s2-bone)' }}>·</span>
+            <span>File by 23:59</span>
+          </div>
           {fileError && (
-            <div className="s2-mono" style={{ color: 'var(--s2-warn)', fontSize: 12, marginTop: 24, marginBottom: 8 }}>
+            <div className="s2-mono" style={{ color: 'var(--s2-warn)', fontSize: 12, marginBottom: 10 }}>
               {fileError}
             </div>
           )}
-          <button className="s2-btn-primary" onClick={() => cameraRef.current?.click()} style={{ marginTop: 24 }}>
+          <button className="s2-btn-primary" onClick={() => cameraRef.current?.click()}>
             Take photo
           </button>
           <button className="s2-btn-secondary" onClick={() => fileRef.current?.click()} style={{ marginTop: 6, width: '100%' }}>
@@ -410,51 +428,10 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     );
   }
 
-  // ───────────── The Brief (brand moment 01 — anchor screen 2) ─────────────
-  // Paper surface, nothing competes with the brief itself. Stamp + dispatch
-  // dateline anchor the top; Fraunces carries the brief; mono counter +
-  // "File by 23:59" footer; Accept Assignment advances to the File stage.
-  // Tray chrome stays for drag-to-dismiss.
-  if (stage === 'brief' && brief) {
-    const briefNumber = dayOfYear(now);
-    return (
-      <div className={trayClass} style={{ ...trayStyle, background: 'var(--s2-paper)' }}>
-        <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
-          <div className="s2-sheet-handle" />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px' }}>
-          <div style={{ marginBottom: 14 }}>
-            <span className="s2-stamp-dispatch">New Assignment</span>
-          </div>
-          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 44 }}>
-            Dispatch · {formatDispatchDate(now)} · {clock}
-          </div>
-          <div className="s2-serif" style={{ fontSize: 30, color: 'var(--s2-text-primary)', lineHeight: 1.22, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
-            {brief}
-          </div>
-          <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <span>Brief {briefNumber} / 365</span>
-            <span style={{ color: 'var(--s2-bone)' }}>·</span>
-            <span>File by 23:59</span>
-          </div>
-          <button className="s2-btn-primary" onClick={acceptBrief}>
-            Accept Assignment
-          </button>
-          <button className="s2-btn-secondary" onClick={recompose} style={{ marginTop: 6, width: '100%' }}>
-            Recompose
-          </button>
-        </div>
-        {fileInputs}
-      </div>
-    );
-  }
-
   // ───────────── Compose form ─────────────
   return (
     <div className={trayClass} style={trayStyle}>
-      <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
-        <div className="s2-sheet-handle" />
-      </div>
+      <TrayChrome />
 
       <div className="s2-title-block">
         <h1 className="s2-title">Today</h1>

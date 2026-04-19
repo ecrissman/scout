@@ -634,8 +634,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
    (e.g. Compose). Rounded top, drag-to-dismiss handle at the top. */
 .s2-tray{position:relative;min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;border-top-left-radius:16px;border-top-right-radius:16px;display:flex;flex-direction:column;overflow:hidden;transition:transform .28s cubic-bezier(0.2,0,0,1);will-change:transform}
 .s2-tray.is-dragging{transition:none}
-.s2-tray-handle-area{display:flex;align-items:center;justify-content:center;padding:10px 0 4px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
+.s2-tray-handle-area{display:flex;align-items:center;justify-content:center;padding:8px 0 6px;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
 .s2-tray-handle-area:active{cursor:grabbing}
+.s2-tray-header{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:0 8px;border-bottom:0.5px solid var(--s2-bone);flex-shrink:0;background:inherit}
+[data-theme="dark"] .s2-tray-header{border-bottom-color:var(--s2-bone-dark)}
+.s2-tray-header-btn{background:none;border:none;padding:10px 12px;font-family:var(--s2-sans);font-size:17px;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:44px}
+.s2-tray-header-btn:disabled{opacity:0.35;cursor:default}
+.s2-tray-header-spacer{width:44px;min-height:44px}
 
 /* Bottom sheet (iOS-style action picker) */
 .s2-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:s2-sheet-fade .2s ease}
