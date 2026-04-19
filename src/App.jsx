@@ -657,9 +657,14 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
    Uploading) override via s2-tray--paper to use --s2-bg (paper in light,
    ink in dark). NEVER hardcode --s2-paper — that made paper text +
    primary-button fills invisible in dark mode. */
-.s2-tray{position:relative;min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;border-top-left-radius:16px;border-top-right-radius:16px;display:flex;flex-direction:column;overflow:hidden;transition:transform .28s cubic-bezier(0.2,0,0,1);will-change:transform}
-.s2-tray.is-dragging{transition:none}
+.s2-tray{position:relative;min-height:100dvh;background:var(--s2-grouped-bg);color:var(--s2-text-primary);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden}
 .s2-tray.s2-tray--paper{background:var(--s2-bg)}
+/* Push-nav page header — back arrow on the left, nothing else. Replaces the
+   old drag-handle sheet affordance. The back button is a 44×44 tap target
+   padded for thumb reach along the top-left safe area. */
+.s2-page-header{display:flex;align-items:center;padding:8px 8px 0 8px;padding-top:calc(env(safe-area-inset-top,0px) + 8px);min-height:48px;flex-shrink:0}
+.s2-page-back{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:8px}
+.s2-page-back:active{opacity:0.5}
 /* Drag area is a 44px-tall touch target — the visible handle pill is small,
    but the entire row reads to touch so close-the-tray gesture is easy. */
 .s2-tray-handle-area{display:flex;align-items:center;justify-content:center;min-height:64px;padding:22px 0;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;flex-shrink:0}
@@ -695,7 +700,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* Today tray embed — full-viewport ComposeScreen on mobile only. Hidden on
    tablet+ since the main panel renders day detail side-by-side with the
    sidebar there. */
-.today-sheet-embed{position:fixed;inset:0;z-index:50;animation:sheetSlideUp 0.38s cubic-bezier(0.32,0.72,0,1)}
+@keyframes pagePushIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.today-sheet-embed{position:fixed;inset:0;z-index:50;animation:pagePushIn 0.32s cubic-bezier(0.32,0.72,0,1)}
 @media(min-width:640px){.today-sheet-embed{display:none}}
 
 /* ══════════════════════════════════════════════════════════════════

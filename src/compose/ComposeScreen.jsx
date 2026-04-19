@@ -58,11 +58,6 @@ const dayOfYear = (d) => {
   return Math.floor(diff / 86400000);
 };
 
-// How far the tray must be dragged down (px) before a release dismisses it.
-// ~120px is a comfortable threshold — short enough to feel responsive, long
-// enough that accidental brush-gestures don't close the screen.
-const DISMISS_THRESHOLD = 120;
-
 export default function ComposeScreen({ onClose, onFiled } = {}) {
   const now = useMemo(() => new Date(), []);
   const clock = useMemo(() => formatClock(now), [now]);
@@ -111,12 +106,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     return p.get('brief') ? (p.get('brief') || '').length : 0;
   });
 
-  // Drag-to-dismiss state. Refs avoid re-binding window listeners on every
-  // move frame; state drives the translateY render.
-  const [dragY, setDragY] = useState(0);
-  const dragState = useRef({ active: false, startY: 0 });
-
-  // Dismisses the tray. When embedded in the Today view, the parent passes
+  // Dismisses the page. When embedded in the Today view, the parent passes
   // onClose to handle closing + refreshing dayMeta. When mounted via the
   // ?compose=1 silo there's no parent handler, so we fall back to routing
   // to the root app.
@@ -125,64 +115,20 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     else window.location.href = '/';
   };
 
-  const onDragStart = (e) => {
-    const y = e.touches ? e.touches[0].clientY : e.clientY;
-    dragState.current = { active: true, startY: y };
-  };
-
-  useEffect(() => {
-    const onMove = (e) => {
-      if (!dragState.current.active) return;
-      const y = e.touches ? e.touches[0].clientY : e.clientY;
-      const delta = Math.max(0, y - dragState.current.startY);
-      // Suppress iOS rubber-band + body scroll during an active drag so the
-      // tray tracks the finger instead of fighting the page.
-      if (e.cancelable) e.preventDefault();
-      setDragY(delta);
-    };
-    const onEnd = () => {
-      if (!dragState.current.active) return;
-      dragState.current.active = false;
-      setDragY((prev) => {
-        if (prev > DISMISS_THRESHOLD) { dismiss(); return prev; }
-        return 0;
-      });
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('touchmove', onMove, { passive: false });
-    window.addEventListener('mouseup', onEnd);
-    window.addEventListener('touchend', onEnd);
-    window.addEventListener('touchcancel', onEnd);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('touchmove', onMove);
-      window.removeEventListener('mouseup', onEnd);
-      window.removeEventListener('touchend', onEnd);
-      window.removeEventListener('touchcancel', onEnd);
-    };
-  }, []);
-
-  const trayStyle = dragY
-    ? { transform: `translateY(${dragY}px)`, transition: 'none' }
-    : undefined;
   // Brand-moment stages (Brief, Filed, Uploading) paint on a paper/ink
-  // surface via `s2-tray--paper`; Compose stays on the grouped-list bg so
-  // list cards pop. The is-dragging class disables the slide transition
-  // while a drag gesture is in flight.
+  // surface; Compose stays on the grouped-list bg so list cards pop.
   const paperStage = stage === 'brief' || stage === 'filed' || stage === 'uploading';
-  const trayClass = [
-    's2-tray',
-    paperStage && 's2-tray--paper',
-    dragState.current.active && 'is-dragging',
-  ].filter(Boolean).join(' ');
+  const trayClass = ['s2-tray', paperStage && 's2-tray--paper'].filter(Boolean).join(' ');
 
-  // Tray chrome: a single drag handle, nothing else. The handle signals
-  // "this is a sheet" and is the only top-edge affordance — Cancel text
-  // and bottom rule were removed per design feedback 2026-04-18. Dismiss
-  // is still reachable via drag-to-close.
-  const TrayChrome = () => (
-    <div className="s2-tray-handle-area" onMouseDown={onDragStart} onTouchStart={onDragStart}>
-      <div className="s2-sheet-handle" />
+  // Page header — left-aligned back chevron, nothing else. Replaces the
+  // drag-to-dismiss tray handle with an explicit affordance.
+  const PageHeader = () => (
+    <div className="s2-page-header">
+      <button className="s2-page-back" onClick={dismiss} aria-label="Back">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+          <path d="M14 4L7 11L14 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
     </div>
   );
 
@@ -324,8 +270,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // shows up under the photo as the Field Note.
   if (stage === 'filed') {
     return (
-      <div className={trayClass} style={trayStyle}>
-        <TrayChrome />
+      <div className={trayClass}>
+        <PageHeader />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'stretch' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
             <span className="s2-stamp-filed" style={{ fontSize: 'var(--fs-base)', padding: '10px 22px' }}>Filed</span>
@@ -351,10 +297,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // ───────────── Uploading (compressing + POSTing with compose stack) ─────────────
   if (stage === 'uploading') {
     return (
-      <div className={trayClass} style={trayStyle}>
-        <div className="s2-tray-handle-area">
-          <div className="s2-sheet-handle" />
-        </div>
+      <div className={trayClass}>
+        <PageHeader />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <div className="s2-spinner" style={{ width: 24, height: 24, borderWidth: 2, color: 'var(--s2-press-green)', marginBottom: 20 }} />
           <div className="s2-mono" style={{ fontSize: 'var(--fs-xs)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
@@ -376,8 +320,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     const revealed = brief.slice(0, briefShown);
     const typing = briefShown < brief.length;
     return (
-      <div className={trayClass} style={trayStyle}>
-        <TrayChrome />
+      <div className={trayClass}>
+        <PageHeader />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '28px 28px 28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <span className="s2-stamp-dispatch">New Assignment</span>
@@ -421,8 +365,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
 
   // ───────────── Compose form ─────────────
   return (
-    <div className={trayClass} style={trayStyle}>
-      <TrayChrome />
+    <div className={trayClass}>
+      <PageHeader />
 
       <div className="s2-title-block">
         <h1 className="s2-title">The Brief</h1>
