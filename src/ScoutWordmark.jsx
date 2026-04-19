@@ -2,15 +2,15 @@
 // `size` is the cap height in px; width scales proportionally to the 174×52
 // viewBox. Rule length ≈ 0.85 × cap height; thickness ≥ 2px.
 // In dark mode, pass color="#FFFDFA". The rule stays Press Green across modes.
-export default function ScoutWordmark({ size = 19, color = '#0C0C0C', ruleColor = '#007C04', className = '', style = {} }) {
+export default function ScoutWordmark({ size = 19, color = '#0C0C0C', ruleColor = '#007C04', hideRule = false, gap: gapProp, className = '', style = {} }) {
   const width = (size / 52) * 174;
   const ruleWidth = Math.max(14, size * 0.85);
   const ruleHeight = Math.max(2, Math.round(size / 10));
-  const gap = Math.max(3, Math.round(size * 0.16));
+  const gap = gapProp != null ? gapProp : Math.max(3, Math.round(size * 0.16));
   return (
     <div
       className={className}
-      style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: `${gap}px`, ...style }}
+      style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: hideRule ? 0 : `${gap}px`, ...style }}
     >
       <svg width={width} height={size} viewBox="0 0 174 52" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
         <path d="M17.8426 51.6739C9.03715 51.6739 3.2441 50.2836 1.23585 49.2022C1.08137 46.1899 1.00413 39.0065 1.15861 37.0755H3.08962C5.87028 45.1857 9.80955 48.9705 17.6881 48.9705C22.7087 48.9705 26.648 46.6533 26.648 41.7871C26.648 28.8107 0 31.5141 0 14.5212C0 5.40684 6.64269 0 17.5336 0C24.717 0 30.6645 1.15861 32.75 2.23997C32.9045 5.25236 32.9817 12.513 32.8272 14.2123H30.819C28.1156 6.25648 23.9446 2.70342 17.7653 2.70342C13.2081 2.70342 9.80955 5.09788 9.80955 9.73231C9.80955 22.5542 36.3803 20.4687 36.3803 37.0755C36.3803 46.1126 28.579 51.6739 17.8426 51.6739Z" fill={color} />
@@ -19,7 +19,7 @@ export default function ScoutWordmark({ size = 19, color = '#0C0C0C', ruleColor 
         <path d="M144.305 40.6285C144.305 46.5761 144.305 46.5761 148.167 48.7388V49.8974C146.159 50.3608 137.199 51.2877 133.878 51.2877L134.65 44.8768L134.187 44.645C131.87 47.8119 127.621 51.6739 121.983 51.6739C116.653 51.6739 112.868 48.3526 112.868 41.0147V27.3432C112.868 21.3956 112.868 21.3956 109.006 19.2329V18.0743C113.255 16.9157 118.97 15.6798 123.759 15.2936C123.45 18.4605 123.296 21.0867 123.296 24.5625V36.612C123.296 42.4051 124.763 45.4174 128.316 45.4174C130.17 45.4174 131.947 44.5678 133.878 43.023V27.3432C133.878 21.3956 133.878 21.3956 130.093 19.2329V18.0743C134.341 16.9157 140.134 15.6798 144.769 15.2936C144.46 18.4605 144.305 21.0867 144.305 24.5625V40.6285Z" fill={color} />
         <path d="M172.494 45.263L173.035 46.3443C170.949 49.2022 167.164 51.6739 162.453 51.6739C156.042 51.6739 153.647 48.2753 153.724 40.6285L153.802 18.8467H149.708V17.1474C155.578 15.4481 159.981 12.513 163.148 6.79717H164.461C164.384 9.26887 164.306 11.9723 164.229 16.375H172.417V18.8467H164.229C164.152 21.4729 164.152 24.6397 164.152 28.5018V38.4658C164.152 44.4133 165.619 45.9581 168.4 45.9581C170.64 45.9581 171.721 45.5719 172.494 45.263Z" fill={color} />
       </svg>
-      <div style={{ height: `${ruleHeight}px`, width: `${ruleWidth}px`, background: ruleColor }} />
+      {!hideRule && <div style={{ height: `${ruleHeight}px`, width: `${ruleWidth}px`, background: ruleColor }} />}
     </div>
   );
 }

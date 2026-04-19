@@ -135,6 +135,9 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       if (!dragState.current.active) return;
       const y = e.touches ? e.touches[0].clientY : e.clientY;
       const delta = Math.max(0, y - dragState.current.startY);
+      // Suppress iOS rubber-band + body scroll during an active drag so the
+      // tray tracks the finger instead of fighting the page.
+      if (e.cancelable) e.preventDefault();
       setDragY(delta);
     };
     const onEnd = () => {
@@ -146,7 +149,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       });
     };
     window.addEventListener('mousemove', onMove);
-    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: false });
     window.addEventListener('mouseup', onEnd);
     window.addEventListener('touchend', onEnd);
     window.addEventListener('touchcancel', onEnd);
@@ -286,7 +289,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   useEffect(() => {
     if (stage !== 'brief' || !brief) return;
     if (briefShown >= brief.length) return;
-    const t = setTimeout(() => setBriefShown((n) => Math.min(brief.length, n + 1)), 24);
+    const t = setTimeout(() => setBriefShown((n) => Math.min(brief.length, n + 1)), 42);
     return () => clearTimeout(t);
   }, [stage, brief, briefShown]);
   useEffect(() => {
@@ -325,15 +328,15 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         <TrayChrome />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'stretch' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
-            <span className="s2-stamp-filed" style={{ fontSize: 14, padding: '10px 22px' }}>Filed</span>
+            <span className="s2-stamp-filed" style={{ fontSize: 'var(--fs-base)', padding: '10px 22px' }}>Filed</span>
           </div>
-          <div className="s2-serif" style={{ fontSize: 24, color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.015em', textAlign: 'center', marginBottom: 14 }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-xl)', color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.015em', textAlign: 'center', marginBottom: 14 }}>
             Your take is in.
           </div>
-          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 14, color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 280, margin: '0 auto 16px' }}>
+          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-base)', color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 280, margin: '0 auto 16px' }}>
             Your editor will review it. We'll let you know when their note is ready.
           </div>
-          <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 'auto' }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 'auto' }}>
             Archive {formatDispatchDate(now)} · {clock}
           </div>
           <button className="s2-btn-primary" onClick={dismiss}>
@@ -354,7 +357,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
           <div className="s2-spinner" style={{ width: 24, height: 24, borderWidth: 2, color: 'var(--s2-press-green)', marginBottom: 20 }} />
-          <div className="s2-mono" style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-xs)', letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
             Filing your take…
           </div>
         </div>
@@ -390,28 +393,25 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
               </svg>
             </button>
           </div>
-          <div className="s2-mono" style={{ fontSize: 9, letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
             Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
-          <div className="s2-serif" style={{ fontSize: 30, color: 'var(--s2-text-primary)', lineHeight: 1.22, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.22, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
             {revealed}
             {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
           </div>
-          <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span>Brief {briefNumber} / 365</span>
             <span style={{ color: 'var(--s2-bone)' }}>·</span>
             <span>File by 23:59</span>
           </div>
           {fileError && (
-            <div className="s2-mono" style={{ color: 'var(--s2-warn)', fontSize: 12, marginBottom: 10 }}>
+            <div className="s2-mono" style={{ color: 'var(--s2-warn)', fontSize: 'var(--fs-sm)', marginBottom: 10 }}>
               {fileError}
             </div>
           )}
           <button className="s2-btn-primary" onClick={() => fileRef.current?.click()}>
             Add your shot
-          </button>
-          <button className="s2-btn-tertiary" onClick={recompose} style={{ marginTop: 10, width: '100%' }}>
-            Recompose
           </button>
         </div>
         {fileInputs}
@@ -425,7 +425,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       <TrayChrome />
 
       <div className="s2-title-block">
-        <h1 className="s2-title">Today</h1>
+        <h1 className="s2-title">The Brief</h1>
         {headerBits && <div className="s2-dateline" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>{headerBits}</div>}
       </div>
 
@@ -461,7 +461,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       </div>
 
       {error && (
-        <div className="s2-mono" style={{ color: 'var(--s2-warn)', padding: '14px 20px', fontSize: 12, letterSpacing: '0.05em' }}>
+        <div className="s2-mono" style={{ color: 'var(--s2-warn)', padding: '14px 20px', fontSize: 'var(--fs-sm)', letterSpacing: '0.05em' }}>
           {error}
         </div>
       )}
@@ -497,7 +497,7 @@ function MoodSheet({ selected, onSelect, onClose }) {
       <div className="s2-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="s2-sheet-handle" />
         <div className="s2-sheet-header">
-          <span className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
+          <span className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
             Mood
           </span>
           <button className="s2-nav-btn" onClick={onClose}>Cancel</button>
