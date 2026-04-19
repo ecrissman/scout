@@ -101,7 +101,15 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   });
   const [fileError, setFileError] = useState(null);
   const fileRef = useRef(null);
-  const cameraRef = useRef(null);
+
+  // Typewriter reveal for the brief body. Renders chars 1-by-1 so the
+  // brief lands like a developing photo, not a paste-in. Skips on initial
+  // mount with ?brief= dev param so design iteration isn't slowed by the
+  // animation. See useEffect below.
+  const [briefShown, setBriefShown] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return p.get('brief') ? (p.get('brief') || '').length : 0;
+  });
 
   // Drag-to-dismiss state. Refs avoid re-binding window listeners on every
   // move frame; state drives the translateY render.
@@ -234,13 +242,14 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     setFileError(null);
   };
 
-  // Read a selected image from camera or library, compress + thumb + EXIF,
-  // then upload with the full compose stack attached to meta. The backend's
-  // POST /api/photo/:date was extended in Phase 1 to accept the compose field.
+  // Read a selected image, compress + thumb + EXIF, then upload with the
+  // full compose stack attached to meta. The backend's POST /api/photo/:date
+  // was extended in Phase 1 to accept the compose field. iOS's native picker
+  // sheet (no `capture` attr) handles whether the file came from camera or
+  // library — Scout doesn't need to distinguish.
   const handleFileSelected = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const fromCamera = e.target === cameraRef.current;
     e.target.value = '';
     setStage('uploading');
     setFileError(null);
@@ -256,7 +265,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         autoPlace,
         brief,
         filedAt: new Date().toISOString(),
-        via: fromCamera ? 'camera' : 'library',
+        via: 'picker',
       };
       const ok = await uploadPhoto(todayKey, { fullSrc, thumbSrc, exif, caption: '', compose: composeStack });
       if (!ok) throw new Error('Upload failed. Check connection and retry.');
@@ -270,6 +279,22 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     }
   };
 
+  // Typewriter: when the Brief stage first opens, reveal `brief` one char
+  // every ~24ms. Reset to 0 each time `brief` text changes (Recompose) so
+  // the animation re-runs. Bypasses on `?brief=` dev URLs (initialised
+  // pre-revealed in useState above).
+  useEffect(() => {
+    if (stage !== 'brief' || !brief) return;
+    if (briefShown >= brief.length) return;
+    const t = setTimeout(() => setBriefShown((n) => Math.min(brief.length, n + 1)), 24);
+    return () => clearTimeout(t);
+  }, [stage, brief, briefShown]);
+  useEffect(() => {
+    // New brief lands → restart the typewriter from 0.
+    if (stage === 'brief' && brief) setBriefShown(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brief]);
+
   // Fire the editor's-note endpoint in the background once we hit 'filed'
   // so the note is persisted on the photo's meta. Don't navigate — Filed
   // is the terminal screen; the note is surfaced on the Today day detail
@@ -282,13 +307,12 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // Header dateline: "Overcast · Capitol Hill · 8:17" (filtered for nulls).
   const headerBits = [autoLight, autoPlace, clock].filter(Boolean).join(' · ');
 
-  // Hidden file inputs — kept mounted at the component root so the same
-  // refs work whether triggered from the 'choose' screen or elsewhere.
+  // Hidden file input — single picker. No `capture` attribute so iOS
+  // surfaces its native sheet (Take Photo / Photo Library / Choose Files)
+  // instead of jumping straight to the camera. cameraRef is kept around
+  // as an alias for legacy call sites; both refs point at the same input.
   const fileInputs = (
-    <>
-      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileSelected} />
-      <input ref={cameraRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handleFileSelected} />
-    </>
+    <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileSelected} />
   );
 
   // ───────────── Filed (brand moment 02 — the stamp lands) ─────────────
@@ -303,8 +327,11 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
             <span className="s2-stamp-filed" style={{ fontSize: 14, padding: '10px 22px' }}>Filed</span>
           </div>
-          <div className="s2-serif" style={{ fontSize: 24, color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.015em', textAlign: 'center', marginBottom: 16 }}>
+          <div className="s2-serif" style={{ fontSize: 24, color: 'var(--s2-text-primary)', lineHeight: 1.25, letterSpacing: '-0.015em', textAlign: 'center', marginBottom: 14 }}>
             Your take is in.
+          </div>
+          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 14, color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 280, margin: '0 auto 16px' }}>
+            Your editor will review it. We'll let you know when their note is ready.
           </div>
           <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 'auto' }}>
             Archive {formatDispatchDate(now)} · {clock}
@@ -343,18 +370,32 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // competes with the brief itself.
   if (stage === 'brief' && brief) {
     const briefNumber = dayOfYear(now);
+    const revealed = brief.slice(0, briefShown);
+    const typing = briefShown < brief.length;
     return (
       <div className={trayClass} style={trayStyle}>
         <TrayChrome />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '28px 28px 28px' }}>
-          <div style={{ marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <span className="s2-stamp-dispatch">New Assignment</span>
+            <button
+              className="s2-icon-btn"
+              onClick={recompose}
+              aria-label="Recompose brief"
+              title="Recompose"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M2.5 8.5a6.5 6.5 0 0 1 11.4-4.3M15.5 9.5A6.5 6.5 0 0 1 4.1 13.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <path d="M14.2 1.5v3h-3M3.8 16.5v-3h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
           </div>
-          <div className="s2-mono" style={{ fontSize: 10, letterSpacing: '0.22em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
+          <div className="s2-mono" style={{ fontSize: 9, letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
             Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
           <div className="s2-serif" style={{ fontSize: 30, color: 'var(--s2-text-primary)', lineHeight: 1.22, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
-            {brief}
+            {revealed}
+            {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
           </div>
           <div className="s2-mono" style={{ fontSize: 10, color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span>Brief {briefNumber} / 365</span>
@@ -366,14 +407,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
               {fileError}
             </div>
           )}
-          <button className="s2-btn-primary" onClick={() => cameraRef.current?.click()}>
-            Take photo
-          </button>
-          <button className="s2-btn-secondary" onClick={() => fileRef.current?.click()} style={{ marginTop: 6, width: '100%' }}>
-            Choose from library
-          </button>
-          <button className="s2-btn-tertiary" onClick={recompose} style={{ marginTop: 10, width: '100%' }}>
-            Recompose
+          <button className="s2-btn-primary" onClick={() => fileRef.current?.click()}>
+            Add your shot
           </button>
         </div>
         {fileInputs}
