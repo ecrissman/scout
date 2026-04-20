@@ -166,9 +166,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .photo-wrap{width:100%;background:#FFFFFF;padding:12px 11px 11px;box-shadow:0 0 12px 0 rgba(0,0,0,0.16);position:relative;box-sizing:border-box}
 .photo-wrap-inner{width:100%;min-height:200px;background:var(--surface);position:relative}
 .photo-wrap img{width:100%;height:auto;display:block;cursor:zoom-in}
-[data-theme="dark"] .nav-panel{background:#0C0C0C;box-shadow:6px 0 16px -8px rgba(0,0,0,0.5)}
+[data-theme="dark"] .nav-panel{background:#0C0C0C;box-shadow:4px 0 20px rgba(0,0,0,0.5)}
 [data-theme="dark"] .nav-panel-item{color:#FFFDFA}
-[data-theme="dark"] .nav-panel{box-shadow:4px 0 20px rgba(0,0,0,0.5)}
 .upload-zone{aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;border:1px dashed var(--border);background:var(--bg-secondary);transition:opacity .15s}
 .upload-zone:active{opacity:0.65}
 .up-icon svg{width:20px;height:20px;stroke:var(--text-3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
