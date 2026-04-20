@@ -13,6 +13,7 @@ const SettingsSheet = lazy(() => import('./components/SettingsSheet.jsx'));
 const AccountSheet = lazy(() => import('./components/AccountSheet.jsx'));
 const SupportSheet = lazy(() => import('./components/SupportSheet.jsx'));
 import NavPanel from './components/NavPanel.jsx';
+import OnboardingFlow from './components/OnboardingFlow.jsx';
 import DevPanel from './components/DevPanel.jsx';
 import Splash from './components/Splash.jsx';
 import MobileGate from './components/MobileGate.jsx';
@@ -198,6 +199,7 @@ export default function App() {
   const [resetBusy,    setResetBusy]    = useState(false);
   const [signupView,   setSignupView]   = useState(false); // false | 'form' | 'success'
   const [showLanding,  setShowLanding]  = useState(true);
+  const [onboarded,    setOnboarded]    = useState(() => localStorage.getItem('scout-onboarded') === '1');
   const [signupEmail,  setSignupEmail]  = useState('');
   const [signupPw,     setSignupPw]     = useState('');
   const [signupPwConfirm, setSignupPwConfirm] = useState('');
@@ -864,6 +866,10 @@ export default function App() {
         </button>
       </div>
     </form>
+  );
+
+  if (!authed && !onboarded) return (
+    <OnboardingFlow onDone={() => { localStorage.setItem('scout-onboarded', '1'); setOnboarded(true); }} />
   );
 
   if (!authed && showLanding) return (
