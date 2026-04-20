@@ -8,10 +8,10 @@ const ComposeScreen = lazy(() => import('./compose/ComposeScreen.jsx'));
 import ScoutWordmark from './ScoutWordmark.jsx';
 import { IcUpload, IcHamburger, ChevLeft, ChevRight, IcBulb } from './components/Icons.jsx';
 import AuthImage from './components/AuthImage.jsx';
-import LegalSheet from './components/LegalSheet.jsx';
-import SettingsSheet from './components/SettingsSheet.jsx';
-import AccountSheet from './components/AccountSheet.jsx';
-import SupportSheet from './components/SupportSheet.jsx';
+const LegalSheet = lazy(() => import('./components/LegalSheet.jsx'));
+const SettingsSheet = lazy(() => import('./components/SettingsSheet.jsx'));
+const AccountSheet = lazy(() => import('./components/AccountSheet.jsx'));
+const SupportSheet = lazy(() => import('./components/SupportSheet.jsx'));
 import NavPanel from './components/NavPanel.jsx';
 import DevPanel from './components/DevPanel.jsx';
 import Splash from './components/Splash.jsx';
@@ -1488,16 +1488,17 @@ export default function App() {
       />
 
 
-      <SettingsSheet
+      <Suspense fallback={null}>
+      {settingsOpen && <SettingsSheet
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         themePref={themePref} setThemePref={setThemePref}
         aiEnabled={aiEnabled} setAiEnabled={setAiEnabled}
         pushEnabled={pushEnabled} setPushEnabled={setPushEnabled}
         analyticsEnabled={analyticsEnabled} setAnalyticsEnabled={setAnalyticsEnabled}
-      />
+      />}
 
-      <AccountSheet
+      {accountOpen && <AccountSheet
         open={accountOpen}
         onClose={() => setAccountOpen(false)}
         userEmail={userEmail}
@@ -1512,15 +1513,16 @@ export default function App() {
         handleDownloadAllPhotos={handleDownloadAllPhotos}
         dlProgress={dlProgress}
         photoDates={photoDates}
-      />
+      />}
 
-      <SupportSheet
+      {supportOpen && <SupportSheet
         open={supportOpen}
         onClose={() => setSupportOpen(false)}
         onOpenLegal={setLegalOpen}
-      />
+      />}
 
-      <LegalSheet which={legalOpen} onClose={() => setLegalOpen(null)} />
+      {legalOpen && <LegalSheet which={legalOpen} onClose={() => setLegalOpen(null)} />}
+      </Suspense>
 
       <DevPanel
         open={devPanelOpen} onClose={() => setDevPanelOpen(false)}
