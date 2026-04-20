@@ -503,3 +503,14 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .onb-primer-sub{font-family:var(--s2-sans);font-size:13px;line-height:1.45;color:var(--s2-text-secondary)}
 
 .onb-cta{margin-top:24px;width:100%;max-width:420px;align-self:center}
+
+/* First-brief CTA pulse (Act 5). Subtle press-green ring that fades
+   in/out until the user taps. Respects reduced motion. */
+.s2-btn-primary--pulse{animation:firstBriefPulse 2s ease-in-out infinite}
+@keyframes firstBriefPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(0,124,4,0)}
+  50%{box-shadow:0 0 0 6px rgba(0,124,4,0.28)}
+}
+@media (prefers-reduced-motion: reduce){
+  .s2-btn-primary--pulse{animation:none}
+}

@@ -161,8 +161,14 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
 
   const canCompose = mood !== null && !loading;
 
+  const [firstBrief, setFirstBrief] = useState(() => localStorage.getItem('scout-first-brief-seen') !== '1');
+
   const compose = async () => {
     if (!canCompose) return;
+    if (firstBrief) {
+      localStorage.setItem('scout-first-brief-seen', '1');
+      setFirstBrief(false);
+    }
     setLoading(true);
     setError(null);
     const res = await composeBrief({
@@ -549,8 +555,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       )}
 
       <div style={{ marginTop: 'auto', padding: '16px 16px 26px' }}>
-        <button className="s2-btn-primary" disabled={!canCompose} onClick={compose}>
-          {loading ? (<><span className="s2-spinner" />Composing…</>) : 'Compose'}
+        <button className={`s2-btn-primary${firstBrief && canCompose ? ' s2-btn-primary--pulse' : ''}`} disabled={!canCompose} onClick={compose}>
+          {loading ? (<><span className="s2-spinner" />Composing…</>) : firstBrief ? 'Compose your first brief' : 'Compose'}
         </button>
       </div>
     </div>
