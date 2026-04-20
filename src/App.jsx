@@ -611,6 +611,8 @@ export default function App() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setSettingsOpen(false);
+    setAccountOpen(false);
+    setAuthed(false);
     setShowLanding(true);
   };
 
