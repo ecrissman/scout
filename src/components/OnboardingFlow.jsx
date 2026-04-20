@@ -40,14 +40,30 @@ export default function OnboardingFlow({ onDone }) {
   const [pitchIdx, setPitchIdx] = useState(0);
 
   if (step === 'intro') {
+    // 6×6 grid of placeholder tiles. The hero tile (index 14) is the
+    // "one frame" the camera pulls back from; others fade in as the grid
+    // zooms out. Placeholders are CSS gradients — they'll be replaced
+    // with real photojournalism frames once licensing is sorted.
+    const POP_TILES = new Set([4, 11, 22, 29]);
     return (
       <div className="onb-screen onb-intro">
-        <div className="onb-intro-mark">
-          <ScoutWordmark size={56} color="var(--s2-text-primary)" ruleColor="var(--s2-press-green)" gap={44} />
+        <div className="onb-grid" aria-hidden="true">
+          {Array.from({ length: 36 }).map((_, i) => (
+            <div
+              key={i}
+              className={`onb-tile${i === 14 ? ' onb-tile-hero' : ''}${POP_TILES.has(i) ? ' onb-tile-pop' : ''}`}
+              data-variant={i % 6}
+            />
+          ))}
         </div>
-        <div className="onb-intro-tag">A daily practice in looking.</div>
-        <div className="onb-cta">
-          <button className="s2-btn-primary" onClick={() => setStep('pitch')}>Begin</button>
+        <div className="onb-intro-overlay">
+          <div className="onb-intro-mark">
+            <ScoutWordmark size={56} color="#FFFDFA" ruleColor="#007C04" gap={44} />
+          </div>
+          <div className="onb-intro-tag">A daily practice in looking.</div>
+          <div className="onb-cta">
+            <button className="s2-btn-primary" onClick={() => setStep('pitch')}>Begin</button>
+          </div>
         </div>
       </div>
     );
