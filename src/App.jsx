@@ -868,7 +868,7 @@ export default function App() {
     </form>
   );
 
-  if (!authed && !onboarded) return (
+  if (!onboarded) return (
     <OnboardingFlow onDone={() => { localStorage.setItem('scout-onboarded', '1'); setOnboarded(true); }} />
   );
 
