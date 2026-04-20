@@ -1,10 +1,10 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { getPhoto, uploadPhoto, updateCaption, deletePhoto, deleteAccount, listYear, thumbUrl, fullUrl, getFeedback, getCaptionSuggestion } from './api';
 import { isPushSupported, isPushSubscribedLocal, maybePromptForPush } from './push';
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { supabase } from './supabase.js';
 import { initAnalytics, identify, resetIdentity, track } from './analytics';
-import ComposeScreen from './compose/ComposeScreen.jsx';
+const ComposeScreen = lazy(() => import('./compose/ComposeScreen.jsx'));
 import ScoutWordmark from './ScoutWordmark.jsx';
 import { IcUpload, IcHamburger, ChevLeft, ChevRight, IcBulb } from './components/Icons.jsx';
 import AuthImage from './components/AuthImage.jsx';
@@ -115,7 +115,7 @@ export default function App() {
   // Pure-design dev mode — render ComposeScreen without the auth + mobile
   // gates. API calls won't work, but ?brief= / ?note= can still paint the
   // anchor screens for visual review.
-  if (_composeDev) return <ComposeScreen />;
+  if (_composeDev) return <Suspense fallback={null}><ComposeScreen /></Suspense>;
   const todayStr = today();
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];
@@ -1017,7 +1017,7 @@ export default function App() {
   // Silo gate: ?compose=1 renders the v2 Compose screen for authed users
   // only. Non-authed users fall through to the normal landing/login flow
   // above so they can sign in first; after auth, this check takes over.
-  if (_composeSilo) return <ComposeScreen />;
+  if (_composeSilo) return <Suspense fallback={null}><ComposeScreen /></Suspense>;
 
   return (
     <>
@@ -1360,6 +1360,7 @@ export default function App() {
           dayMeta so a just-filed photo appears in the main panel. */}
       {showTodaySheet&&sel===todayStr&&!dayMeta&&!dayLoading&&(
         <div className="today-sheet-embed">
+          <Suspense fallback={null}>
           <ComposeScreen
             onClose={() => {
               // Close the tray and refetch today's photo. If the user
@@ -1391,6 +1392,7 @@ export default function App() {
               setPhotoVer(Date.now());
             }}
           />
+          </Suspense>
         </div>
       )}
 
