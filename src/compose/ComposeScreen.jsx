@@ -447,7 +447,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
             Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-3xl)', color: 'var(--s2-text-primary)', lineHeight: 1.18, letterSpacing: '-0.02em', marginBottom: 'auto' }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
             {revealed}
             {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
           </div>

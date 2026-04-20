@@ -1,0 +1,13 @@
+name = "scout-edition-cron"
+main = "index.js"
+compatibility_date = "2024-11-01"
+
+# Fire every hour on the hour. The /api/push/send-edition endpoint
+# only delivers to subscriptions whose local time is 20:00, so hourly
+# ticks cover every timezone.
+[triggers]
+crons = ["45 * * * *"]
+
+# Set these with:
+#   wrangler secret put WEBHOOK_SECRET
+#   wrangler secret put EDITION_URL  (optional override)

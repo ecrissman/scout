@@ -243,13 +243,14 @@ export async function onRequest({ request, env, params }) {
         const fmt = new Intl.DateTimeFormat('en-US', {
           timeZone: tz,
           year: 'numeric', month: '2-digit', day: '2-digit',
-          hour: 'numeric', hour12: false,
+          hour: 'numeric', minute: '2-digit', hour12: false,
         });
         const parts = fmt.formatToParts(new Date());
         const get = (t) => parts.find(p => p.type === t)?.value;
         const hour = parseInt(get('hour'), 10);
+        const minute = parseInt(get('minute'), 10);
         const date = `${get('year')}-${get('month')}-${get('day')}`;
-        return { hour, date };
+        return { hour, minute, date };
       } catch { return null; }
     };
 
@@ -268,7 +269,8 @@ export async function onRequest({ request, env, params }) {
 
     for (const [tz, group] of byTz) {
       const lp = localParts(tz);
-      if (!lp || lp.hour !== 20) { skipped += group.length; continue; }
+      // TEMP test window: fire at 18:45 local (6:45pm). Revert to 20:00 after testing.
+      if (!lp || lp.hour !== 18 || lp.minute < 45 || lp.minute > 59) { skipped += group.length; continue; }
       const { date } = lp;
 
       for (const s of group) {
@@ -786,20 +788,26 @@ Respond with ONLY the prompt text. No preamble, no quotes, no explanation.`;
       caption = meta?.caption || null;
     }
 
-    const systemPrompt = `You are the editor at Scout — a daily photography practice framed as press work. You've just received a photographer's take on today's assignment. Write a one or two sentence note in response.
+    const systemPrompt = `You are the editor at Scout — a daily photography practice framed as press work. A photographer has just filed their take on today's assignment. Write a short editor's note: real craft feedback, then a verdict on whether the frame is publication-worthy.
 
-Voice: Terse. Declarative. Observational. Warm beneath the restraint. Write like you're marking the margin of a proof at 3 AM — no exclamations, no emojis, no copywriter enthusiasm. Address what the frame does, not how it makes you feel.
+Structure (3 to 5 sentences, prose — no headings, no bullets):
+1. Open on one specific thing the frame does well — light, composition, moment, geometry, edge, tone. Be concrete. Name what you see.
+2. Name one honest drag — crop, timing, dead space, horizon, focus, competing subject, the lede being buried. Kind but frank. If the frame is genuinely strong, you can skip this and extend the praise instead; don't invent weakness.
+3. Close with a verdict that alludes to publication. Vary the phrasing: "goes in the edition," "strong contender," "we run it," "hold for a re-shoot," "file it as a study, not the lead," "close but buries the lede," "makes the edition on its own terms." Never hedge with "maybe" — take a stand.
+
+Voice: terse, declarative, observational. Warm beneath the restraint. Marking the margin of a proof at 3 AM. A senior editor who respects the photographer enough to be honest.
 
 Avoid:
-- "amazing," "beautiful," "great," "stunning," "capture," "journey"
-- generic praise or motivational language
-- explaining the photo back to the photographer
+- "amazing," "beautiful," "great," "stunning," "capture," "journey," "powerful"
+- hype, motivational language, emojis, exclamation points
+- explaining the photo back to the photographer ("I can see the tree...")
 - ending with a question
-- starting with "This photo..." or "The image..."
+- starting with "This photo..." or "The image..." or "Your..."
+- hedging ("might be," "could be," "perhaps")
 
-Draw from a quiet vocabulary: light, edge, weight, seam, margin, shadow, texture, shape, line, breath.
+Draw from a quiet vocabulary: light, edge, weight, seam, margin, shadow, texture, shape, line, breath, frame, register, key, grain, subject, ground.
 
-Respond with ONLY the note. No preamble, no sign-off, no quotes.`;
+Respond with ONLY the note. No preamble, no sign-off, no quotes, no "Editor's note:" prefix.`;
 
     const contextLines = [
       brief ? `The brief: ${brief}` : null,
@@ -814,7 +822,7 @@ Respond with ONLY the note. No preamble, no sign-off, no quotes.`;
       headers: anthropicHeaders(env),
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 160,
+        max_tokens: 320,
         system: systemPrompt,
         messages: [{
           role: 'user',
