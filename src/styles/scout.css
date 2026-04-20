@@ -99,8 +99,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* ── Shared header — used by both sidebar (MONTH) and main (TODAY) ── */
 .pj-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
-.pj-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E2B554;margin-left:4px;vertical-align:middle;flex-shrink:0}
-[data-theme="dark"] .pj-tab-dot{background:var(--terracotta)}
 .settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;color:var(--text);padding:0;flex-shrink:0}
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -111,9 +109,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 @media(min-width:640px){.main-brand-row{display:none}}
 
 /* ── Calendar header ── */
-.arr{background:none;border:none;padding:8px;margin:0;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;opacity:0.75}
-.arr:active{opacity:0.3;transform:scale(0.9)}
-.arr:disabled{opacity:.2;cursor:default}
 .overflow-wrap{position:relative}
 .overflow-btn{background:none;border:none;padding:8px;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;opacity:0.75;-webkit-tap-highlight-color:transparent}
 .overflow-btn:active{opacity:0.3}
@@ -126,8 +121,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .overflow-item-danger svg{opacity:1}
 [data-theme="dark"] .overflow-menu{box-shadow:0 4px 16px rgba(0,0,0,0.4)}
 [data-theme="dark"] .overflow-btn{color:var(--text);opacity:1}
-.forgot-link{font-family:var(--brand);font-size:16px;line-height:1.51;color:var(--ink);text-transform:uppercase;background:none;border:none;cursor:pointer;padding:2px 0;text-align:center}
-.forgot-link:active{opacity:0.4}
 
 /* ── Day-of-week labels ── */
 .cal-wds{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 18px;flex-shrink:0}
@@ -173,24 +166,9 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .photo-wrap{width:100%;background:#FFFFFF;padding:12px 11px 11px;box-shadow:0 0 12px 0 rgba(0,0,0,0.16);position:relative;box-sizing:border-box}
 .photo-wrap-inner{width:100%;min-height:200px;background:var(--surface);position:relative}
 .photo-wrap img{width:100%;height:auto;display:block;cursor:zoom-in}
-.photo-overlay-btn{position:absolute;top:12px;background:rgba(255,255,255,0.72);backdrop-filter:blur(12px) saturate(1.8);-webkit-backdrop-filter:blur(12px) saturate(1.8);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .15s}
-.photo-overlay-btn:active{opacity:0.55}
-.photo-overlay-btn svg{width:16px;height:16px;stroke:#000;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-.photo-overlay-btn.right{right:12px}
-.photo-overlay-btn.left{left:12px}
-.photo-overlay-btn.danger svg{stroke:#D9534F}
-[data-theme="dark"] .photo-overlay-btn{background:rgba(40,40,40,0.82)}
-[data-theme="dark"] .photo-overlay-btn svg{stroke:#FFF}
-[data-theme="dark"] .photo-overlay-btn.danger svg{stroke:#FF6B6B}
 [data-theme="dark"] .nav-panel{background:#0C0C0C;box-shadow:6px 0 16px -8px rgba(0,0,0,0.5)}
 [data-theme="dark"] .nav-panel-item{color:#FFFDFA}
-[data-theme="dark"] .nav-panel-signout{background:#FFFDFA;color:#0C0C0C}
 [data-theme="dark"] .nav-panel{box-shadow:4px 0 20px rgba(0,0,0,0.5)}
-[data-theme="dark"] .grids-page{background:#0C0C0C}
-[data-theme="dark"] .grids-header{border-color:rgba(255,255,255,0.08)}
-[data-theme="dark"] .grids-title{color:#FFFDFA}
-[data-theme="dark"] .grids-empty-lbl{color:var(--accent)}
-[data-theme="dark"] .grids-empty svg{opacity:0.3}
 .upload-zone{aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;border:1px dashed var(--border);background:var(--bg-secondary);transition:opacity .15s}
 .upload-zone:active{opacity:0.65}
 .up-icon svg{width:20px;height:20px;stroke:var(--text-3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -321,11 +299,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .legal-content strong{font-weight:600;color:var(--text)}
 .legal-content .legal-effective{font-family:var(--sans);font-size:12px;color:var(--text-2);margin:0 0 22px;letter-spacing:0.02em}
 
-/* Inline legal link (login screen) */
-.legal-link-row{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-family:var(--sans);font-size:11px;color:var(--warm-mid);letter-spacing:0.04em;z-index:2}
-.legal-link-row button{background:none;border:none;font:inherit;color:var(--warm-mid);cursor:pointer;text-decoration:underline;padding:4px 6px;-webkit-tap-highlight-color:transparent}
-.legal-link-row button:active{opacity:0.5}
-
 /* ── Nav panel (left slide-in) ── */
 @keyframes navPanelIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 @keyframes navPanelOut{from{transform:translateX(0)}to{transform:translateX(-100%)}}
@@ -337,20 +310,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .nav-panel-nav{display:flex;flex-direction:column;gap:32px;padding:36px 21px 0;flex:1}
 .nav-panel-item{background:none;border:none;cursor:pointer;padding:0;font-family:var(--s2-sans,-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif);font-weight:500;font-size:17px;color:#0C0C0C;letter-spacing:-0.01em;text-align:left;-webkit-tap-highlight-color:transparent;line-height:1.2}
 .nav-panel-item:active{opacity:.4}
-.nav-panel-signout{width:109px;height:36px;background:#0C0C0C;border:none;border-radius:3px;cursor:pointer;font-family:var(--brand);font-size:16px;color:#FFFDFA;letter-spacing:0.02em;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
-.nav-panel-signout:active{opacity:.7}
 
-/* ── Gallery page ── */
-@keyframes gridsPageIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
-@keyframes gridsPageOut{from{transform:translateX(0)}to{transform:translateX(100%)}}
-.grids-page{position:fixed;inset:0;z-index:150;background:var(--s2-bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top);animation:gridsPageIn 0.32s cubic-bezier(0.32,0.72,0,1)}
-.grids-page.is-closing{animation:gridsPageOut 0.28s cubic-bezier(0.32,0.72,0,1) forwards}
-.grids-header{display:flex;align-items:center;padding:14px 20px;flex-shrink:0;gap:8px}
-.grids-back{background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:36px;height:36px;color:var(--text);-webkit-tap-highlight-color:transparent}
-.grids-back:active{opacity:.4}
-.grids-title{font-family:var(--s2-mono);font-weight:500;font-size:14px;letter-spacing:0.06em;color:#0C0C0C}
-.grids-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 48px;gap:12px}
-.grids-empty-lbl{font-family:var(--s2-mono);font-weight:500;font-size:13px;letter-spacing:0.06em;color:var(--accent)}
 /* ══════════════════════════════════════════════════════════════════
    Scout v2 — brand primitives (prefix: .s2-)
    "iOS defaults for function, Scout for emotion."
@@ -413,16 +373,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-btn-primary:active{opacity:0.75}
 .s2-btn-primary:disabled{opacity:0.4;cursor:not-allowed}
 
-/* Secondary button: iOS text-only */
-.s2-btn-secondary{background:none;border:none;padding:12px;font-family:var(--s2-sans);font-size:17px;color:var(--s2-text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent}
-.s2-btn-secondary:active{opacity:0.4}
-
-/* Tertiary button: smaller, muted text link. Used for quiet "undo"-style
-   actions like Recompose on the Brief screen — always-present but visually
-   recessive so it doesn't compete with Take photo / Choose from library. */
-.s2-btn-tertiary{background:none;border:none;padding:8px;font-family:var(--s2-mono);font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:var(--s2-text-muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
-.s2-btn-tertiary:active{opacity:0.4}
-
 /* Filed stamp — rotated, Press Green, rubber-stamp feel */
 .s2-stamp-filed{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1.5px solid var(--s2-press-green);border-radius:2px;font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.3em;text-transform:uppercase;color:var(--s2-press-green);transform:rotate(-1.5deg);background:transparent}
 
@@ -433,7 +383,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* Utility text styles */
 .s2-mono{font-family:var(--s2-mono);letter-spacing:0.02em}
 .s2-serif{font-family:var(--s2-serif);letter-spacing:-0.015em}
-.s2-accent{color:var(--s2-press-green)}
 
 /* Tray — a full-surface bottom sheet that presents a screen-level flow
    (e.g. Compose). Rounded top, a single drag handle at the top (no bar,
