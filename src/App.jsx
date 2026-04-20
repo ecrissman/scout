@@ -575,13 +575,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* Compose: mood pill scroll */
 .s2-mood-scroll{display:flex;gap:8px;overflow-x:auto;padding:2px 20px 4px;scroll-snap-type:x mandatory;scroll-padding-left:20px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .s2-mood-scroll::-webkit-scrollbar{display:none}
-.s2-mood-pill{flex:0 0 auto;scroll-snap-align:start;padding:10px 18px;background:#ECE6D8;border:none;border-radius:999px;font-family:var(--s2-sans);font-size:15px;color:var(--s2-text-primary);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s}
+.s2-mood-pill{flex:0 0 auto;scroll-snap-align:start;padding:10px 18px;background:rgba(12,12,12,0.05);border:none;border-radius:999px;font-family:var(--s2-sans);font-size:15px;color:var(--s2-text-primary);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s}
 .s2-mood-pill.active{background:var(--s2-text-primary);color:var(--s2-bg);font-weight:500}
 [data-theme="dark"] .s2-mood-pill{background:#22221F}
 [data-theme="dark"] .s2-mood-pill.active{background:var(--s2-paper);color:var(--s2-ink)}
 
 /* Compose: angle card */
-.s2-angle-card{margin:0 16px;background:#ECE6D8;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.s2-angle-card{margin:0 16px;background:rgba(12,12,12,0.05);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
 [data-theme="dark"] .s2-angle-card{background:#22221F}
 .s2-angle-text{font-family:var(--s2-sans);font-weight:500;font-size:17px;line-height:1.35;letter-spacing:-0.005em;color:var(--s2-text-primary)}
 .s2-angle-actions{display:flex;gap:18px;align-items:center}
@@ -590,7 +590,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* Compose: context 2-up cards */
 .s2-ctx-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px}
-.s2-ctx-card{background:#ECE6D8;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;min-height:84px}
+.s2-ctx-card{background:rgba(12,12,12,0.05);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;min-height:84px}
 [data-theme="dark"] .s2-ctx-card{background:#22221F}
 .s2-ctx-card-icon{width:18px;height:18px;color:var(--s2-text-muted);margin-bottom:6px}
 .s2-ctx-card-val{font-family:var(--s2-sans);font-weight:600;font-size:16px;color:var(--s2-text-primary);letter-spacing:-0.01em;line-height:1.2}
