@@ -78,7 +78,3 @@ export function setAnalyticsOptOut(optOut) {
     posthog.opt_in_capturing();
   }
 }
-
-export function getAnalyticsOptOut() {
-  return isOptedOut();
-}

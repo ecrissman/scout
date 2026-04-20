@@ -41,7 +41,7 @@ export function parseTimeLabel(label) {
   return m[2] === 'hr' ? n * 3600000 : n * 60000;
 }
 
-export async function requestNotifPermission() {
+async function requestNotifPermission() {
   if (typeof Notification === 'undefined') return 'unsupported';
   if (Notification.permission === 'granted' || Notification.permission === 'denied') return Notification.permission;
   try { return await Notification.requestPermission(); }

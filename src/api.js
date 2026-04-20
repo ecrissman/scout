@@ -78,20 +78,6 @@ export async function getCaptionSuggestion(date) {
   } catch { return null; }
 }
 
-export async function requestAccess({ name, email, note }) {
-  try {
-    const r = await fetch(`${BASE}/waitlist`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, note }),
-    });
-    const data = await r.json();
-    if (r.status === 409) return { error: 'already_submitted' };
-    if (!r.ok) return { error: data.error || 'Something went wrong' };
-    return { ok: true };
-  } catch { return { error: 'Something went wrong' }; }
-}
-
 export async function deletePhoto(date) {
   try {
     const r = await fetch(`${BASE}/photo/${date}`, await req('DELETE'));
