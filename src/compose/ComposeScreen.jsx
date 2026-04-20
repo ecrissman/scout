@@ -5,7 +5,7 @@ import { startTimer, clearTimer, getTimer, parseTimeLabel } from './timer';
 import TimerBlock from './TimerBlock';
 
 const MOODS = ['Lovely', 'Relaxed', 'Restless', 'Pensive', 'Electric', 'Quiet', 'Curious', 'Tender', 'Bold'];
-const TIMES = ['Off', '15 min', '1 hr', '3 hr'];
+const TIMES = ['Off', '3 min', '15 min', '1 hr', '3 hr'];
 const CONSTRAINTS = [
   'Look up',
   'One color only',
@@ -444,14 +444,14 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
             Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.015em', marginBottom: 24 }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
             {revealed}
             {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
           </div>
-          <div style={{ margin: '0 -28px', marginBottom: 'auto' }}>
+          <div style={{ margin: '16px -28px 0' }}>
             <TimerBlock />
           </div>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 20, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span>Brief {briefNumber} / 365</span>
             <span style={{ color: 'var(--s2-bone)' }}>·</span>
             <span>File by 23:59</span>

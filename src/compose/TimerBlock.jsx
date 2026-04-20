@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getTimer, clearTimer } from './timer';
+import { getTimer, clearTimer, markNotified, fireTimerNotification } from './timer';
 
 const fmtRemaining = (ms) => {
   const s = Math.max(0, Math.floor(ms / 1000));
@@ -28,6 +28,15 @@ export default function TimerBlock() {
   const expiresMs = startedMs + timer.durationMs;
   const remaining = expiresMs - now;
   const expired = remaining <= 0;
+
+  // Fire once when the Time Box hits zero. `notified` is persisted on the
+  // timer record so reloading mid-expiry doesn't re-fire. The notification
+  // routes through the SW so it survives the app being backgrounded.
+  if (expired && !timer.notified) {
+    markNotified();
+    fireTimerNotification();
+    timer.notified = true;
+  }
   const pct = expired ? 100 :
     Math.max(0, Math.min(100, ((timer.durationMs - remaining) / timer.durationMs) * 100));
   const expiresLabel = new Date(expiresMs).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });

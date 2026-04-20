@@ -167,6 +167,11 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .archive-tile{break-inside:avoid;margin:0 0 8px;display:block;cursor:pointer;background:var(--surface);border-radius:4px;overflow:hidden;-webkit-tap-highlight-color:transparent;padding:0;border:none;width:100%}
 .archive-tile:active{opacity:0.75}
 .archive-tile img{width:100%;height:auto;display:block}
+.today-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center}
+.today-empty-lbl{font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted);margin-bottom:18px}
+.today-empty-h{font-family:var(--s2-serif);font-weight:400;font-size:28px;line-height:1.15;letter-spacing:-0.015em;color:var(--text);margin-bottom:10px}
+.today-empty-sub{font-family:var(--sans);font-size:15px;line-height:1.5;color:var(--text-2);margin-bottom:28px;max-width:280px}
+.today-empty-btn{max-width:280px}
 .archive-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 48px;gap:10px;text-align:center}
 .archive-empty-lbl{font-family:var(--s2-mono);font-size:12px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--s2-text-muted)}
 .archive-empty-sub{font-family:var(--sans);font-size:14px;color:var(--text-2);line-height:1.55;font-weight:300}
@@ -565,19 +570,19 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-segmented{display:flex;margin:0 16px;padding:2px;background:rgba(120,120,128,0.12);border-radius:9px;gap:0}
 .s2-segmented-option{flex:1;padding:7px 10px;background:transparent;border:none;font-family:var(--s2-sans);font-size:13px;font-weight:500;color:var(--s2-text-primary);cursor:pointer;border-radius:7px;-webkit-tap-highlight-color:transparent;transition:background .15s ease}
 .s2-segmented-option.active{background:var(--s2-bg);box-shadow:0 3px 8px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04)}
-[data-theme="dark"] .s2-segmented-option.active{box-shadow:0 3px 8px rgba(0,0,0,0.4)}
+[data-theme="dark"] .s2-segmented-option.active{background:#3A3935;box-shadow:0 3px 8px rgba(0,0,0,0.4)}
 
 /* Compose: mood pill scroll */
-.s2-mood-scroll{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 4px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.s2-mood-scroll{display:flex;gap:8px;overflow-x:auto;padding:2px 20px 4px;scroll-snap-type:x mandatory;scroll-padding-left:20px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .s2-mood-scroll::-webkit-scrollbar{display:none}
-.s2-mood-pill{flex:0 0 auto;scroll-snap-align:start;padding:10px 18px;background:var(--s2-paper-2);border:none;border-radius:999px;font-family:var(--s2-sans);font-size:15px;color:var(--s2-text-primary);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s}
+.s2-mood-pill{flex:0 0 auto;scroll-snap-align:start;padding:10px 18px;background:#ECE6D8;border:none;border-radius:999px;font-family:var(--s2-sans);font-size:15px;color:var(--s2-text-primary);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s}
 .s2-mood-pill.active{background:var(--s2-text-primary);color:var(--s2-bg);font-weight:500}
-[data-theme="dark"] .s2-mood-pill{background:var(--s2-ink-2)}
+[data-theme="dark"] .s2-mood-pill{background:#22221F}
 [data-theme="dark"] .s2-mood-pill.active{background:var(--s2-paper);color:var(--s2-ink)}
 
 /* Compose: angle card */
-.s2-angle-card{margin:0 16px;background:var(--s2-paper-2);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
-[data-theme="dark"] .s2-angle-card{background:var(--s2-ink-2)}
+.s2-angle-card{margin:0 16px;background:#ECE6D8;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+[data-theme="dark"] .s2-angle-card{background:#22221F}
 .s2-angle-text{font-family:var(--s2-sans);font-weight:500;font-size:17px;line-height:1.35;letter-spacing:-0.005em;color:var(--s2-text-primary)}
 .s2-angle-actions{display:flex;gap:18px;align-items:center}
 .s2-angle-actions button{background:none;border:none;padding:0;font-family:var(--s2-sans);font-size:13px;color:var(--s2-text-muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -585,8 +590,8 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* Compose: context 2-up cards */
 .s2-ctx-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px}
-.s2-ctx-card{background:var(--s2-paper-2);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;min-height:84px}
-[data-theme="dark"] .s2-ctx-card{background:var(--s2-ink-2)}
+.s2-ctx-card{background:#ECE6D8;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;min-height:84px}
+[data-theme="dark"] .s2-ctx-card{background:#22221F}
 .s2-ctx-card-icon{width:18px;height:18px;color:var(--s2-text-muted);margin-bottom:6px}
 .s2-ctx-card-val{font-family:var(--s2-sans);font-weight:600;font-size:16px;color:var(--s2-text-primary);letter-spacing:-0.01em;line-height:1.2}
 .s2-ctx-card-sub{font-family:var(--s2-mono);font-size:11px;letter-spacing:0.04em;color:var(--s2-text-muted)}
@@ -598,7 +603,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-timer-label{font-family:var(--s2-mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--s2-press-green);font-weight:500}
 .s2-timer-expired .s2-timer-label{color:var(--s2-text-primary)}
 .s2-timer-meta{font-family:var(--s2-mono);font-size:11px;color:var(--s2-text-muted)}
-.s2-timer-val{font-family:var(--s2-serif);font-weight:500;font-size:40px;letter-spacing:-0.02em;color:var(--s2-text-primary);line-height:1;font-variant-numeric:tabular-nums}
+.s2-timer-val{font-family:var(--s2-sans);font-weight:300;font-size:40px;letter-spacing:-0.02em;color:var(--s2-text-primary);line-height:1;font-variant-numeric:tabular-nums}
 .s2-timer-progress{height:3px;background:rgba(140,133,124,0.2);border-radius:2px;overflow:hidden;margin-top:4px}
 .s2-timer-bar{height:100%;background:var(--s2-press-green);transition:width 1s linear}
 .s2-timer-expired-body{font-family:var(--s2-sans);font-size:15px;color:var(--s2-text-primary);line-height:1.4}
@@ -1111,6 +1116,11 @@ export default function App() {
       if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
       setSel(date);
       setActiveTab('today');
+      // Notification tap → force-open the Editor's Note reveal, even if the
+      // user has already dismissed it for this date. The reveal component
+      // paints once `feedback` loads for this day.
+      setNoteReveal(date);
+      setNoteRevealShown(0);
     };
     try {
       const params = new URLSearchParams(window.location.search);
@@ -2138,7 +2148,16 @@ export default function App() {
 
             </div>
           </>
-        ) : null}
+        ) : (
+          <div className="today-empty">
+            <div className="today-empty-lbl">No brief filed</div>
+            <div className="today-empty-h">Today's brief is waiting.</div>
+            <div className="today-empty-sub">Compose it to start your day.</div>
+            <button className="s2-btn-primary today-empty-btn" onClick={() => setShowTodaySheet(true)}>
+              Open Daily Brief
+            </button>
+          </div>
+        )}
       </main>
 
       {/* ── Bottom pill tab bar (3 tabs, icon-only) ──
