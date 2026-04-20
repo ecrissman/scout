@@ -1,7 +1,6 @@
 export default function DevPanel({
   open, onClose,
   devDeleteMode, setDevDeleteMode,
-  setShowOnboarding,
   feedback, setFeedback, setNoteReveal, setNoteRevealShown, sel,
 }) {
   if (!open) return null;
@@ -19,10 +18,6 @@ export default function DevPanel({
                 <div className="ai-toggle-thumb"/>
               </button>
             </div>
-            <button className="settings-row-btn" onClick={() => { localStorage.removeItem('scout-onboarded'); setShowOnboarding(true); onClose(); }}>
-              <span className="settings-row-label">Reset Onboarding</span>
-              <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>replay first-run flow</span>
-            </button>
             <button className="settings-row-btn" onClick={() => {
               const sample = feedback || "The sky told the whole story tonight — you let it. The trees at the base anchor the frame without fighting the light. Next time, try waiting thirty seconds longer: the corona was about to break.";
               if (!feedback) setFeedback(sample);

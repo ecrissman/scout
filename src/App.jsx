@@ -186,25 +186,6 @@ export default function App() {
     return ()=>{ clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  // ── Onboarding ──
-  const [showOnboarding, setShowOnboarding] = useState(false);
-
-  const syncObColor = (step) => {
-    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const color = dark ? '#0C0C0C' : '#FFFDFA';
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
-    document.documentElement.style.background = color;
-    document.body.style.background = color;
-  };
-
-  useEffect(() => { syncObColor(showOnboarding || null); }, [showOnboarding]);
-
-  const finishOnboarding = () => {
-    localStorage.setItem('scout-onboarded', '1');
-    syncObColor(null);
-    setShowOnboarding(false);
-  };
-
   // ── Settings ──
   const [settingsOpen, setSettingsOpen] = useState(false);
   // ── Legal (Privacy / Terms) ──
@@ -340,7 +321,6 @@ export default function App() {
         // (never email) so events never carry PII.
         identify(session.user.id);
       }
-      if (hasSession && !localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
       setChecking(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -364,7 +344,6 @@ export default function App() {
             track('signup_confirmed', { method: provider });
           }
         }
-        if (!localStorage.getItem('scout-onboarded')) setShowOnboarding(true);
       }
       if (event === 'SIGNED_OUT') {
         track('signout');
@@ -421,7 +400,6 @@ export default function App() {
     let color;
     if (!splashDone)             color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     else if (showLanding)        color = '#0C0C0C';
-    else if (showOnboarding)     color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
     else if (!authed)            color = '#0C0C0C';
     else if (lightboxOpen)        color = '#000000';
     else if (todaySheetVisible)  color = theme === 'dark' ? '#0C0C0C' : '#FFFDFA';
@@ -430,7 +408,7 @@ export default function App() {
     if (m) m.content = color;
     document.body.style.backgroundColor = color;
     document.documentElement.style.backgroundColor = color;
-  }, [splashDone, showLanding, showOnboarding, authed, lightboxOpen, showTodaySheet, sel, todayStr,
+  }, [splashDone, showLanding, authed, lightboxOpen, showTodaySheet, sel, todayStr,
       dayMeta, dayLoading, theme]);
 
   useLayoutEffect(()=>{ applyStatusBarColor(); }, [applyStatusBarColor]);
@@ -1645,7 +1623,6 @@ export default function App() {
       <DevPanel
         open={devPanelOpen} onClose={() => setDevPanelOpen(false)}
         devDeleteMode={devDeleteMode} setDevDeleteMode={setDevDeleteMode}
-        setShowOnboarding={setShowOnboarding}
         feedback={feedback} setFeedback={setFeedback}
         setNoteReveal={setNoteReveal} setNoteRevealShown={setNoteRevealShown}
         sel={sel}
