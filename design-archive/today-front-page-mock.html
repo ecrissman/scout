@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scout · Today as Front Page (mock)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;1,400&family=Inconsolata:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --terracotta:#D6542D;
+    --sage:#4F5E2E;
+    --gold:#E2B554;
+    --paper:#FFFDFA;
+    --ink:#0C0C0C;
+    --warm-mid:#8C857C;
+    --rule:#E3E1DD;
+    --serif:"Fraunces", Georgia, serif;
+    --mono:"Inconsolata", ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#EFEDE8;font-family:var(--mono);color:var(--ink)}
+  body{padding:32px 16px 80px;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
+  .caption{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--warm-mid);text-align:center;margin-bottom:10px}
+  .phone{
+    width:390px;background:var(--paper);border-radius:28px;
+    box-shadow:0 2px 4px rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.12);
+    overflow:hidden;position:relative;
+  }
+  .phone-inner{padding:0 18px 100px}
+
+  /* ── Status / safe area ─── */
+  .status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-family:var(--mono);font-size:13px;font-weight:600}
+  .status .r{display:flex;gap:6px;align-items:center;font-size:11px}
+
+  /* ── Masthead ─── */
+  .masthead{
+    text-align:center;padding:18px 0 10px;border-bottom:1px solid var(--ink);
+  }
+  .wordmark{
+    font-family:var(--serif);font-weight:500;font-size:40px;letter-spacing:-.01em;
+    line-height:1;margin:0;
+  }
+  .wordmark em{font-style:italic;font-weight:400}
+  .tagline{
+    font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--warm-mid);margin-top:6px;
+  }
+
+  /* ── Dateline ─── */
+  .dateline{
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:10px 0;border-bottom:1px solid var(--rule);
+    font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--warm-mid);
+  }
+  .dateline .edition{color:var(--ink);font-weight:600}
+  .dateline .weather{color:var(--warm-mid)}
+
+  /* ── Section kicker ─── */
+  .kicker{
+    font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--terracotta);font-weight:700;margin:20px 0 6px;
+  }
+  .kicker.sage{color:var(--sage)}
+  .kicker.warm{color:var(--warm-mid)}
+
+  /* ── Assignment (pre-file hero) ─── */
+  .assignment{padding:2px 0 16px;border-bottom:1px solid var(--rule)}
+  .assignment h1{
+    font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.15;
+    letter-spacing:-.015em;margin:0 0 12px;color:var(--ink);
+  }
+  .assignment .meta{
+    display:flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;
+    color:var(--warm-mid);margin-bottom:14px;
+  }
+  .assignment .meta span::before{content:"· ";color:var(--rule)}
+  .assignment .meta span:first-child::before{content:""}
+  .file-btn{
+    display:block;width:100%;padding:14px;background:var(--terracotta);color:var(--paper);
+    border:none;border-radius:2px;font-family:var(--mono);font-size:13px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;cursor:pointer;
+  }
+
+  /* ── Editor's Note block (post-file) ─── */
+  .filed-hero{margin:14px 0 0;border-bottom:1px solid var(--rule);padding-bottom:16px}
+  .filed-hero .photo{
+    width:100%;aspect-ratio:4/5;background:
+      linear-gradient(135deg, #7a6b58 0%, #3a3028 50%, #1a1510 100%);
+    border:1px solid var(--rule);position:relative;overflow:hidden;
+  }
+  .filed-hero .photo::after{
+    content:"[your filed photo]";position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.1em;
+  }
+  .filed-caption{
+    padding:8px 0;font-family:var(--mono);font-size:11px;
+    color:var(--warm-mid);display:flex;justify-content:space-between;
+  }
+  .editors-note{padding:18px 0 4px}
+  .editors-note .headline{
+    font-family:var(--serif);font-weight:500;font-size:22px;line-height:1.2;
+    letter-spacing:-.01em;margin:0 0 10px;
+  }
+  .editors-note p{
+    font-family:var(--serif);font-size:16px;line-height:1.55;
+    letter-spacing:-.003em;margin:0 0 12px;color:var(--ink);
+  }
+  .editors-note .sig{
+    font-family:var(--serif);font-style:italic;font-size:14px;
+    color:var(--warm-mid);margin-top:4px;
+  }
+  .verdict{
+    display:inline-block;margin-top:10px;padding:4px 8px;background:var(--sage);color:var(--paper);
+    font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  }
+
+  /* ── Recent dispatches strip ─── */
+  .dispatches{padding:18px 0 8px}
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .strip .tile{
+    aspect-ratio:1;background:#c9c3b8;border:1px solid var(--rule);position:relative;
+  }
+  .strip .tile:nth-child(1){background:linear-gradient(135deg,#8b6f47,#3a2e1f)}
+  .strip .tile:nth-child(2){background:linear-gradient(135deg,#6a7954,#384122)}
+  .strip .tile:nth-child(3){background:linear-gradient(135deg,#9c7b5e,#4a3827)}
+  .strip .tile:nth-child(4){background:linear-gradient(135deg,#5e6a78,#2a323c)}
+  .strip .tile .d{
+    position:absolute;bottom:3px;left:4px;color:rgba(255,253,250,.85);
+    font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+  }
+
+  /* ── Week meta ─── */
+  .week-card{
+    margin-top:18px;padding:14px;border:1px solid var(--rule);border-left:3px solid var(--gold);
+    background:var(--paper);
+  }
+  .week-card .label{
+    font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--warm-mid);margin-bottom:6px;
+  }
+  .week-card .theme{
+    font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.3;color:var(--ink);
+  }
+  .streak-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 0;border-top:1px solid var(--rule);margin-top:14px;
+    font-family:var(--mono);font-size:11px;color:var(--warm-mid);letter-spacing:.08em;
+  }
+  .streak-row strong{color:var(--terracotta);font-size:13px}
+
+  /* ── Tab bar (pill) ─── */
+  .tabbar{
+    position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;pointer-events:none;
+  }
+  .tabbar-inner{
+    display:flex;gap:2px;background:var(--paper);border:1px solid var(--rule);
+    border-radius:999px;padding:5px;
+    box-shadow:0 6px 20px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.06);pointer-events:auto;
+  }
+  .tab{
+    padding:8px 18px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--warm-mid);border-radius:999px;
+  }
+  .tab.active{background:var(--ink);color:var(--paper)}
+
+  h2.label{
+    font-family:var(--serif);font-weight:500;font-size:15px;margin:0 0 2px;color:var(--ink);letter-spacing:-.005em;
+  }
+</style>
+</head>
+<body>
+
+<div>
+  <div class="caption">A · Pre-file (morning, no photo yet)</div>
+  <div class="phone">
+    <div class="status">
+      <span>9:41</span>
+      <span class="r">●●● 5G ▮</span>
+    </div>
+    <div class="phone-inner">
+      <div class="masthead">
+        <div class="wordmark">Scout</div>
+        <div class="tagline">A daily photography practice</div>
+      </div>
+
+      <div class="dateline">
+        <span class="edition">Edition № 47</span>
+        <span>Sun · Apr 19, 2026</span>
+        <span class="weather">Clear · 62°F</span>
+      </div>
+
+      <div class="kicker">Today's Assignment</div>
+      <div class="assignment">
+        <h1>The hour just before dark.</h1>
+        <div class="meta">
+          <span>Golden hour — 7:34 PM</span>
+          <span>Seattle, WA</span>
+          <span>Compose your take</span>
+        </div>
+        <button class="file-btn">File a take →</button>
+      </div>
+
+      <div class="week-card">
+        <div class="label">This Week's Theme</div>
+        <div class="theme">"Small weather events."</div>
+      </div>
+
+      <div class="kicker warm" style="margin-top:22px">Recent Dispatches</div>
+      <div class="dispatches">
+        <div class="strip">
+          <div class="tile"><span class="d">Apr 18</span></div>
+          <div class="tile"><span class="d">Apr 17</span></div>
+          <div class="tile"><span class="d">Apr 16</span></div>
+          <div class="tile"><span class="d">Apr 15</span></div>
+        </div>
+      </div>
+
+      <div class="streak-row">
+        <span>Current run</span>
+        <span><strong>12 days</strong> filed</span>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tabbar-inner">
+        <div class="tab active">Today</div>
+        <div class="tab">Archive</div>
+        <div class="tab">Calendar</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <div class="caption">B · Post-file (evening, editor's note in)</div>
+  <div class="phone">
+    <div class="status">
+      <span>8:12</span>
+      <span class="r">●●● 5G ▮</span>
+    </div>
+    <div class="phone-inner">
+      <div class="masthead">
+        <div class="wordmark">Scout</div>
+        <div class="tagline">A daily photography practice</div>
+      </div>
+
+      <div class="dateline">
+        <span class="edition">Edition № 47</span>
+        <span>Sun · Apr 19 · Evening</span>
+        <span class="weather">Clear · 58°F</span>
+      </div>
+
+      <div class="kicker sage">Filed · 7:42 PM</div>
+      <div class="filed-hero">
+        <div class="photo"></div>
+        <div class="filed-caption">
+          <span>"Last light on the fence line."</span>
+          <span>f/2.8 · 1/250 · ISO 400</span>
+        </div>
+      </div>
+
+      <div class="kicker">The Editor's Note</div>
+      <div class="editors-note">
+        <div class="headline">A patient frame, held just long enough.</div>
+        <p>The rim light along the fence is the quiet engine of this picture — it does a lot of work without announcing itself. The negative space on the right almost gets away from you, but the horizon line saves it. One honest drag: the lede is buried; a tighter crop would push the eye to that edge-light sooner.</p>
+        <span class="verdict">Goes in the edition</span>
+        <div class="sig">— The Editor</div>
+      </div>
+
+      <div class="kicker warm" style="margin-top:22px">Earlier This Week</div>
+      <div class="dispatches">
+        <div class="strip">
+          <div class="tile"><span class="d">Apr 18</span></div>
+          <div class="tile"><span class="d">Apr 17</span></div>
+          <div class="tile"><span class="d">Apr 16</span></div>
+          <div class="tile"><span class="d">Apr 15</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabbar">
+      <div class="tabbar-inner">
+        <div class="tab active">Today</div>
+        <div class="tab">Archive</div>
+        <div class="tab">Calendar</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

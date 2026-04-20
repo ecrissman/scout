@@ -1,13 +1,11 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { composeBrief, getContext, uploadPhoto, getEditorNote } from '../api';
 import { extractEXIF, compressFile, makeThumb } from '../exif';
+import { startTimer, clearTimer, getTimer, parseTimeLabel } from './timer';
+import TimerBlock from './TimerBlock';
 
-// Mood / constraint lists carried forward from the silo prototype. The brand
-// guide mockup shows "Quiet" and "Shoot through something" as representative
-// picks, so those stay in the list. Keep moods short enough to render in a
-// single iOS row without truncation.
-const MOODS = ['Restless', 'Quiet', 'Curious', 'Heavy', 'Playful', 'Open', 'Tender', 'Sharp'];
-const TIMES = ['5 min', '20 min', '1 hour'];
+const MOODS = ['Lovely', 'Relaxed', 'Restless', 'Pensive', 'Electric', 'Quiet', 'Curious', 'Tender', 'Bold'];
+const TIMES = ['Off', '15 min', '1 hr', '3 hr'];
 const CONSTRAINTS = [
   'Look up',
   'One color only',
@@ -22,18 +20,6 @@ const CONSTRAINTS = [
   'Between two things',
   'Soft against hard',
 ];
-
-// Chevron and check glyphs as inline SVG — no icon library dependency.
-const ChevRight = ({ color = 'currentColor' }) => (
-  <svg width="7" height="12" viewBox="0 0 7 12" fill="none" aria-hidden="true">
-    <path d="M1 1L6 6L1 11" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-const Check = ({ color = 'currentColor' }) => (
-  <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true">
-    <path d="M1 5.5L5 9.5L13 1" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
 
 // Format the clock portion of the Compose dateline — "8:17" or "14:47".
 const formatClock = (d) => {
@@ -69,21 +55,22 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   }, [now]);
 
   const [mood, setMood] = useState(null);
-  const [timeIdx, setTimeIdx] = useState(1); // default "20 min"
+  const [timeIdx, setTimeIdx] = useState(0); // default "Off"
   const [constraintIdx, setConstraintIdx] = useState(() =>
     Math.floor(Math.random() * CONSTRAINTS.length)
   );
+  const [angleSkipped, setAngleSkipped] = useState(false);
   const [coords, setCoords] = useState(null);
   const [autoLight, setAutoLight] = useState(null);
   const [autoPlace, setAutoPlace] = useState(null);
-  const [moodSheetOpen, setMoodSheetOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [brief, setBrief] = useState(() => {
-    // Dev-only: ?brief=<text> renders the Brief reveal directly for design
-    // iteration without going through auth + the full compose round-trip.
     const p = new URLSearchParams(window.location.search);
-    return p.get('brief') || null;
+    if (p.get('brief')) return p.get('brief');
+    const t = getTimer();
+    if (t && t.brief) return t.brief;
+    return null;
   });
 
   // File-a-take state machine. Advances Compose → Brief → Uploading →
@@ -92,6 +79,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   const [stage, setStage] = useState(() => {
     const p = new URLSearchParams(window.location.search);
     if (p.get('brief')) return 'brief';
+    const t = getTimer();
+    if (t && t.brief) return 'brief';
     return 'compose';
   });
   const [fileError, setFileError] = useState(null);
@@ -139,7 +128,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   );
 
   const time = TIMES[timeIdx];
-  const constraint = CONSTRAINTS[constraintIdx % CONSTRAINTS.length];
+  const timeForApi = timeIdx === 0 ? null : time;
+  const constraint = angleSkipped ? null : CONSTRAINTS[constraintIdx % CONSTRAINTS.length];
 
   // Request geolocation once on mount; silent fallback if denied/unavailable.
   useEffect(() => {
@@ -163,8 +153,11 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     return () => { cancelled = true; };
   }, [coords]);
 
-  const rerollConstraint = () =>
+  const rerollConstraint = () => {
+    setAngleSkipped(false);
     setConstraintIdx((i) => (i + 1 + Math.floor(Math.random() * (CONSTRAINTS.length - 1))) % CONSTRAINTS.length);
+  };
+  const skipAngle = () => setAngleSkipped(true);
 
   const canCompose = mood !== null && !loading;
 
@@ -174,7 +167,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     setError(null);
     const res = await composeBrief({
       mood,
-      time,
+      time: timeForApi,
       constraint,
       lat: coords?.lat,
       lon: coords?.lon,
@@ -188,6 +181,9 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     setStage('brief');
     if (res.autoLight) setAutoLight(res.autoLight);
     if (res.autoPlace) setAutoPlace(res.autoPlace);
+    const durationMs = parseTimeLabel(timeForApi);
+    if (durationMs > 0) startTimer({ date: todayKey, durationMs, brief: res.brief });
+    else clearTimer();
   };
 
   const recompose = () => {
@@ -211,7 +207,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       const thumbSrc = await makeThumb(fullSrc);
       const composeStack = {
         mood,
-        time,
+        time: timeForApi,
         constraint,
         autoLight,
         autoPlace,
@@ -221,6 +217,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       };
       const ok = await uploadPhoto(todayKey, { fullSrc, thumbSrc, exif, caption: '', compose: composeStack });
       if (!ok) throw new Error('Upload failed. Check connection and retry.');
+      clearTimer();
       setStage('filed');
       if (typeof onFiled === 'function') {
         try { onFiled({ date: todayKey, compose: composeStack }); } catch {}
@@ -447,9 +444,12 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
             Dispatch · {formatDispatchDate(now)} · {clock}
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.015em', marginBottom: 24 }}>
             {revealed}
             {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
+          </div>
+          <div style={{ margin: '0 -28px', marginBottom: 'auto' }}>
+            <TimerBlock />
           </div>
           <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
             <span>Brief {briefNumber} / 365</span>
@@ -471,26 +471,41 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   }
 
   // ───────────── Compose form ─────────────
+  const briefNumber = dayOfYear(now);
   return (
     <div className={trayClass}>
       <PageHeader />
 
       <div className="s2-title-block">
         <h1 className="s2-title">Daily Brief</h1>
-        {headerBits && <div className="s2-dateline" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>{headerBits}</div>}
-      </div>
-
-      <div className="s2-section-label">MOOD</div>
-      <div className="s2-list">
-        <div className="s2-list-row" onClick={() => setMoodSheetOpen(true)} role="button" tabIndex={0}>
-          <div className="s2-list-row-label" style={{ color: mood ? 'var(--s2-text-primary)' : 'var(--s2-text-muted)' }}>
-            {mood || 'Choose a mood…'}
-          </div>
-          <ChevRight color="var(--s2-text-muted)" />
+        <div className="s2-dateline" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          {now.toLocaleDateString('en-US', { weekday: 'short' })} · {now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · №&nbsp;{String(briefNumber).padStart(3, '0')}
         </div>
       </div>
 
-      <div className="s2-section-label">TIME</div>
+      <div className="s2-section-label">How are you feeling?</div>
+      <div className="s2-mood-scroll">
+        {MOODS.map((m) => (
+          <button
+            key={m}
+            className={`s2-mood-pill ${mood === m ? 'active' : ''}`}
+            onClick={() => setMood(m)}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+
+      <div className="s2-section-label">The angle</div>
+      <div className="s2-angle-card">
+        <div className="s2-angle-text">{angleSkipped ? 'No angle — blank canvas.' : `“${constraint}”`}</div>
+        <div className="s2-angle-actions">
+          <button className="s2-angle-primary" onClick={rerollConstraint}>↻ Try another</button>
+          {!angleSkipped && <button onClick={skipAngle}>Skip</button>}
+        </div>
+      </div>
+
+      <div className="s2-section-label">Time Box</div>
       <div className="s2-segmented">
         {TIMES.map((t, i) => (
           <button
@@ -503,13 +518,29 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         ))}
       </div>
 
-      <div className="s2-section-label">CONSTRAINT</div>
-      <div className="s2-list">
-        <div className="s2-list-row" onClick={rerollConstraint} role="button" tabIndex={0}>
-          <div className="s2-list-row-label">{constraint}</div>
-          <div className="s2-list-row-trail">↻ New</div>
-        </div>
-      </div>
+      {(autoLight || autoPlace) && (
+        <>
+          <div className="s2-section-label">Context</div>
+          <div className="s2-ctx-row">
+            <div className="s2-ctx-card">
+              <svg className="s2-ctx-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+              </svg>
+              <div className="s2-ctx-card-val">{autoLight || '—'}</div>
+              <div className="s2-ctx-card-sub">{clock}</div>
+            </div>
+            <div className="s2-ctx-card">
+              <svg className="s2-ctx-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                <path d="M12 22s7-6 7-12a7 7 0 10-14 0c0 6 7 12 7 12z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+              <div className="s2-ctx-card-val">{autoPlace || '—'}</div>
+              <div className="s2-ctx-card-sub">Nearby</div>
+            </div>
+          </div>
+        </>
+      )}
 
       {error && (
         <div className="s2-mono" style={{ color: 'var(--s2-warn)', padding: '14px 20px', fontSize: 'var(--fs-sm)', letterSpacing: '0.05em' }}>
@@ -521,51 +552,6 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         <button className="s2-btn-primary" disabled={!canCompose} onClick={compose}>
           {loading ? (<><span className="s2-spinner" />Composing…</>) : 'Compose'}
         </button>
-      </div>
-
-      {moodSheetOpen && (
-        <MoodSheet
-          selected={mood}
-          onSelect={(m) => { setMood(m); setMoodSheetOpen(false); }}
-          onClose={() => setMoodSheetOpen(false)}
-        />
-      )}
-    </div>
-  );
-}
-
-// ───────────── Mood picker sheet (iOS-style bottom sheet) ─────────────
-function MoodSheet({ selected, onSelect, onClose }) {
-  // Close on Escape for keyboard/desktop parity with the tap-backdrop gesture.
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  return (
-    <div className="s2-sheet-backdrop" onClick={onClose}>
-      <div className="s2-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="s2-sheet-handle" />
-        <div className="s2-sheet-header">
-          <span className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
-            Mood
-          </span>
-          <button className="s2-nav-btn" onClick={onClose}>Cancel</button>
-        </div>
-        <div className="s2-sheet-list">
-          {MOODS.map((m) => (
-            <button
-              key={m}
-              className="s2-list-row s2-sheet-row"
-              onClick={() => onSelect(m)}
-              style={{ justifyContent: 'space-between' }}
-            >
-              <span className="s2-list-row-label">{m}</span>
-              {selected === m && <Check color="var(--s2-press-green)" />}
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );

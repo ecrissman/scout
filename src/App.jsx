@@ -567,6 +567,43 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-segmented-option.active{background:var(--s2-bg);box-shadow:0 3px 8px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04)}
 [data-theme="dark"] .s2-segmented-option.active{box-shadow:0 3px 8px rgba(0,0,0,0.4)}
 
+/* Compose: mood pill scroll */
+.s2-mood-scroll{display:flex;gap:8px;overflow-x:auto;padding:2px 16px 4px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.s2-mood-scroll::-webkit-scrollbar{display:none}
+.s2-mood-pill{flex:0 0 auto;scroll-snap-align:start;padding:10px 18px;background:var(--s2-paper-2);border:none;border-radius:999px;font-family:var(--s2-sans);font-size:15px;color:var(--s2-text-primary);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .12s,color .12s}
+.s2-mood-pill.active{background:var(--s2-text-primary);color:var(--s2-bg);font-weight:500}
+[data-theme="dark"] .s2-mood-pill{background:var(--s2-ink-2)}
+[data-theme="dark"] .s2-mood-pill.active{background:var(--s2-paper);color:var(--s2-ink)}
+
+/* Compose: angle card */
+.s2-angle-card{margin:0 16px;background:var(--s2-paper-2);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+[data-theme="dark"] .s2-angle-card{background:var(--s2-ink-2)}
+.s2-angle-text{font-family:var(--s2-sans);font-weight:500;font-size:17px;line-height:1.35;letter-spacing:-0.005em;color:var(--s2-text-primary)}
+.s2-angle-actions{display:flex;gap:18px;align-items:center}
+.s2-angle-actions button{background:none;border:none;padding:0;font-family:var(--s2-sans);font-size:13px;color:var(--s2-text-muted);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.s2-angle-actions button.s2-angle-primary{color:var(--s2-press-green);font-weight:500}
+
+/* Compose: context 2-up cards */
+.s2-ctx-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px}
+.s2-ctx-card{background:var(--s2-paper-2);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;min-height:84px}
+[data-theme="dark"] .s2-ctx-card{background:var(--s2-ink-2)}
+.s2-ctx-card-icon{width:18px;height:18px;color:var(--s2-text-muted);margin-bottom:6px}
+.s2-ctx-card-val{font-family:var(--s2-sans);font-weight:600;font-size:16px;color:var(--s2-text-primary);letter-spacing:-0.01em;line-height:1.2}
+.s2-ctx-card-sub{font-family:var(--s2-mono);font-size:11px;letter-spacing:0.04em;color:var(--s2-text-muted)}
+
+/* Compose: timer block */
+.s2-timer-card{margin:0 16px;background:var(--s2-paper-2);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+[data-theme="dark"] .s2-timer-card{background:var(--s2-ink-2)}
+.s2-timer-row{display:flex;justify-content:space-between;align-items:baseline}
+.s2-timer-label{font-family:var(--s2-mono);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--s2-press-green);font-weight:500}
+.s2-timer-expired .s2-timer-label{color:var(--s2-text-primary)}
+.s2-timer-meta{font-family:var(--s2-mono);font-size:11px;color:var(--s2-text-muted)}
+.s2-timer-val{font-family:var(--s2-serif);font-weight:500;font-size:40px;letter-spacing:-0.02em;color:var(--s2-text-primary);line-height:1;font-variant-numeric:tabular-nums}
+.s2-timer-progress{height:3px;background:rgba(140,133,124,0.2);border-radius:2px;overflow:hidden;margin-top:4px}
+.s2-timer-bar{height:100%;background:var(--s2-press-green);transition:width 1s linear}
+.s2-timer-expired-body{font-family:var(--s2-sans);font-size:15px;color:var(--s2-text-primary);line-height:1.4}
+.s2-timer-dismiss{align-self:flex-start;background:none;border:none;font-family:var(--s2-mono);font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:var(--s2-text-muted);padding:4px 0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+
 /* Primary button: Scout-styled (Geist Mono, filled ink) */
 .s2-btn-primary{display:block;width:100%;padding:15px 0;background:var(--s2-text-primary);color:var(--s2-bg);font-family:var(--s2-mono);font-size:14px;font-weight:500;letter-spacing:0.1em;border:none;border-radius:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s ease}
 .s2-btn-primary:active{opacity:0.75}
@@ -2127,8 +2164,8 @@ export default function App() {
                 aria-current={activeTab==='today' ? 'page' : undefined}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="9"/>
-                  <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+                  <circle cx="12" cy="12" r="4.5" fill="currentColor" stroke="none"/>
+                  <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5 5l1.4 1.4M17.6 17.6L19 19M5 19l1.4-1.4M17.6 6.4L19 5"/>
                 </svg>
               </button>
               <button

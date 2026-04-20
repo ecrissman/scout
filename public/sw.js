@@ -1,4 +1,4 @@
-const CACHE = 'scout-v25';
+const CACHE = 'scout-v26';
 const SHELL = ['/', '/index.html'];
 
 self.addEventListener('install', e => {

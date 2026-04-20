@@ -269,8 +269,7 @@ export async function onRequest({ request, env, params }) {
 
     for (const [tz, group] of byTz) {
       const lp = localParts(tz);
-      // TEMP test window: fire at 18:45 local (6:45pm). Revert to 20:00 after testing.
-      if (!lp || lp.hour !== 18 || lp.minute < 45 || lp.minute > 59) { skipped += group.length; continue; }
+      if (!lp || lp.hour !== 20) { skipped += group.length; continue; }
       const { date } = lp;
 
       for (const s of group) {
