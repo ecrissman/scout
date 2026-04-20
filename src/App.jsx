@@ -1,5 +1,5 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react';
-import { getPhoto, uploadPhoto, updateCaption, deletePhoto, deleteAccount, listYear, thumbUrl, fullUrl, getFeedback, getCaptionSuggestion, getTodayPrompt, getTheme, getNextWeekTheme } from './api';
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import { getPhoto, uploadPhoto, updateCaption, deletePhoto, deleteAccount, listYear, thumbUrl, fullUrl, getFeedback, getCaptionSuggestion } from './api';
 import { isPushSupported, isPushSubscribedLocal, maybePromptForPush } from './push';
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { supabase } from './supabase.js';
@@ -120,16 +120,6 @@ export default function App() {
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];
 
-  const weekKey = useMemo(() => {
-    const d = new Date(todayStr + 'T12:00:00');
-    const sunday = new Date(d);
-    sunday.setDate(d.getDate() - d.getDay()); // rewind to Sunday
-    const y = sunday.getFullYear();
-    const m = String(sunday.getMonth() + 1).padStart(2, '0');
-    const day = String(sunday.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }, [todayStr]);
-
   // ── Theme: pref is 'light' | 'dark' | 'system', default 'system' ──
   const [themePref, setThemePref] = useState(()=>
     localStorage.getItem('scout-theme-pref') || 'system'
@@ -218,7 +208,6 @@ export default function App() {
   // ── Navigation state ──
   const [activeTab,     setActiveTab]     = useState('today');
   const [showTodaySheet, setShowTodaySheet] = useState(true);
-  const [sheetClosing, setSheetClosing] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelClosing, setPanelClosing] = useState(false);
   const [cm, setCm] = useState(TM);
@@ -234,9 +223,6 @@ export default function App() {
 
   // ── AI features ──
   const [feedback,           setFeedback]           = useState(null);
-  const [feedbackLoading,    setFeedbackLoading]    = useState(false);
-  const [feedbackError,      setFeedbackError]      = useState(null);
-  const [feedbackExpanded,   setFeedbackExpanded]   = useState(true);
   const [briefExpanded,      setBriefExpanded]      = useState(false);
   // Editor's Note full-screen reveal moment — fires once per note, on first
   // view. Keyed by date in localStorage (`scout-note-seen-${date}`). After
@@ -249,8 +235,6 @@ export default function App() {
   const [editionToast,       setEditionToast]       = useState(null); // date key or null
   const [captionSuggestion,  setCaptionSuggestion]  = useState(null);
   const [captionSuggestLoad, setCaptionSuggestLoad] = useState(false);
-  const [shootPrompt,        setShootPrompt]        = useState(null);
-  const [promptLoading,      setPromptLoading]      = useState(false);
   const [photoVer,           setPhotoVer]           = useState(()=>Date.now());
 
   const [lightboxOpen,  setLightboxOpen]  = useState(false);
@@ -260,16 +244,12 @@ export default function App() {
   useEffect(()=>{ localStorage.setItem('scout-ai-enabled', String(aiEnabled)); }, [aiEnabled]);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(()=> localStorage.getItem('scout-analytics-optout') !== 'true');
   const [pushEnabled, setPushEnabled] = useState(()=> isPushSupported() && isPushSubscribedLocal());
-  const [weekTheme,    setWeekTheme]    = useState(null);
-  const [nextWeekTheme, setNextWeekTheme] = useState(null);
-  const [themeExpanded,setThemeExpanded]= useState(false);
   const fileRef        = useRef(null);
   const cameraRef      = useRef(null);
   const captionRef     = useRef(null);
   const lbTouchRef     = useRef(null);
   const swipeTouchRef  = useRef(null);
   const monthScrollRef = useRef(null);
-  const promptFiredRef = useRef(null); // stores the date string the prompt was last fired for
   const dayViewedRef   = useRef(new Set()); // dedupe day_viewed events per session
 
 
@@ -447,25 +427,6 @@ export default function App() {
   }, [authed]);
 
   useEffect(()=>{
-    if (!authed || !aiEnabled) return;
-    getTheme().then(t => { if (t?.theme) setWeekTheme(t); });
-  }, [authed, aiEnabled, weekKey]);
-
-  useEffect(()=>{
-    if (!authed || !aiEnabled) return;
-    setNextWeekTheme(null); // clear stale value when week changes
-    const [y, m, d] = todayStr.split('-').map(Number);
-    const date = new Date(y, m - 1, d);
-    const thisSunday = new Date(date);
-    thisSunday.setDate(date.getDate() - date.getDay());
-    const nextSunday = new Date(thisSunday);
-    nextSunday.setDate(thisSunday.getDate() + 7);
-    const pad = n => String(n).padStart(2,'0');
-    const nextSundayStr = `${nextSunday.getFullYear()}-${pad(nextSunday.getMonth()+1)}-${pad(nextSunday.getDate())}`;
-    getNextWeekTheme(nextSundayStr).then(t => { if (t?.theme) setNextWeekTheme(t); });
-  }, [authed, aiEnabled, weekKey]);
-
-  useEffect(()=>{
     if (!authed || cy === TY) return;
     listYear(cy).then(dates => {
       if (dates.length) setPhotoDates(prev => new Set([...prev, ...dates]));
@@ -480,17 +441,8 @@ export default function App() {
     }
     setDayLoading(true);
     setFeedback(null);
-    setFeedbackLoading(false);
-    setFeedbackError(null);
-    setFeedbackExpanded(true);
     setCaptionSuggestion(null);
     setCaptionSuggestLoad(false);
-    // Reset prompt state when navigating away from today
-    if (sel !== todayStr) {
-      setShootPrompt(null);
-      setPromptLoading(false);
-      // Don't reset promptFiredRef here — it's date-keyed and self-manages
-    }
     setLocationName(null);
     getPhoto(sel).then(data=>{
       setDayMeta(data);
@@ -547,33 +499,6 @@ export default function App() {
     const t = setTimeout(() => setNoteRevealShown(n => Math.min(feedback.length, n + 1)), 28);
     return () => clearTimeout(t);
   }, [noteReveal, feedback, noteRevealShown]);
-
-  // ── Auto-fetch today's prompt when viewing today with no photo ──
-  useEffect(()=>{
-    if (!authed || !aiEnabled || sel !== todayStr || dayLoading || dayMeta) return;
-    // Use date string in ref so the prompt re-fires correctly when the day rolls over
-    if (promptFiredRef.current === todayStr) return;
-    // Check localStorage cache first — prompt should only generate once per day
-    const cacheKey = `scout-prompt-${todayStr}`;
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) {
-      setShootPrompt(cached);
-      promptFiredRef.current = todayStr;
-      track('ai_prompt_viewed', { date: todayStr, source: 'cache' });
-      return;
-    }
-    promptFiredRef.current = todayStr;
-    setPromptLoading(true);
-    getTodayPrompt(sel).then(data=>{
-      if (data?.prompt) {
-        setShootPrompt(data.prompt);
-        localStorage.setItem(cacheKey, data.prompt);
-        track('ai_prompt_viewed', { date: todayStr, source: 'fetch' });
-      }
-      setPromptLoading(false);
-    });
-  }, [sel, dayMeta, dayLoading, authed, aiEnabled, todayStr]);
-
 
   // Map Supabase auth errors to friendlier copy. Falls back to the original
   // string for anything we don't explicitly recognize.
@@ -771,7 +696,7 @@ export default function App() {
     const file = e.target.files?.[0];
     if (!file||!sel) return;
     const fromCamera = e.target === cameraRef.current;
-    e.target.value=''; setBusy(true); setFeedback(null); setFeedbackExpanded(true);
+    e.target.value=''; setBusy(true); setFeedback(null);
     try {
       const exif = await extractEXIF(file);
       if (fromCamera && !exif?.model && !exif?.et) {
@@ -802,14 +727,9 @@ export default function App() {
         }
         if (exif?.lat != null && exif?.lon != null) reverseGeocode(exif.lat, exif.lon).then(name => { if (name) setLocationName(name); });
         else setLocationName(null);
-        // Auto-trigger feedback
         if (aiEnabled) {
-          setFeedbackLoading(true);
-          setFeedbackError(null);
           getFeedback(sel).then(result => {
             if (result?.feedback) setFeedback(result.feedback);
-            else setFeedbackError(result?.error ?? 'Couldn\'t get feedback. Try again.');
-            setFeedbackLoading(false);
           });
         }
       }
@@ -835,10 +755,6 @@ export default function App() {
     setCy(date.getFullYear());
   };
 
-  const dismissTodaySheet = () => {
-    setSheetClosing(true);
-    setTimeout(() => { setShowTodaySheet(false); setSheetClosing(false); }, 360);
-  };
   const dismissPanel = () => {
     setPanelClosing(true);
     setTimeout(() => { setPanelOpen(false); setPanelClosing(false); }, 300);
@@ -878,28 +794,12 @@ export default function App() {
     track('caption_edited', { source: 'ai_suggestion', length: captionSuggestion.length });
   };
 
-  const handleFeedback = async () => {
-    setFeedbackLoading(true);
-    setFeedbackError(null);
-    const result = await getFeedback(sel);
-    if (result?.feedback) setFeedback(result.feedback);
-    else setFeedbackError(result?.error ?? 'Couldn\'t get feedback. Try again.');
-    setFeedbackLoading(false);
-  };
-
   useEffect(()=>{
     const el = captionRef.current;
     if (!el) return;
     el.style.height = 'auto';
     el.style.height = el.scrollHeight + 'px';
   }, [caption]);
-
-  const handleGetPrompt = async () => {
-    setPromptLoading(true);
-    const data = await getTodayPrompt(sel);
-    if (data?.prompt) setShootPrompt(data.prompt);
-    setPromptLoading(false);
-  };
 
   const saveCaption = useCallback(async()=>{
     if (!sel||!dayMeta) return;

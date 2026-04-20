@@ -47,30 +47,6 @@ export async function listYear(year) {
   } catch { return []; }
 }
 
-export async function getTheme() {
-  try {
-    const r = await fetch(`${BASE}/theme/current`, await req('GET'));
-    if (!r.ok) return null;
-    return r.json();
-  } catch { return null; }
-}
-
-export async function getNextWeekTheme(nextSundayStr) {
-  try {
-    const r = await fetch(`${BASE}/theme/current?date=${nextSundayStr}`, await req('GET'));
-    if (!r.ok) return null;
-    return r.json();
-  } catch { return null; }
-}
-
-export async function getTodayPrompt(date, coords) {
-  try {
-    const qs = coords ? `?lat=${coords.lat}&lon=${coords.lon}` : '';
-    const r = await fetch(`${BASE}/ai/prompt/${date}${qs}`, await req('GET'));
-    return r.json();
-  } catch { return null; }
-}
-
 export async function getCaptionSuggestion(date) {
   try {
     const r = await fetch(`${BASE}/ai/caption/${date}`, await req('POST'));
