@@ -713,8 +713,8 @@ export async function onRequest({ request, env, params }) {
   if (route === 'ai/brief' && method === 'POST') {
     const body = await request.json().catch(() => ({}));
     const { mood, time, constraint, lat: inLat, lon: inLon } = body;
-    if (!mood || !time || !constraint) {
-      return json({ error: 'mood, time, and constraint are required' }, 400);
+    if (!mood) {
+      return json({ error: 'mood is required' }, 400);
     }
 
     // Fall back to Seattle if no coords provided (mirrors /ai/prompt behavior).
@@ -738,8 +738,8 @@ Respond with ONLY the prompt text. No preamble, no quotes, no explanation.`;
       `Mood: ${mood}`,
       `Light: ${autoLight}`,
       autoPlace ? `Place: ${autoPlace}` : null,
-      `Time available: ${time}`,
-      `Constraint: ${constraint}`,
+      time ? `Time available: ${time}` : null,
+      constraint ? `Constraint: ${constraint}` : null,
     ].filter(Boolean).join('\n');
 
     const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
