@@ -79,12 +79,18 @@ To edit styles: edit the `CSS` string directly in `App.jsx`.
 
 | Role | Font | Details |
 |------|------|---------|
-| Wordmark / Display | **Flapjack** (Taylor Penton) | Self-hosted in `/public/fonts/TAYFlapjack.woff2` |
-| UI / Body | **Inconsolata** | Monospace, loaded via Google Fonts |
+| Display / Editorial | **Fraunces** | Google Fonts. Titles, brief body, editor's note body, timer value, Filed headline. |
+| Labels / Meta | **Geist Mono** | Google Fonts. Dispatch datelines, section labels, stamps. |
+| UI / Body | **SF Pro** (system) | `-apple-system` stack. Buttons, form controls, body copy. |
 
-CSS font variables:
-- `--brand`: Flapjack, Inconsolata, system-ui
-- `--sans` / `--serif`: Inconsolata, system-ui, monospace
+CSS font variables (defined in `src/App.jsx`):
+- `--s2-serif`: `'Fraunces', Georgia, 'Times New Roman', serif`
+- `--s2-mono`: `'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace`
+- `--s2-sans`: `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', ...`
+
+Legacy alias `--serif` is currently pointed at `--s2-sans` (not Fraunces) to keep unmigrated v1 classes from rendering serif where they shouldn't. Use `--s2-serif` explicitly for Fraunces.
+
+Flapjack (`/public/fonts/TAYFlapjack.woff2`) is retained on disk from the V1 brand but no longer loaded in CSS. Inconsolata is also no longer used — both were replaced in the v5 brand pass.
 
 ### Color Rules
 

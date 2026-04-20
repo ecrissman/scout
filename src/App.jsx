@@ -65,7 +65,7 @@ function renderLegal(md) {
 
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&family=Geist+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Geist+Mono:wght@400;500;600&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root,[data-theme="light"]{
   /* ── v2 brand tokens (source of truth) ── */
@@ -162,7 +162,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* ── Archive (masonry feed) ── */
 .archive-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 12px 24px;background:var(--bg)}
-.archive-month-header{padding:22px 6px 10px;font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--s2-text-muted)}
+.archive-month-header{padding:18px 6px 6px;font-family:var(--sans);font-size:16px;font-weight:400;letter-spacing:.01em;color:var(--text)}
 .archive-masonry{column-count:2;column-gap:8px}
 .archive-tile{break-inside:avoid;margin:0 0 8px;display:block;cursor:pointer;background:var(--surface);border-radius:4px;overflow:hidden;-webkit-tap-highlight-color:transparent;padding:0;border:none;width:100%}
 .archive-tile:active{opacity:0.75}
@@ -364,7 +364,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .note-reveal-dateline{font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-3);text-align:center;margin-bottom:32px}
 .note-reveal-thumb-wrap{display:flex;justify-content:center;margin-bottom:28px}
 .note-reveal-thumb{width:120px;height:120px;object-fit:cover;border:1px solid var(--border);border-radius:2px;background:var(--bg-secondary)}
-.note-reveal-body{font-family:var(--s2-serif);font-size:17px;line-height:1.55;letter-spacing:-0.005em;color:var(--text);margin-bottom:20px}
+.note-reveal-body{font-family:var(--s2-serif);font-weight:300;font-size:17px;line-height:1.55;letter-spacing:-0.005em;color:var(--text);margin-bottom:20px}
 .note-reveal-sig{font-family:var(--sans);font-size:13px;color:var(--text-3);letter-spacing:.02em}
 
 /* ── Editor's Note banner (top of Today) ── */
@@ -1906,7 +1906,7 @@ export default function App() {
             }
             return groups.map(({ ym, dates }) => {
               const [gy, gm] = ym.split('-').map(Number);
-              const label = `${MONTHS[gm-1]} ${gy}`.toUpperCase();
+              const label = `${MONTHS[gm-1]} ${gy}`;
               return (
                 <div key={ym}>
                   <div className="archive-month-header">{label}</div>
