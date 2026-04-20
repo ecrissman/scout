@@ -27,6 +27,14 @@ export default function DevPanel({
               <span className="settings-row-label">Preview Editor's Note</span>
               <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>show the reveal screen</span>
             </button>
+            <button className="settings-row-btn" onClick={() => {
+              localStorage.removeItem('scout-onboarded');
+              localStorage.removeItem('scout-first-brief-seen');
+              location.reload();
+            }}>
+              <span className="settings-row-label">Replay Onboarding</span>
+              <span style={{fontFamily:'var(--sans)',fontSize:12,color:'var(--text-3)'}}>reset & reload</span>
+            </button>
           </div>
         </div>
       </div>
