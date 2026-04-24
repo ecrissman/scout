@@ -123,13 +123,6 @@ const CSS = `
 }
 html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch;background:var(--bg)}
 
-/* ── Onboarding ── */
-.ob-wrap{position:fixed;inset:0;background:#4F5E2E;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px}
-.ob-hed{font-family:var(--brand);font-size:56px;line-height:1.05;color:#FFFDFA;text-transform:uppercase;text-align:center;margin:0 0 40px;white-space:nowrap}
-.ob-hint{font-family:var(--sans);font-size:20px;font-weight:300;line-height:1.5;color:rgba(255,253,250);text-align:center;margin:0}
-.ob-cta{position:absolute;top:86%;left:50%;transform:translateX(-50%);width:197px;height:51px;font-family:var(--brand);font-size:20px;color:#FFFDFA;background:#222222;border:none;border-radius:4px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
-.ob-cta:active{opacity:.5}
-
 /* ── Splash ── */
 .pj-splash{position:fixed;inset:0;background:#0C0C0C;z-index:1000;opacity:1;transition:opacity .6s ease;pointer-events:none;display:flex;align-items:center;justify-content:center}
 .pj-splash.fading{opacity:0}
@@ -173,16 +166,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 
 /* ── Shared header — used by both sidebar (MONTH) and main (TODAY) ── */
 .pj-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 14px;flex-shrink:0;background:var(--bg)}
-.week-header-line{display:flex;align-items:center;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent;padding:4px 0;background:none;border:none}
-.week-header-line:active{opacity:0.5}
-.week-header-lbl{font-family:var(--s2-mono);font-weight:700;font-size:14px;color:#E2B554;letter-spacing:0.04em}
-[data-theme="dark"] .week-header-lbl{color:var(--terracotta)}
-.week-header-sep{font-family:var(--s2-mono);font-weight:500;font-size:11px;color:#0C0C0C;opacity:0.4}
-.week-header-range{font-family:var(--s2-mono);font-weight:500;font-size:13px;color:#ABABAB;letter-spacing:0.02em}
-.week-header-arr{font-size:14px;color:#E2B554;margin-left:1px}
-[data-theme="dark"] .week-header-arr{color:var(--terracotta)}
-.pj-tab-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#E2B554;margin-left:4px;vertical-align:middle;flex-shrink:0}
-[data-theme="dark"] .pj-tab-dot{background:var(--terracotta)}
 .settings-btn{min-width:44px;min-height:44px;width:auto;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:flex-start;color:var(--text);padding:0;flex-shrink:0}
 .settings-btn:active{opacity:0.4}
 .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -207,7 +190,7 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .overflow-item{display:flex;align-items:center;gap:10px;width:100%;padding:12px 16px;background:none;border:none;font-family:var(--sans);font-size:14px;color:var(--ink);cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;white-space:nowrap}
 .overflow-item:active{background:var(--rule)}
 .overflow-item svg{flex-shrink:0;opacity:0.6}
-.overflow-item-danger{color:#D6542D}
+.overflow-item-danger{color:var(--s2-warn)}
 .overflow-item-danger svg{opacity:1}
 [data-theme="dark"] .overflow-menu{box-shadow:0 4px 16px rgba(0,0,0,0.4)}
 [data-theme="dark"] .overflow-btn{color:var(--text);opacity:1}
@@ -249,14 +232,6 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .today-sheet-prompt-txt{font-family:var(--sans);font-size:16px;color:var(--text);line-height:1.65;font-weight:300;text-align:center}
 .today-sheet-skel{background:#EBEBEB;border-radius:85px;height:12px;margin:5px auto;display:block}
 .today-sheet-btns{display:flex;align-items:center;justify-content:center;padding:32px 0 24px;flex-shrink:0}
-.today-sheet-cam{display:flex;align-items:center;justify-content:center;width:88px;height:88px;border-radius:50%;background:none;border:none;padding:0;cursor:pointer;transition:opacity .15s,transform .1s}
-.today-sheet-cam:active{opacity:.75;transform:scale(0.92)}
-.cam-outer{fill:#0C0C0C}
-.cam-border{fill:#FFFDFA}
-.cam-center{fill:#E2B554}
-[data-theme="dark"] .cam-outer{fill:#FFFDFA}
-[data-theme="dark"] .cam-border{fill:#0C0C0C}
-[data-theme="dark"] .cam-center{fill:#D6542D}
 .today-sheet-icon-btn{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;margin:0 36px;opacity:0.7}
 .today-sheet-icon-btn:active{opacity:.4}
 .theme-next-week{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--text-2);margin-top:8px;padding:0 16px 14px}

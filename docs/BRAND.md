@@ -232,14 +232,3 @@ Examples:
 - Week-review modal and weekly-theme pipeline.
 - v1 Day One-style day-detail sheet.
 
-### Known legacy holdouts (migration TODOs)
-
-These spots still reference the retired raw hex values directly (not via the neutralized `--terracotta` / `--sage` / `--gold` aliases). They're not on brand but haven't been migrated yet:
-
-- `.ob-wrap` — raw `#4F5E2E` (sage) as onboarding wrap bg
-- `.week-header-lbl` / `.week-header-arr` — raw `#E2B554` (gold), with `--terracotta` in dark mode
-- `.pj-tab-dot` — raw `#E2B554` (gold)
-- `.overflow-item-danger` — raw `#D6542D` (terracotta)
-- `.cam-center` — raw `#E2B554` fill, `#D6542D` in dark mode
-
-When touching these components, migrate to press-green or neutral tokens.
