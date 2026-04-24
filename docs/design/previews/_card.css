@@ -1,0 +1,103 @@
+/* Preview-card base. Every card is a 700px-wide paper surface. */
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/Fraunces-VariableFont_SOFT_WONK_opsz_wght.ttf') format('truetype-variations'),
+       url('../fonts/Fraunces-VariableFont_SOFT_WONK_opsz_wght.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/Fraunces-Italic-VariableFont_SOFT_WONK_opsz_wght.ttf') format('truetype-variations'),
+       url('../fonts/Fraunces-Italic-VariableFont_SOFT_WONK_opsz_wght.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../fonts/GeistMono-VariableFont_wght.ttf') format('truetype-variations'),
+       url('../fonts/GeistMono-VariableFont_wght.ttf') format('truetype');
+}
+
+:root {
+  --s2-paper: #FFFDFA;
+  --s2-paper-2: #F7F3EC;
+  --s2-grouped-bg: #F2F1EC;
+  --s2-ink: #0C0C0C;
+  --s2-archive: #3A3A35;
+  --s2-smoke: #8A8680;
+  --s2-bone: #D8D7D4;
+  --s2-tint-light: rgba(12, 12, 12, 0.05);
+  --s2-tint-dark: #22221F;
+  --s2-press-green: #007C04;
+  --s2-warn: #C8102E;
+  --s2-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --s2-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --s2-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--s2-paper);
+  color: var(--s2-ink);
+  font-family: var(--s2-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  width: 700px;
+  padding: 28px 32px;
+}
+
+/* Typographic utilities used across cards */
+.mono { font-family: var(--s2-mono); }
+.serif { font-family: var(--s2-serif); }
+.sans { font-family: var(--s2-sans); }
+
+.label {
+  font-family: var(--s2-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--s2-smoke);
+}
+
+.hairline { border: 0; height: 1px; background: var(--s2-bone); margin: 0; }
+
+/* Swatch building blocks */
+.row { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+
+.chip {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 10px 12px;
+  border-radius: 4px;
+  height: 88px;
+  position: relative;
+}
+.chip .hex {
+  font-family: var(--s2-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.chip .role {
+  font-family: var(--s2-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 2px;
+  opacity: 0.7;
+}
