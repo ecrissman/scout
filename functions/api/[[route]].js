@@ -2,6 +2,7 @@
 // Cloudflare Pages Function — handles all /api/* routes
 
 import { sendWebPush } from './_webpush.js';
+import { resolvePersona } from './_personas.js';
 
 // Module-level JWKS cache — persists across requests on the same Worker instance
 let cachedJWKS = null;
@@ -269,8 +270,7 @@ export async function onRequest({ request, env, params }) {
 
     for (const [tz, group] of byTz) {
       const lp = localParts(tz);
-      // TEMP test window: fire at 18:45 local (6:45pm). Revert to 20:00 after testing.
-      if (!lp || lp.hour !== 18 || lp.minute < 45 || lp.minute > 59) { skipped += group.length; continue; }
+      if (!lp || lp.hour !== 20) { skipped += group.length; continue; }
       const { date } = lp;
 
       for (const s of group) {
@@ -713,9 +713,9 @@ export async function onRequest({ request, env, params }) {
   // parallel on the edge.
   if (route === 'ai/brief' && method === 'POST') {
     const body = await request.json().catch(() => ({}));
-    const { mood, time, constraint, lat: inLat, lon: inLon } = body;
-    if (!mood || !time || !constraint) {
-      return json({ error: 'mood, time, and constraint are required' }, 400);
+    const { mood, time, constraint, lat: inLat, lon: inLon, voice: inVoice } = body;
+    if (!mood) {
+      return json({ error: 'mood is required' }, 400);
     }
 
     // Fall back to Seattle if no coords provided (mirrors /ai/prompt behavior).
@@ -723,24 +723,21 @@ export async function onRequest({ request, env, params }) {
     const lon = typeof inLon === 'number' ? inLon : -122.3321;
     const { autoLight, autoPlace } = await detectContext(lat, lon);
 
-    const systemPrompt = `You are composing field notes for a photographer using Scout, a photo-a-day app with an editorial, field-journal sensibility. Given their current state and conditions, write a brief that is:
+    // Resolve the persona via the shared module — legacy IDs fold to 'editor'.
+    // Voice rules, character, exemplars, and sign-off all live in _personas.js
+    // (source of truth: /docs/personas/MATRIX.md).
+    const persona = resolvePersona(inVoice);
+    const voice = persona.id;
 
-- 4 to 15 words maximum. Shorter is better.
-- Fragment-style. Use periods to break phrases.
-- Evocative, not instructive. Literary, not technical.
-- Never use the words "photograph," "photo," "picture," "shoot," or "capture." The photography is implied.
-- Never explain the why. Trust the reader.
-- Draw from a quiet, literary vocabulary: light, edge, quiet, weight, seam, margin, shadow, texture, shape, breath, line.
-- Leave room for interpretation. Don't over-specify.
-
-Respond with ONLY the prompt text. No preamble, no quotes, no explanation.`;
-
+    // Place is intentionally withheld from the model — it pattern-matches
+    // geography from the city name (Seattle → tide/harbor) even when the
+    // photographer is nowhere near that feature. UI still displays autoPlace
+    // in the Compose header.
     const userContent = [
       `Mood: ${mood}`,
       `Light: ${autoLight}`,
-      autoPlace ? `Place: ${autoPlace}` : null,
-      `Time available: ${time}`,
-      `Constraint: ${constraint}`,
+      time ? `Time available: ${time}` : null,
+      constraint ? `Constraint: ${constraint}` : null,
     ].filter(Boolean).join('\n');
 
     const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
@@ -748,8 +745,9 @@ Respond with ONLY the prompt text. No preamble, no quotes, no explanation.`;
       headers: anthropicHeaders(env),
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 80,
-        system: systemPrompt,
+        max_tokens: 180,
+        temperature: 0.95,
+        system: persona.briefSystem,
         messages: [{ role: 'user', content: userContent }],
       }),
     });
@@ -760,16 +758,21 @@ Respond with ONLY the prompt text. No preamble, no quotes, no explanation.`;
     }
     const aiData = await aiRes.json();
     const brief = (aiData.content?.[0]?.text ?? '').trim();
-    return json({ brief, autoLight, autoPlace });
+    return json({ brief, autoLight, autoPlace, voice });
   }
 
   // ── POST /api/ai/editor-note/[date] ──────────────────────────────────────
-  // v2 brand — an editor's note on a filed photo. Uses the editorial voice
-  // from the brand handoff. If meta.compose.brief exists, passes it as
-  // context so the note can reference the assignment. Persists to
-  // meta.editorNote + meta.editorNoteAt.
+  // v2 brand — an editor's note on a filed photo. The persona who wrote the
+  // morning brief also writes the evening note — voice stays coherent all
+  // day. Voice resolves from the request body (voice field) with legacy ID
+  // migration. If meta.compose.brief exists, passes it as context so the
+  // note can reference the assignment. Persists to meta.editorNote +
+  // meta.editorNoteAt.
   if (/^ai\/editor-note\/\d{4}-\d{2}-\d{2}$/.test(route) && method === 'POST') {
     const date = route.split('/')[2];
+    const noteBody = await request.json().catch(() => ({}));
+    const persona = resolvePersona(noteBody?.voice);
+
     const imgObj = await env.PHOTOS.get(`photos/${uid}/${date}/full.jpg`);
     if (!imgObj) return json({ error: 'No photo for this date' }, 404);
 
@@ -788,29 +791,8 @@ Respond with ONLY the prompt text. No preamble, no quotes, no explanation.`;
       caption = meta?.caption || null;
     }
 
-    const systemPrompt = `You are the editor at Scout — a daily photography practice framed as press work. A photographer has just filed their take on today's assignment. Write a short editor's note: real craft feedback, then a verdict on whether the frame is publication-worthy.
-
-Structure (3 to 5 sentences, prose — no headings, no bullets):
-1. Open on one specific thing the frame does well — light, composition, moment, geometry, edge, tone. Be concrete. Name what you see.
-2. Name one honest drag — crop, timing, dead space, horizon, focus, competing subject, the lede being buried. Kind but frank. If the frame is genuinely strong, you can skip this and extend the praise instead; don't invent weakness.
-3. Close with a verdict that alludes to publication. Vary the phrasing: "goes in the edition," "strong contender," "we run it," "hold for a re-shoot," "file it as a study, not the lead," "close but buries the lede," "makes the edition on its own terms." Never hedge with "maybe" — take a stand.
-
-Voice: terse, declarative, observational. Warm beneath the restraint. Marking the margin of a proof at 3 AM. A senior editor who respects the photographer enough to be honest.
-
-Avoid:
-- "amazing," "beautiful," "great," "stunning," "capture," "journey," "powerful"
-- hype, motivational language, emojis, exclamation points
-- explaining the photo back to the photographer ("I can see the tree...")
-- ending with a question
-- starting with "This photo..." or "The image..." or "Your..."
-- hedging ("might be," "could be," "perhaps")
-
-Draw from a quiet vocabulary: light, edge, weight, seam, margin, shadow, texture, shape, line, breath, frame, register, key, grain, subject, ground.
-
-Respond with ONLY the note. No preamble, no sign-off, no quotes, no "Editor's note:" prefix.`;
-
     const contextLines = [
-      brief ? `The brief: ${brief}` : null,
+      brief ? `Today's brief (yours): ${brief}` : null,
       caption ? `Photographer's caption: ${caption}` : null,
     ].filter(Boolean);
     const textBlock = contextLines.length
@@ -823,7 +805,8 @@ Respond with ONLY the note. No preamble, no sign-off, no quotes, no "Editor's no
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 320,
-        system: systemPrompt,
+        temperature: 0.9,
+        system: persona.noteSystem,
         messages: [{
           role: 'user',
           content: [
@@ -842,16 +825,18 @@ Respond with ONLY the note. No preamble, no sign-off, no quotes, no "Editor's no
     const editorNote = (aiData.content?.[0]?.text ?? '').trim();
     const editorNoteAt = new Date().toISOString();
 
-    // Persist into meta.json.
+    // Persist into meta.json. editorVoice records which persona wrote the
+    // note so the archive can re-render the sign-off correctly even if the
+    // user switches personas later.
     if (meta) {
       await env.PHOTOS.put(
         `photos/${uid}/${date}/meta.json`,
-        JSON.stringify({ ...meta, editorNote, editorNoteAt }),
+        JSON.stringify({ ...meta, editorNote, editorNoteAt, editorVoice: persona.id }),
         { httpMetadata: { contentType: 'application/json' } }
       );
     }
 
-    return json({ editorNote, editorNoteAt });
+    return json({ editorNote, editorNoteAt, editorVoice: persona.id });
   }
 
   // ── POST /api/ai/caption/[date] ──────────────────────────────────────────

@@ -6,7 +6,7 @@ compatibility_date = "2024-11-01"
 # only delivers to subscriptions whose local time is 20:00, so hourly
 # ticks cover every timezone.
 [triggers]
-crons = ["45 * * * *"]
+crons = ["0 * * * *"]
 
 # Set these with:
 #   wrangler secret put WEBHOOK_SECRET

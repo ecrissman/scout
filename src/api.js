@@ -47,49 +47,11 @@ export async function listYear(year) {
   } catch { return []; }
 }
 
-export async function getTheme() {
-  try {
-    const r = await fetch(`${BASE}/theme/current`, await req('GET'));
-    if (!r.ok) return null;
-    return r.json();
-  } catch { return null; }
-}
-
-export async function getNextWeekTheme(nextSundayStr) {
-  try {
-    const r = await fetch(`${BASE}/theme/current?date=${nextSundayStr}`, await req('GET'));
-    if (!r.ok) return null;
-    return r.json();
-  } catch { return null; }
-}
-
-export async function getTodayPrompt(date, coords) {
-  try {
-    const qs = coords ? `?lat=${coords.lat}&lon=${coords.lon}` : '';
-    const r = await fetch(`${BASE}/ai/prompt/${date}${qs}`, await req('GET'));
-    return r.json();
-  } catch { return null; }
-}
-
 export async function getCaptionSuggestion(date) {
   try {
     const r = await fetch(`${BASE}/ai/caption/${date}`, await req('POST'));
     return r.json();
   } catch { return null; }
-}
-
-export async function requestAccess({ name, email, note }) {
-  try {
-    const r = await fetch(`${BASE}/waitlist`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, note }),
-    });
-    const data = await r.json();
-    if (r.status === 409) return { error: 'already_submitted' };
-    if (!r.ok) return { error: data.error || 'Something went wrong' };
-    return { ok: true };
-  } catch { return { error: 'Something went wrong' }; }
 }
 
 export async function deletePhoto(date) {
@@ -128,9 +90,9 @@ export async function getContext({ lat, lon }) {
 // v2 brand: compose a brief from user inputs + server-detected light/place.
 // Returns { brief, autoLight, autoPlace }. Client passes lat/lon; server
 // handles weather + reverse-geo so the Anthropic key stays on the edge.
-export async function composeBrief({ mood, time, constraint, lat, lon }) {
+export async function composeBrief({ mood, time, constraint, lat, lon, voice }) {
   try {
-    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { mood, time, constraint, lat, lon }));
+    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { mood, time, constraint, lat, lon, voice }));
     if (!r.ok) return null;
     return r.json();
   } catch { return null; }
@@ -138,9 +100,9 @@ export async function composeBrief({ mood, time, constraint, lat, lon }) {
 
 // v2 brand: editor's note for a filed photo. Returns { editorNote, editorNoteAt }.
 // Persists the note into the photo's meta.json.
-export async function getEditorNote(date) {
+export async function getEditorNote(date, voice) {
   try {
-    const r = await fetch(`${BASE}/ai/editor-note/${date}`, await req('POST'));
+    const r = await fetch(`${BASE}/ai/editor-note/${date}`, await req('POST', { voice }));
     if (!r.ok) return null;
     return r.json();
   } catch { return null; }

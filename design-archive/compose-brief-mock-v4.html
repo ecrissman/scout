@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scout · Compose Brief (v4)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600&family=Inconsolata:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --terracotta:#D6542D;
+    --sage:#4F5E2E;
+    --paper:#FFFDFA;
+    --ink:#0C0C0C;
+    --warm-mid:#8C857C;
+    --rule:#E3E1DD;
+    --field-bg:#F5F2EC;
+    --serif:"Fraunces", Georgia, serif;
+    --mono:"Inconsolata", ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#EFEDE8;font-family:var(--mono);color:var(--ink)}
+  body{padding:32px 16px 80px;display:flex;gap:32px;justify-content:center;flex-wrap:wrap;align-items:flex-start}
+  .caption{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--warm-mid);text-align:center;margin-bottom:10px}
+  .phone{
+    width:390px;background:var(--paper);border-radius:28px;
+    box-shadow:0 2px 4px rgba(0,0,0,.04),0 20px 60px rgba(0,0,0,.12);
+    overflow:hidden;position:relative;
+  }
+  .status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-family:var(--mono);font-size:13px;font-weight:600}
+  .chrome{display:flex;justify-content:space-between;align-items:center;padding:4px 16px 2px}
+  .icn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:18px}
+  .hd{padding:10px 20px 24px}
+  .title{font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:-.015em;margin:0;line-height:1.05}
+  .dateline{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--warm-mid);margin-top:6px}
+
+  .section{padding:0 20px;margin-bottom:22px}
+  .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--warm-mid);margin-bottom:10px}
+
+  /* Feeling — card scroll, flat field-bg */
+  .mood-scroll{
+    display:flex;gap:8px;overflow-x:auto;padding:2px 20px 4px;margin:0 -20px;
+    scroll-snap-type:x mandatory;scrollbar-width:none;
+  }
+  .mood-scroll::-webkit-scrollbar{display:none}
+  .mood-card{
+    flex:0 0 96px;aspect-ratio:3/4;scroll-snap-align:start;
+    background:var(--field-bg);border-radius:12px;
+    display:flex;align-items:flex-end;padding:14px 12px;cursor:pointer;
+    transition:background .15s, color .15s;
+  }
+  .mood-card .lbl-m{
+    font-family:var(--serif);font-weight:500;font-size:17px;letter-spacing:-.005em;color:var(--ink);
+  }
+  .mood-card.sel{background:var(--ink)}
+  .mood-card.sel .lbl-m{color:var(--paper)}
+
+  /* Angle — soft card, serif hero */
+  .angle-card{
+    background:var(--field-bg);border-radius:12px;padding:16px 16px 12px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .angle-text{font-family:var(--serif);font-weight:500;font-size:20px;line-height:1.25;letter-spacing:-.01em;color:var(--ink)}
+  .angle-actions{display:flex;gap:18px;align-items:center}
+  .angle-actions a{font-family:var(--mono);font-size:12px;color:var(--warm-mid);cursor:pointer;text-decoration:none}
+  .angle-actions a:first-child{color:var(--terracotta)}
+  .angle-actions a:hover{color:var(--ink)}
+
+  /* Time — 4 separate pills, flat */
+  .time-row{display:flex;gap:6px}
+  .time-pill{
+    flex:1;padding:11px 0;text-align:center;background:var(--field-bg);border-radius:10px;
+    font-family:var(--mono);font-size:12px;color:var(--warm-mid);cursor:pointer;
+  }
+  .time-pill.sel{background:var(--ink);color:var(--paper);font-weight:600}
+
+  /* Context — 2-up cards, flat */
+  .ctx-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ctx-card{
+    background:var(--field-bg);border-radius:12px;padding:14px;
+    display:flex;flex-direction:column;gap:4px;
+  }
+  .ctx-card .val{font-family:var(--serif);font-weight:500;font-size:16px;color:var(--ink);letter-spacing:-.005em;line-height:1.2}
+  .ctx-card .sub{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--warm-mid);text-transform:uppercase}
+
+  /* CTA */
+  .footer-cta{padding:12px 20px 26px}
+  .cta{
+    display:block;width:100%;padding:15px;background:var(--ink);color:var(--paper);
+    border:none;border-radius:10px;font-family:var(--mono);font-size:13px;font-weight:600;
+    letter-spacing:.12em;text-transform:uppercase;cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div>
+  <div class="caption">Compose Brief · v4</div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>●●● 5G ▮</span></div>
+
+    <div class="chrome">
+      <div class="icn">←</div>
+      <div class="icn">⋯</div>
+    </div>
+
+    <div class="hd">
+      <h1 class="title">Daily Brief</h1>
+      <div class="dateline">Fri · Apr 17 · №&nbsp;017</div>
+    </div>
+
+    <div class="section"><div class="lbl">Feeling</div></div>
+    <div class="mood-scroll">
+      <div style="flex:0 0 12px"></div>
+      <div class="mood-card sel"><div class="lbl-m">Lovely</div></div>
+      <div class="mood-card"><div class="lbl-m">Relaxed</div></div>
+      <div class="mood-card"><div class="lbl-m">Restless</div></div>
+      <div class="mood-card"><div class="lbl-m">Pensive</div></div>
+      <div class="mood-card"><div class="lbl-m">Electric</div></div>
+      <div class="mood-card"><div class="lbl-m">Quiet</div></div>
+      <div class="mood-card"><div class="lbl-m">Curious</div></div>
+      <div style="flex:0 0 12px"></div>
+    </div>
+
+    <div style="height:22px"></div>
+
+    <div class="section">
+      <div class="lbl">Angle</div>
+      <div class="angle-card">
+        <div class="angle-text">"Edge light only."</div>
+        <div class="angle-actions">
+          <a>↻ Try another</a>
+          <a>Skip</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="lbl">Time Box</div>
+      <div class="time-row">
+        <div class="time-pill sel">Off</div>
+        <div class="time-pill">15 min</div>
+        <div class="time-pill">1 hr</div>
+        <div class="time-pill">3 hr</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="lbl">Context</div>
+      <div class="ctx-row">
+        <div class="ctx-card">
+          <div class="val">62°F · Clear</div>
+          <div class="sub">Gold in 2h 14m</div>
+        </div>
+        <div class="ctx-card">
+          <div class="val">Ballard</div>
+          <div class="sub">Seattle, WA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-cta">
+      <button class="cta">Compose Brief</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,39 +1,86 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { composeBrief, getContext, uploadPhoto, getEditorNote } from '../api';
+import { splitBrief } from '../personas';
 import { extractEXIF, compressFile, makeThumb } from '../exif';
+import { startTimer, clearTimer, getTimer, parseTimeLabel } from './timer';
+import TimerBlock from './TimerBlock';
 
-// Mood / constraint lists carried forward from the silo prototype. The brand
-// guide mockup shows "Quiet" and "Shoot through something" as representative
-// picks, so those stay in the list. Keep moods short enough to render in a
-// single iOS row without truncation.
-const MOODS = ['Restless', 'Quiet', 'Curious', 'Heavy', 'Playful', 'Open', 'Tender', 'Sharp'];
-const TIMES = ['5 min', '20 min', '1 hour'];
+const MOODS = ['Lovely', 'Relaxed', 'Restless', 'Pensive', 'Electric', 'Quiet', 'Curious', 'Tender', 'Bold'];
+const TIMES = ['Off', '3 min', '15 min', '1 hr', '3 hr'];
+// Weather glyph set — 24x24, 1.8 stroke, inherits currentColor. Matches the
+// labels returned by /api/ai/context (see functions/api lightDescFromCode).
+// Keys are lowercased; fallback is 'ambient' (sun).
+const WeatherIcon = ({ label }) => {
+  const k = (label || '').toLowerCase();
+  const common = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, className: 's2-ctx-card-icon' };
+  if (k.startsWith('clear') || k === 'mostly clear' || k === 'ambient') return (
+    <svg {...common}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+  );
+  if (k === 'partly cloudy') return (
+    <svg {...common}><circle cx="8" cy="9" r="3" /><path d="M8 2v1.5M2.5 9H4M3.6 4.6l1 1M12.4 4.6l-1 1" /><path d="M9 15h7.5a3.5 3.5 0 0 1 0 7H9a3.5 3.5 0 0 1 0-7z" /></svg>
+  );
+  if (k === 'overcast') return (
+    <svg {...common}><path d="M6 10h10.5a3.5 3.5 0 0 1 0 7H6a3.5 3.5 0 0 1 0-7z" /><path d="M4 15.5h10.5a3.5 3.5 0 0 1 0 7H4" /></svg>
+  );
+  if (k === 'fog') return (
+    <svg {...common}><path d="M4 8h16M3 13h18M5 18h14" /></svg>
+  );
+  if (k === 'drizzle') return (
+    <svg {...common}><path d="M7 11h10a3.5 3.5 0 0 1 0 7H7a3.5 3.5 0 0 1 0-7z" /><path d="M10 20v1.5M14 20v1.5" /></svg>
+  );
+  if (k === 'rain' || k === 'showers') return (
+    <svg {...common}><path d="M7 8h10a3.5 3.5 0 0 1 0 7H7a3.5 3.5 0 0 1 0-7z" /><path d="M9 17l-1 4M13 17l-1 4M17 17l-1 4" /></svg>
+  );
+  if (k === 'snow') return (
+    <svg {...common}><path d="M7 8h10a3.5 3.5 0 0 1 0 7H7a3.5 3.5 0 0 1 0-7z" /><path d="M9 18v3M9 19.5h0M13 18v3M13 19.5h0M17 18v3M17 19.5h0" /></svg>
+  );
+  if (k === 'storm') return (
+    <svg {...common}><path d="M7 8h10a3.5 3.5 0 0 1 0 7H7a3.5 3.5 0 0 1 0-7z" /><path d="M13 16l-3 4h3l-2 3" /></svg>
+  );
+  // Fallback
+  return (
+    <svg {...common}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+  );
+};
+
 const CONSTRAINTS = [
   'Look up',
+  'Look down',
   'One color only',
   'No people',
-  'Shoot through something',
+  'Only reflections',
+  'Through something',
+  'Through glass',
   'Find an edge',
   'Lowest angle you can',
   "Only what's within arm's reach",
+  "Nothing farther than 10 feet",
   'Negative space',
   'A single shape, repeated',
   'Where light ends',
   'Between two things',
   'Soft against hard',
+  'Out of focus on purpose',
+  'Deliberate blur',
+  'Just a texture',
+  'One shadow',
+  'A corner, any corner',
+  'The thing behind the thing',
+  "What you almost stepped on",
+  'An accidental still life',
+  'Something small, made large',
+  'Something plastic',
+  'Something handwritten',
+  'A mess, not cleaned up',
+  "What's on the floor",
+  "The view from sitting down",
+  "A thing someone else placed",
+  'One object, your worst angle of it',
+  "The ugliest thing nearby",
+  'Only warm tones',
+  'Only cool tones',
+  'A face that isn\'t a face',
 ];
-
-// Chevron and check glyphs as inline SVG — no icon library dependency.
-const ChevRight = ({ color = 'currentColor' }) => (
-  <svg width="7" height="12" viewBox="0 0 7 12" fill="none" aria-hidden="true">
-    <path d="M1 1L6 6L1 11" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-const Check = ({ color = 'currentColor' }) => (
-  <svg width="14" height="11" viewBox="0 0 14 11" fill="none" aria-hidden="true">
-    <path d="M1 5.5L5 9.5L13 1" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
 
 // Format the clock portion of the Compose dateline — "8:17" or "14:47".
 const formatClock = (d) => {
@@ -69,21 +116,22 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   }, [now]);
 
   const [mood, setMood] = useState(null);
-  const [timeIdx, setTimeIdx] = useState(1); // default "20 min"
+  const [timeIdx, setTimeIdx] = useState(0); // default "Off"
   const [constraintIdx, setConstraintIdx] = useState(() =>
     Math.floor(Math.random() * CONSTRAINTS.length)
   );
+  const [angleSkipped, setAngleSkipped] = useState(false);
   const [coords, setCoords] = useState(null);
   const [autoLight, setAutoLight] = useState(null);
   const [autoPlace, setAutoPlace] = useState(null);
-  const [moodSheetOpen, setMoodSheetOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [brief, setBrief] = useState(() => {
-    // Dev-only: ?brief=<text> renders the Brief reveal directly for design
-    // iteration without going through auth + the full compose round-trip.
     const p = new URLSearchParams(window.location.search);
-    return p.get('brief') || null;
+    if (p.get('brief')) return p.get('brief');
+    const t = getTimer();
+    if (t && t.brief) return t.brief;
+    return null;
   });
 
   // File-a-take state machine. Advances Compose → Brief → Uploading →
@@ -92,6 +140,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   const [stage, setStage] = useState(() => {
     const p = new URLSearchParams(window.location.search);
     if (p.get('brief')) return 'brief';
+    const t = getTimer();
+    if (t && t.brief) return 'brief';
     return 'compose';
   });
   const [fileError, setFileError] = useState(null);
@@ -139,7 +189,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   );
 
   const time = TIMES[timeIdx];
-  const constraint = CONSTRAINTS[constraintIdx % CONSTRAINTS.length];
+  const timeForApi = timeIdx === 0 ? null : time;
+  const constraint = angleSkipped ? null : CONSTRAINTS[constraintIdx % CONSTRAINTS.length];
 
   // Request geolocation once on mount; silent fallback if denied/unavailable.
   useEffect(() => {
@@ -163,21 +214,39 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     return () => { cancelled = true; };
   }, [coords]);
 
-  const rerollConstraint = () =>
+  const rerollConstraint = () => {
+    setAngleSkipped(false);
     setConstraintIdx((i) => (i + 1 + Math.floor(Math.random() * (CONSTRAINTS.length - 1))) % CONSTRAINTS.length);
+  };
+  const skipAngle = () => setAngleSkipped(true);
 
   const canCompose = mood !== null && !loading;
 
+  const [firstBrief, setFirstBrief] = useState(() => localStorage.getItem('scout-first-brief-seen') !== '1');
+
+  const dismissFirstBrief = () => {
+    if (!firstBrief) return;
+    localStorage.setItem('scout-first-brief-seen', '1');
+    setFirstBrief(false);
+  };
+
+  const pickMood = (m) => {
+    setMood(m);
+    dismissFirstBrief();
+  };
+
   const compose = async () => {
     if (!canCompose) return;
+    dismissFirstBrief();
     setLoading(true);
     setError(null);
     const res = await composeBrief({
       mood,
-      time,
+      time: timeForApi,
       constraint,
       lat: coords?.lat,
       lon: coords?.lon,
+      voice: (typeof localStorage !== 'undefined' && localStorage.getItem('scout-brief-voice')) || 'current',
     });
     setLoading(false);
     if (!res || res.error) {
@@ -188,6 +257,9 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     setStage('brief');
     if (res.autoLight) setAutoLight(res.autoLight);
     if (res.autoPlace) setAutoPlace(res.autoPlace);
+    const durationMs = parseTimeLabel(timeForApi);
+    if (durationMs > 0) startTimer({ date: todayKey, durationMs, brief: res.brief });
+    else clearTimer();
   };
 
   const recompose = () => {
@@ -211,7 +283,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       const thumbSrc = await makeThumb(fullSrc);
       const composeStack = {
         mood,
-        time,
+        time: timeForApi,
         constraint,
         autoLight,
         autoPlace,
@@ -221,6 +293,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       };
       const ok = await uploadPhoto(todayKey, { fullSrc, thumbSrc, exif, caption: '', compose: composeStack });
       if (!ok) throw new Error('Upload failed. Check connection and retry.');
+      clearTimer();
       setStage('filed');
       if (typeof onFiled === 'function') {
         try { onFiled({ date: todayKey, compose: composeStack }); } catch {}
@@ -284,7 +357,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // (as the Field Note block) when the user closes this tray.
   useEffect(() => {
     if (stage !== 'filed') return;
-    getEditorNote(todayKey).catch(() => {});
+    const voice = (typeof localStorage !== 'undefined' && localStorage.getItem('scout-brief-voice')) || 'editor';
+    getEditorNote(todayKey, voice).catch(() => {});
   }, [stage, todayKey]);
 
   // Header dateline: "Overcast · Capitol Hill · 8:17" (filtered for nulls).
@@ -306,18 +380,15 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     return (
       <div className={trayClass}>
         <PageHeader />
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'stretch' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 32px', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 96, marginBottom: 56 }}>
             <span className="s2-stamp-filed" style={{ fontSize: 'var(--fs-base)', padding: '10px 22px' }}>Filed</span>
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-3xl)', color: 'var(--s2-text-primary)', lineHeight: 1.15, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 14 }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-3xl)', color: 'var(--s2-text-primary)', lineHeight: 1.15, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 22 }}>
             Your take is in.
           </div>
-          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-base)', color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 320, margin: '0 auto 16px' }}>
+          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-base)', color: 'var(--s2-text-secondary)', lineHeight: 1.55, textAlign: 'center', maxWidth: 320, margin: '0 auto', marginBottom: 'auto' }}>
             Your editor will review it. We'll let you know when their note is ready.
-          </div>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 'auto' }}>
-            Archive {formatDispatchDate(now)} · {clock}
           </div>
           <button className="s2-btn-primary" onClick={dismiss}>
             Close
@@ -424,13 +495,21 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // competes with the brief itself.
   if (stage === 'brief' && brief) {
     const briefNumber = dayOfYear(now);
-    const revealed = brief.slice(0, briefShown);
+    const { body: briefBody, signature: briefSig } = splitBrief(brief);
+    const revealedFull = brief.slice(0, briefShown);
     const typing = briefShown < brief.length;
+    // Reveal the sign-off line only once the body is fully typed, and keep
+    // the typewriter strictly on the body portion so the signature doesn't
+    // type character-by-character.
+    const bodyRevealed = briefSig
+      ? revealedFull.slice(0, Math.min(revealedFull.length, briefBody.length))
+      : revealedFull;
+    const sigShown = briefSig && briefShown >= brief.length;
     return (
       <div className={trayClass}>
         <PageHeader />
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '28px 28px 28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '44px 28px 36px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 72 }}>
             <span className="s2-stamp-dispatch">New Assignment</span>
             <button
               className="s2-icon-btn"
@@ -444,17 +523,20 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
               </svg>
             </button>
           </div>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
-            Dispatch · {formatDispatchDate(now)} · {clock}
+          <div style={{ marginBottom: 'auto' }}>
+            <div className="s2-serif" style={{ fontSize: 'var(--fs-xl)', color: 'var(--s2-text-primary)', lineHeight: 1.4, letterSpacing: '-0.01em' }}>
+              {bodyRevealed}
+              {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
+            </div>
+            {sigShown && (
+              <div className="note-reveal-sig" style={{ marginTop: 20 }}>{briefSig}</div>
+            )}
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
-            {revealed}
-            {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
+          <div style={{ margin: '32px -28px 0' }}>
+            <TimerBlock />
           </div>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 28, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <span>Brief {briefNumber} / 365</span>
-            <span style={{ color: 'var(--s2-bone)' }}>·</span>
-            <span>File by 23:59</span>
+          <div className="s2-mono" style={{ fontSize: 12, color: 'var(--s2-text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 48, marginBottom: 36, textAlign: 'center' }}>
+            Brief {briefNumber} / 365 &nbsp;·&nbsp; File by 23:59
           </div>
           {fileError && (
             <div className="s2-mono" style={{ color: 'var(--s2-warn)', fontSize: 'var(--fs-sm)', marginBottom: 10 }}>
@@ -471,26 +553,48 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   }
 
   // ───────────── Compose form ─────────────
+  const briefNumber = dayOfYear(now);
   return (
     <div className={trayClass}>
       <PageHeader />
 
+      {firstBrief && (
+        <div className="s2-first-assignment" role="note">
+          <div className="s2-first-assignment-label">Your first assignment</div>
+          <div className="s2-first-assignment-body">Pick a mood to compose your first brief.</div>
+        </div>
+      )}
+
       <div className="s2-title-block">
         <h1 className="s2-title">Daily Brief</h1>
-        {headerBits && <div className="s2-dateline" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>{headerBits}</div>}
-      </div>
-
-      <div className="s2-section-label">MOOD</div>
-      <div className="s2-list">
-        <div className="s2-list-row" onClick={() => setMoodSheetOpen(true)} role="button" tabIndex={0}>
-          <div className="s2-list-row-label" style={{ color: mood ? 'var(--s2-text-primary)' : 'var(--s2-text-muted)' }}>
-            {mood || 'Choose a mood…'}
-          </div>
-          <ChevRight color="var(--s2-text-muted)" />
+        <div className="s2-dateline" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          {now.toLocaleDateString('en-US', { weekday: 'short' })} · {now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · №&nbsp;{String(briefNumber).padStart(3, '0')}
         </div>
       </div>
 
-      <div className="s2-section-label">TIME</div>
+      <div className="s2-section-label">How are you feeling?</div>
+      <div className="s2-mood-scroll">
+        {MOODS.map((m) => (
+          <button
+            key={m}
+            className={`s2-mood-pill ${mood === m ? 'active' : ''}`}
+            onClick={() => pickMood(m)}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+
+      <div className="s2-section-label">The angle</div>
+      <div className="s2-angle-card">
+        <div className="s2-angle-text">{angleSkipped ? 'No angle — blank canvas.' : `“${constraint}”`}</div>
+        <div className="s2-angle-actions">
+          <button className="s2-angle-primary" onClick={rerollConstraint}>↻ Try another</button>
+          {!angleSkipped && <button onClick={skipAngle}>Skip</button>}
+        </div>
+      </div>
+
+      <div className="s2-section-label">Time Box</div>
       <div className="s2-segmented">
         {TIMES.map((t, i) => (
           <button
@@ -503,13 +607,26 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         ))}
       </div>
 
-      <div className="s2-section-label">CONSTRAINT</div>
-      <div className="s2-list">
-        <div className="s2-list-row" onClick={rerollConstraint} role="button" tabIndex={0}>
-          <div className="s2-list-row-label">{constraint}</div>
-          <div className="s2-list-row-trail">↻ New</div>
-        </div>
-      </div>
+      {(autoLight || autoPlace) && (
+        <>
+          <div className="s2-section-label">Context</div>
+          <div className="s2-ctx-row">
+            <div className="s2-ctx-card">
+              <WeatherIcon label={autoLight} />
+              <div className="s2-ctx-card-val">{autoLight || '—'}</div>
+              <div className="s2-ctx-card-sub">{clock}</div>
+            </div>
+            <div className="s2-ctx-card">
+              <svg className="s2-ctx-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                <path d="M12 22s7-6 7-12a7 7 0 10-14 0c0 6 7 12 7 12z" />
+                <circle cx="12" cy="10" r="2.5" />
+              </svg>
+              <div className="s2-ctx-card-val">{autoPlace || '—'}</div>
+              <div className="s2-ctx-card-sub">Nearby</div>
+            </div>
+          </div>
+        </>
+      )}
 
       {error && (
         <div className="s2-mono" style={{ color: 'var(--s2-warn)', padding: '14px 20px', fontSize: 'var(--fs-sm)', letterSpacing: '0.05em' }}>
@@ -518,54 +635,17 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       )}
 
       <div style={{ marginTop: 'auto', padding: '16px 16px 26px' }}>
-        <button className="s2-btn-primary" disabled={!canCompose} onClick={compose}>
-          {loading ? (<><span className="s2-spinner" />Composing…</>) : 'Compose'}
+        <button
+          className="s2-btn-primary"
+          disabled={mood === null}
+          aria-busy={loading}
+          onClick={compose}
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          {loading
+            ? (<><span className="s2-spinner" /><span>Composing…</span></>)
+            : <span>Compose</span>}
         </button>
-      </div>
-
-      {moodSheetOpen && (
-        <MoodSheet
-          selected={mood}
-          onSelect={(m) => { setMood(m); setMoodSheetOpen(false); }}
-          onClose={() => setMoodSheetOpen(false)}
-        />
-      )}
-    </div>
-  );
-}
-
-// ───────────── Mood picker sheet (iOS-style bottom sheet) ─────────────
-function MoodSheet({ selected, onSelect, onClose }) {
-  // Close on Escape for keyboard/desktop parity with the tap-backdrop gesture.
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  return (
-    <div className="s2-sheet-backdrop" onClick={onClose}>
-      <div className="s2-sheet" onClick={(e) => e.stopPropagation()}>
-        <div className="s2-sheet-handle" />
-        <div className="s2-sheet-header">
-          <span className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--s2-text-muted)' }}>
-            Mood
-          </span>
-          <button className="s2-nav-btn" onClick={onClose}>Cancel</button>
-        </div>
-        <div className="s2-sheet-list">
-          {MOODS.map((m) => (
-            <button
-              key={m}
-              className="s2-list-row s2-sheet-row"
-              onClick={() => onSelect(m)}
-              style={{ justifyContent: 'space-between' }}
-            >
-              <span className="s2-list-row-label">{m}</span>
-              {selected === m && <Check color="var(--s2-press-green)" />}
-            </button>
-          ))}
-        </div>
       </div>
     </div>
   );

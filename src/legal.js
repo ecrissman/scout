@@ -2,8 +2,7 @@
 // Plain strings rendered in a legal sheet modal. Update EFFECTIVE_DATE
 // when you make material changes.
 
-export const LEGAL_EFFECTIVE_DATE = 'April 13, 2026';
-export const LEGAL_CONTACT_EMAIL = 'eric@scoutphoto.app';
+const LEGAL_CONTACT_EMAIL = 'eric@scoutphoto.app';
 
 export const PRIVACY_POLICY = `
 # Privacy Policy
