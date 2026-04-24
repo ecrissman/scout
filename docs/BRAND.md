@@ -75,7 +75,7 @@ This keeps cards visually attached to their surrounding surface instead of intro
 
 | Family | Role | Loaded |
 |---|---|---|
-| **Fraunces** | Display / editorial / timer value | Google Fonts, variable, italic + roman, opsz `9..144`, wght `300..600` |
+| **Fraunces** | Display / editorial / timer value | Google Fonts, variable, italic + roman, opsz `9..144`, wght `400..600` (see weight-300 note below) |
 | **Geist Mono** | Labels, datelines, stamps, primary button labels | Google Fonts, wght `400/500/600` |
 | **SF Pro** (system) | UI, body, form controls, mood pills, timer value | `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', ...` |
 
@@ -88,6 +88,8 @@ This keeps cards visually attached to their surrounding surface instead of intro
 ```
 
 > The unprefixed `--serif` is aliased to `--s2-sans` as a safety net for unmigrated v1 classes. Always use `--s2-serif` for Fraunces.
+
+> **Weight 300 note:** `src/App.jsx` currently imports Fraunces `wght@400..600`. `docs/brand.html` imports `300..600`. Any element that specifies weight 300 (e.g. the Editor's Note body below) will silently fall back to 400 in-app. To ship true 300, update the `@import` range in `src/App.jsx` AND specify `font-weight:300` on the rule (the current `.note-reveal-body` rule doesn't set weight, so it defaults to 400).
 
 ### Scale
 
@@ -113,12 +115,13 @@ Ratio is roughly **1.18**. Base is 16px.
 | Screen title (Daily Brief) | Fraunces | 32 | 500 | 1.05 | -0.02em |
 | Brief body | Fraunces | 30 (2xl) | 400 | 1.2 | -0.015em |
 | Filed headline | Fraunces | 36 (3xl) | 400 | 1.15 | -0.02em |
-| Editor's Note body | Fraunces | 17 | **300** | 1.55 | -0.005em |
+| Editor's Note body | Fraunces | 17 | 400 *(spec: 300 — see note above)* | 1.55 | -0.005em |
 | Today empty headline | Fraunces | 28 | 400 | 1.15 | -0.015em |
 | Timer value | SF Pro | 40 | **300** | 1 | -0.02em, tabular-nums |
 | Section label | Geist Mono | 10 | 500 | — | 0.15em, UPPER |
 | Dateline / dispatch | Geist Mono | 11–12 | 400–500 | — | 0.15–0.18em, UPPER |
-| Stamp | Geist Mono | 10 | 500 | — | 0.15em, UPPER |
+| Dispatch stamp (`.s2-stamp-dispatch`) | Geist Mono | 9 | 500 | — | 0.25em, UPPER |
+| Filed stamp (`.s2-stamp-filed`) | Geist Mono | 11 | 500 | — | 0.3em, UPPER, rotate -1.5° |
 | Primary button | Geist Mono | 14 | 500 | — | 0.1em, UPPER |
 | Body (mood pill, sub copy) | SF Pro | 15 | 400 | 1.5 | 0 |
 
@@ -143,48 +146,37 @@ Ratio is roughly **1.18**. Base is 16px.
 - Radius 12px, padding 15px.
 - `:active` drops opacity to 0.75.
 
-### Pill — `.s2-mood-pill`
-
-- Horizontal scrolling container, snap-x-mandatory, 20px gutter.
-- Inactive: card tint bg, ink text.
-- Active: ink bg, paper text, weight 500.
-
 ### Segmented control — `.s2-segmented`
 
 - iOS-style. Transparent options over `rgba(120,120,128,0.12)` bg, 9px radius.
-- Active option: paper fill (light) or `#3A3935` lifted fill (dark), shadow `0 3px 8px rgba(0,0,0,.08)`.
-
-### Card — `.s2-angle-card` / `.s2-ctx-card`
-
-- Card tint bg.
-- 14px radius.
-- Inline links in Geist Mono/SF Pro, press-green for primary, smoke for secondary.
-
-### Timer card — `.s2-timer-card`
-
-- Label in Geist Mono press-green, value in **SF Pro 300 / 40px** with tabular-nums, thin press-green progress bar.
-- Expired state swaps label to ink and adds a "Dismiss" action.
+- Active option: paper fill (light) or lifted fill (dark), shadow `0 3px 8px rgba(0,0,0,.08)`.
 
 ### Stamps — `.s2-stamp-dispatch` / `.s2-stamp-filed`
 
-- Small rectangles with a 1-line Geist Mono label.
-- Dispatch: press-green outline, press-green label.
-- Filed: ink fill, paper label.
+- Dispatch: press-green outline + press-green label, small leading dot, 9px Geist Mono, 0.25em tracking, 1.5px border, 2px radius.
+- Filed: press-green outline + press-green label, rotate -1.5°, 11px Geist Mono, 0.3em tracking, 2px radius. (Note: not ink-fill/paper-label — that was a v1 spec.)
 
 ### Editor's Note reveal — `.note-reveal`
 
 - Full-screen paper.
-- Thumb (120px, 2px radius) → Fraunces **300** body (17/1.55) → "— The Editor" signature in SF Pro.
-
-### Today empty state — `.today-empty`
-
-- Mono label ("NO BRIEF FILED") → Fraunces headline → sans subcopy → primary CTA.
+- Dispatch stamp → dateline (11px Geist Mono, 0.18em, UPPER) → thumb (120×120, 1px border, 2px radius) → Fraunces body (17/1.55, weight 400 live, 300 spec) → signature in SF Pro 13px.
 
 ### Tab bar — `.s2-tabbar`
 
-- 3 tabs: Today (sun), Archive (4-grid), Calendar.
-- Icons only, ink stroke.
-- No color. Active state is ink opacity, not press-green.
+- Floating pill: fixed bottom-center, paper/ink bg with border and soft shadow, 999px radius.
+- Icon-only buttons (`.s2-tab-btn`), 52×44 each. Active state: ink bg + paper icon.
+- No press-green. Active is ink, not accent.
+
+### Compose tray components *(spec — not yet on main)*
+
+The following are documented here as the target spec but currently live only on the Compose feature branch. They are not yet part of the merged `src/App.jsx`:
+
+- `.s2-mood-pill` — horizontal scrolling container, snap-x-mandatory, 20px gutter. Inactive: card tint bg, ink text. Active: ink bg, paper text, weight 500.
+- `.s2-angle-card` / `.s2-ctx-card` — card tint bg, 14px radius. Inline links in Geist Mono/SF Pro, press-green for primary, smoke for secondary.
+- `.s2-timer-card` — label in Geist Mono press-green, value in SF Pro 300 / 40px with tabular-nums, thin press-green progress bar. Expired state swaps label to ink and adds "Dismiss".
+- `.today-empty` — mono label ("NO BRIEF FILED") → Fraunces headline → sans subcopy → primary CTA.
+
+When the Compose branch merges, promote these sections out of the spec-only block and verify values against the shipped CSS.
 
 ---
 
@@ -233,9 +225,21 @@ Examples:
 
 ## 11. What's retired
 
-- Flapjack wordmark (V1).
-- Inconsolata body (V1).
-- Terracotta (#D6542D), sage (#4F5E2E), gold (#E2B554) — aliased to press-green/ink/paper-2 for legacy classes but should not be used on new work.
+- Flapjack wordmark (v1).
+- Inconsolata body (v1).
+- Terracotta (`#D6542D`), sage (`#4F5E2E`), gold (`#E2B554`) — aliased via `--terracotta`, `--sage`, `--gold` to press-green/ink/paper-2 for legacy classes. Should not be used on new work.
 - Grain textures.
 - Week-review modal and weekly-theme pipeline.
 - v1 Day One-style day-detail sheet.
+
+### Known legacy holdouts (migration TODOs)
+
+These spots still reference the retired raw hex values directly (not via the neutralized `--terracotta` / `--sage` / `--gold` aliases). They're not on brand but haven't been migrated yet:
+
+- `.ob-wrap` — raw `#4F5E2E` (sage) as onboarding wrap bg
+- `.week-header-lbl` / `.week-header-arr` — raw `#E2B554` (gold), with `--terracotta` in dark mode
+- `.pj-tab-dot` — raw `#E2B554` (gold)
+- `.overflow-item-danger` — raw `#D6542D` (terracotta)
+- `.cam-center` — raw `#E2B554` fill, `#D6542D` in dark mode
+
+When touching these components, migrate to press-green or neutral tokens.
