@@ -75,9 +75,9 @@ This keeps cards visually attached to their surrounding surface instead of intro
 
 | Family | Role | Loaded |
 |---|---|---|
-| **Fraunces** | Display / editorial / timer value | Google Fonts, variable, italic + roman, opsz `9..144`, wght `400..600` (see weight-300 note below) |
-| **Geist Mono** | Labels, datelines, stamps, primary button labels | Google Fonts, wght `400/500/600` |
-| **SF Pro** (system) | UI, body, form controls, mood pills, timer value | `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', ...` |
+| **Fraunces** | Display / editorial / timer value | Vendored — `public/fonts/Fraunces-VariableFont_SOFT_WONK_opsz_wght.ttf` (+ italic), variable, opsz `9..144`, wght `100..900`, SOFT/WONK axes |
+| **Geist Mono** | Labels, datelines, stamps | Vendored — `public/fonts/GeistMono-VariableFont_wght.ttf`, variable, wght `100..900` |
+| **SF Pro** (system) | UI, body, form controls, mood pills, timer value, **primary button** | `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', ...` |
 
 ### CSS variables
 
@@ -89,7 +89,7 @@ This keeps cards visually attached to their surrounding surface instead of intro
 
 > The unprefixed `--serif` is aliased to `--s2-sans` as a safety net for unmigrated v1 classes. Always use `--s2-serif` for Fraunces.
 
-> **Weight 300 note:** `src/App.jsx` currently imports Fraunces `wght@400..600`. `docs/brand.html` imports `300..600`. Any element that specifies weight 300 (e.g. the Editor's Note body below) will silently fall back to 400 in-app. To ship true 300, update the `@import` range in `src/App.jsx` AND specify `font-weight:300` on the rule (the current `.note-reveal-body` rule doesn't set weight, so it defaults to 400).
+> **Weight 300 note:** Fraunces is now vendored as a full variable font (100–900), so weight 300 is available. Setting `font-weight:300` on an element will render at true 300 (not fall back). The Editor's Note `.note-reveal-body` rule still doesn't explicitly set weight — it inherits 400. Add `font-weight:300` there to ship the spec.
 
 ### Scale
 
@@ -122,7 +122,7 @@ Ratio is roughly **1.18**. Base is 16px.
 | Dateline / dispatch | Geist Mono | 11–12 | 400–500 | — | 0.15–0.18em, UPPER |
 | Dispatch stamp (`.s2-stamp-dispatch`) | Geist Mono | 9 | 500 | — | 0.25em, UPPER |
 | Filed stamp (`.s2-stamp-filed`) | Geist Mono | 11 | 500 | — | 0.3em, UPPER, rotate -1.5° |
-| Primary button | Geist Mono | 14 | 500 | — | 0.1em, UPPER |
+| Primary button | SF Pro | 17 | 600 | — | -0.01em, sentence case |
 | Body (mood pill, sub copy) | SF Pro | 15 | 400 | 1.5 | 0 |
 
 ---
@@ -142,7 +142,7 @@ Ratio is roughly **1.18**. Base is 16px.
 ### Primary button — `.s2-btn-primary`
 
 - Ink fill, paper text.
-- Geist Mono, 14px, weight 500, tracking 0.1em, UPPER.
+- SF Pro, 17px, weight 600, tracking -0.01em, sentence case.
 - Radius 12px, padding 15px.
 - `:active` drops opacity to 0.75.
 
