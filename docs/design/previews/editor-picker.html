@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=900" />
+<link rel="stylesheet" href="_card.css" />
+<title>Editor picker — masthead + detail</title>
+<style>
+  body { width: 900px; padding: 28px 32px; background: var(--s2-grouped-bg); }
+
+  .frames { display: flex; gap: 24px; align-items: flex-start; }
+
+  /* Mobile frame — 393px (iPhone 15 viewport) */
+  .frame {
+    width: 393px;
+    background: var(--s2-paper);
+    border: 1px solid var(--s2-bone);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  }
+  .frame-label {
+    font-family: var(--s2-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--s2-smoke);
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  .page-head {
+    padding: 20px 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .page-dateline {
+    font-family: var(--s2-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--s2-smoke);
+  }
+  .close { width: 24px; height: 24px; display: grid; place-items: center; color: var(--s2-ink); }
+
+  .page-title {
+    font-family: var(--s2-serif);
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    padding: 0 20px;
+    margin-bottom: 6px;
+  }
+  .page-sub {
+    font-family: var(--s2-serif);
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--s2-archive);
+    padding: 0 20px;
+    margin-bottom: 24px;
+  }
+  .page-sub em { font-style: italic; color: var(--s2-ink); }
+
+  /* ─── Masthead row card ─── */
+  .masthead { padding: 0 20px 120px; display: flex; flex-direction: column; gap: 12px; }
+
+  .editor-row {
+    background: var(--s2-tint-light);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    gap: 14px;
+    align-items: stretch;
+    cursor: pointer;
+    position: relative;
+  }
+  .editor-row.selected {
+    background: var(--s2-paper);
+    border: 1px solid var(--s2-ink);
+    padding: 13px; /* compensate border */
+  }
+  .portrait-slot {
+    width: 112px;
+    height: 136px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+  }
+  .portrait-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .row-text { display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }
+  .ed-role {
+    font-family: var(--s2-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--s2-smoke);
+    margin-bottom: 5px;
+  }
+  .ed-name {
+    font-family: var(--s2-serif);
+    font-size: 21px;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 3px;
+  }
+  .ed-pub {
+    font-family: var(--s2-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--s2-smoke);
+    letter-spacing: 0.02em;
+    margin-bottom: 9px;
+  }
+  .ed-sample {
+    font-family: var(--s2-serif);
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--s2-archive);
+  }
+
+  .editor-row.selected::after {
+    content: "Your desk";
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-family: var(--s2-mono);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--s2-press-green);
+    border: 1.5px solid var(--s2-press-green);
+    border-radius: 2px;
+    padding: 3px 6px;
+  }
+
+  /* ─── Detail view ─── */
+  .detail { padding: 0 24px 120px; }
+  .detail .portrait-big {
+    width: 260px;
+    height: 325px;
+    margin: 0 auto 24px;
+    display: grid;
+    place-items: center;
+  }
+  .detail .portrait-big img {
+    width: 100%; height: 100%; object-fit: contain;
+  }
+
+  .detail-name {
+    font-family: var(--s2-serif);
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .detail-title {
+    font-family: var(--s2-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--s2-smoke);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .detail-section-label {
+    font-family: var(--s2-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--s2-smoke);
+    margin-bottom: 10px;
+  }
+  .detail-bio {
+    font-family: var(--s2-serif);
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--s2-ink);
+    margin-bottom: 26px;
+  }
+
+  .voice-sample {
+    background: var(--s2-tint-light);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 28px;
+  }
+  .voice-sample .vs-body {
+    font-family: var(--s2-serif);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--s2-ink);
+    margin-bottom: 10px;
+  }
+  .voice-sample .vs-sig {
+    font-family: var(--s2-sans);
+    font-size: 13px;
+    color: var(--s2-smoke);
+  }
+
+  .primary-btn {
+    display: block;
+    width: 100%;
+    padding: 15px 0;
+    background: var(--s2-ink);
+    color: var(--s2-paper);
+    border: none;
+    border-radius: 12px;
+    font-family: var(--s2-sans);
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+  }
+  .secondary-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: none;
+    border: none;
+    color: var(--s2-smoke);
+    font-family: var(--s2-sans);
+    font-size: 14px;
+    padding: 14px 0 0;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div style="margin-bottom:20px">
+  <div style="font-family:var(--s2-serif);font-size:24px;font-weight:500;letter-spacing:-0.015em">Editor picker — layout sketch</div>
+  <div style="font-family:var(--s2-sans);font-size:14px;color:var(--s2-smoke);margin-top:6px">Masthead (list) → Editor detail. Portraits shown at placeholder. Swap <code>&lt;svg class="face"&gt;</code> for the real illustrations.</div>
+</div>
+
+<div class="frames">
+
+  <!-- ═══════════════════════════ FRAME A — MASTHEAD ═══════════════════════════ -->
+  <div>
+    <div class="frame-label">A · Masthead</div>
+    <div class="frame">
+      <div class="page-head">
+        <span class="page-dateline">Masthead · Pick a desk</span>
+        <div class="close">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M6 6l12 12M18 6l-6 12"/></svg>
+        </div>
+      </div>
+      <div class="page-title">The desk.</div>
+      <div class="page-sub">Three editors. Pick one. You can <em>transfer desks</em> any time.</div>
+
+      <div class="masthead">
+
+        <!-- Row 1 — Novak (selected) -->
+        <div class="editor-row selected">
+          <div class="portrait-slot">
+            <img src="/personas/novak.png" alt="Stan Novak" />
+          </div>
+          <div class="row-text">
+            <div class="ed-role">Editor</div>
+            <div class="ed-name">Stan Novak</div>
+            <div class="ed-pub">Chicago Sun-Times, retired</div>
+            <div class="ed-sample">"Light's doing the work here. Frame could've asked more of the subject — next one."</div>
+          </div>
+        </div>
+
+        <!-- Row 2 — Rob -->
+        <div class="editor-row">
+          <div class="portrait-slot">
+            <img src="/personas/calder.png" alt="Rob Calder" />
+          </div>
+          <div class="row-text">
+            <div class="ed-role">Contributing Editor</div>
+            <div class="ed-name">Rob Calder</div>
+            <div class="ed-pub">Providence zine · est. 2017</div>
+            <div class="ed-sample">"this does the work — subject's clean, light supports it. curious what happens if you push the background."</div>
+          </div>
+        </div>
+
+        <!-- Row 3 — Walsh -->
+        <div class="editor-row">
+          <div class="portrait-slot">
+            <img src="/personas/walsh.png" alt="Eileen Walsh" />
+          </div>
+          <div class="row-text">
+            <div class="ed-role">Editor at Large</div>
+            <div class="ed-name">Eileen Walsh</div>
+            <div class="ed-pub">Literary photo quarterly</div>
+            <div class="ed-sample">"the frame rests. received."</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ FRAME B — DETAIL ═══════════════════════════ -->
+  <div>
+    <div class="frame-label">B · Editor detail (Novak)</div>
+    <div class="frame">
+      <div class="page-head">
+        <span class="page-dateline">Editor · Read</span>
+        <div class="close">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </div>
+      </div>
+
+      <div class="detail">
+        <div class="portrait-big">
+          <img src="/personas/novak.png" alt="Stan Novak" />
+        </div>
+
+        <div class="detail-name">Stan Novak</div>
+        <div class="detail-title">Editor · Chicago Sun-Times, retired</div>
+
+        <div class="detail-section-label">About the desk</div>
+        <div class="detail-bio">
+          Sixty-seven. Started at the <em>Chicago Daily News</em> before it folded in '78. Moved to the <em>Tribune</em>, then the <em>Sun-Times</em>. Still edits one day a week. Hard on your frames because he thinks you can do better.
+        </div>
+
+        <div class="detail-section-label">Sample note</div>
+        <div class="voice-sample">
+          <div class="vs-body">Shadow at the top third holds the whole thing. I didn't expect it to land and it landed.</div>
+          <div class="vs-sig">Novak —</div>
+        </div>
+
+        <button class="primary-btn">File for Novak's desk</button>
+        <button class="secondary-link">Keep reading the masthead</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
