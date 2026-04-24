@@ -53,50 +53,57 @@ To edit styles: edit the `CSS` string directly in `App.jsx`.
 
 ---
 
-## Current Design System (Scout)
+## Current Design System (Scout v2)
 
-**Previous V1 design archived at:** `design-archive/sightful-v1.css`
+**Source of truth:** [`docs/BRAND.md`](docs/BRAND.md) (v2, April 2026 · post Fraunces/Geist Mono pass). Read this before any brand, voice, typography, or UI decisions. Visual reference: [`docs/brand.html`](docs/brand.html). The live CSS lives in `src/App.jsx`.
 
-### Tokens
+**Previous v1 (Sightful) design archived at:** `design-archive/sightful-v1.css`.
+
+### Tokens (v2 `--s2-*`)
 
 ```css
-/* Light mode */
---terracotta: #D6542D   /* CTAs · Active states · Streak counter */
---sage:       #4F5E2E   /* Prompt strips · Empty states · Primary accent */
---gold:       #E2B554   /* Week header highlight */
---paper:      #FFFDFA   /* Primary background */
---ink:        #0C0C0C   /* All text · Borders · Nav · Icons */
---warm-mid:   #8C857C   /* Secondary text · Section labels · Timestamps */
---rule:       #E3E1DD   /* Dividers · Card borders (light mode) */
+/* Paper & ink */
+--s2-paper:       #FFFDFA  /* Light */  /* Dark: #0C0C0C */
+--s2-paper-2:     #F7F3EC  /* Light */  /* Dark: #1A1A18 */
+--s2-grouped-bg:  #F2F1EC  /* Light */  /* Dark: #050505 */
+--s2-ink:         #0C0C0C  /* Primary text / CTAs */
+--s2-archive:     #3A3A35  /* Light */  /* Dark: #B8B2A3 — secondary text */
+--s2-smoke:       #8A8680  /* Light */  /* Dark: #7A7668 — muted / labels */
+--s2-bone:        #D8D7D4  /* Light */  /* Dark: #2A2A26 — rules, borders */
 
-/* Dark mode overrides */
---paper:      #0C0C0C
---ink:        #FFFDFA
---rule:       rgba(28,25,22,0.1)
+/* Press green (accent — only at earned moments) */
+--s2-press-green: #007C04  /* Same in light + dark */
 ```
 
 ### Typography
 
-| Role | Font | Details |
-|------|------|---------|
-| Wordmark / Display | **Flapjack** (Taylor Penton) | Self-hosted in `/public/fonts/TAYFlapjack.woff2` |
-| UI / Body | **Inconsolata** | Monospace, loaded via Google Fonts |
+| Role | Family | Loaded |
+|------|--------|--------|
+| Display / editorial / timer value | **Fraunces** | Google Fonts (variable, italic + roman, opsz 9..144, wght 300..600) |
+| Labels, datelines, stamps, primary button | **Geist Mono** | Google Fonts (400/500/600) |
+| UI / body / form controls | **SF Pro** (system) | `-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', …` |
 
 CSS font variables:
-- `--brand`: Flapjack, Inconsolata, system-ui
-- `--sans` / `--serif`: Inconsolata, system-ui, monospace
+- `--s2-serif`: Fraunces, Georgia, serif
+- `--s2-mono`: Geist Mono, ui-monospace, SFMono-Regular, Menlo, monospace
+- `--s2-sans`: SF Pro stack
 
-### Color Rules
+### Color rules
 
-- Most of the app is ink on paper
-- Color only at specific, meaningful moments (splash, streak counter, active thumb, prompt strip, milestones)
-- Color **never** on nav or interactive chrome
-- Grain texture on full-color background blocks (terracotta, sage) — NOT on paper
+- Most of the app is ink on paper.
+- **Press green** appears only at earned moments — active timer, "New Assignment" stamp, Editor's Note ready banner. Never on nav, form chrome, or as decoration.
+- No gradients, no shadows (except the one-layer selected chip in the segmented control).
+- Grain textures from v1 are **retired**.
+
+### What's retired (do not reintroduce)
+
+- Flapjack wordmark, Inconsolata body
+- Terracotta (`#D6542D`), sage (`#4F5E2E`), gold (`#E2B554`) — aliased for legacy classes but not for new work
+- Grain textures, week-review modal, weekly-theme pipeline, v1 Day One-style day-detail sheet
 
 ### Theme
 
-Light/dark toggle. Active and functional. Stored in `localStorage` as `scout-theme-pref` ('light' | 'dark' | 'system').
-Applied via `data-theme` attribute on root element.
+Light/dark toggle. Stored in `localStorage` as `scout-theme-pref` ('light' | 'dark' | 'system'). Applied via `data-theme` on `<html>`.
 
 ---
 
@@ -220,10 +227,12 @@ npm run deploy    # Build + deploy to Cloudflare Pages
 
 ---
 
-## Design Files
+## Design & Brand Files
 
 | File | Purpose |
 |------|---------|
-| `SCOUT_CREATIVE_BRIEF.md` | Original Scout rebrand brief (reference) |
-| `scout-mockup.html` | Static HTML mockup of Scout screens |
-| `design-archive/sightful-v1.css` | V1 Sightful design system, archived |
+| [`docs/BRAND.md`](docs/BRAND.md) | **v2 brand guide — source of truth.** Tokens, typography, components, voice, motion. |
+| [`docs/brand.html`](docs/brand.html) | Visual brand reference. |
+| [`docs/personas/UNIVERSE.md`](docs/personas/UNIVERSE.md), [`docs/personas/MATRIX.md`](docs/personas/MATRIX.md) | Target user personas. |
+| [`SCOUT_APP_SUMMARY.md`](SCOUT_APP_SUMMARY.md) | Product/feature summary for Claude sessions. |
+| `design-archive/sightful-v1.css` | v1 Sightful design system — archived only. |

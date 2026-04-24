@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scout — Brand Guide (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --s2-paper:#FFFDFA; --s2-paper-2:#F7F3EC; --s2-grouped-bg:#F2F1EC;
+    --s2-ink:#0C0C0C; --s2-bone:#D8D7D4; --s2-smoke:#8A8680; --s2-archive:#3A3A35;
+    --s2-press-green:#007C04; --s2-warn:#C8102E; --s2-caution:#C89A7E;
+    --s2-ink-2:#22221F;
+    --s2-serif:'Fraunces',Georgia,serif;
+    --s2-mono:'Geist Mono',ui-monospace,monospace;
+    --s2-sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--s2-paper);color:var(--s2-ink);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased}
+  body{padding:56px 40px 120px;max-width:900px;margin:0 auto}
+  .lede{font-family:var(--s2-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-smoke);margin-bottom:14px}
+  h1{font-family:var(--s2-serif);font-weight:500;font-size:56px;line-height:1.02;letter-spacing:-0.025em;margin-bottom:18px}
+  .subtitle{font-family:var(--s2-serif);font-weight:300;font-size:22px;line-height:1.4;color:var(--s2-archive);margin-bottom:56px;max-width:620px}
+  h2{font-family:var(--s2-serif);font-weight:500;font-size:28px;letter-spacing:-0.015em;margin:64px 0 18px;padding-bottom:10px;border-bottom:1px solid var(--s2-bone)}
+  h3{font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-smoke);margin:32px 0 12px}
+  p{font-size:16px;line-height:1.6;margin-bottom:14px;max-width:680px}
+  code{font-family:var(--s2-mono);font-size:12px;background:rgba(12,12,12,0.05);padding:2px 6px;border-radius:4px}
+  ul{margin:0 0 14px 20px}
+  li{font-size:15px;line-height:1.6;margin-bottom:4px}
+
+  /* Swatch grid */
+  .swatch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:24px}
+  .swatch{border-radius:8px;overflow:hidden;border:1px solid var(--s2-bone)}
+  .swatch .chip{height:76px;display:flex;align-items:flex-end;padding:10px 12px}
+  .swatch .meta{padding:10px 12px;background:var(--s2-paper)}
+  .swatch .name{font-family:var(--s2-mono);font-size:11px;color:var(--s2-ink);font-weight:500;letter-spacing:.04em}
+  .swatch .hex{font-family:var(--s2-mono);font-size:10px;color:var(--s2-smoke);margin-top:2px}
+  .swatch .role{font-family:var(--s2-sans);font-size:12px;color:var(--s2-archive);margin-top:6px;line-height:1.35}
+
+  /* Type samples */
+  .type-row{display:grid;grid-template-columns:150px 1fr;gap:24px;padding:18px 0;border-bottom:1px solid var(--s2-bone);align-items:baseline}
+  .type-row:last-child{border-bottom:none}
+  .type-meta{font-family:var(--s2-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--s2-smoke);line-height:1.4}
+  .type-sample{color:var(--s2-ink)}
+  .s-fraunces{font-family:var(--s2-serif)}
+  .s-mono{font-family:var(--s2-mono);text-transform:uppercase}
+  .s-sans{font-family:var(--s2-sans)}
+
+  /* Components preview */
+  .preview-block{padding:28px;background:var(--s2-grouped-bg);border-radius:14px;margin-bottom:28px}
+  .preview-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+
+  /* Specific previews */
+  .pv-btn{display:block;padding:14px 26px;background:var(--s2-ink);color:var(--s2-paper);font-family:var(--s2-mono);font-size:14px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border:none;border-radius:12px;cursor:pointer}
+  .pv-pill{padding:10px 18px;background:rgba(12,12,12,0.05);border:none;border-radius:999px;font-family:var(--s2-sans);font-size:15px;color:var(--s2-ink);cursor:pointer}
+  .pv-pill.active{background:var(--s2-ink);color:var(--s2-paper);font-weight:500}
+  .pv-card{background:rgba(12,12,12,0.05);border-radius:14px;padding:16px;max-width:420px}
+  .pv-card-h{font-family:var(--s2-sans);font-weight:500;font-size:17px;margin-bottom:10px}
+  .pv-card-action{font-family:var(--s2-sans);font-size:13px;color:var(--s2-press-green);font-weight:500;margin-right:18px}
+  .pv-card-skip{font-family:var(--s2-sans);font-size:13px;color:var(--s2-smoke)}
+  .pv-stamp-dispatch{display:inline-block;padding:4px 10px;border:1px solid var(--s2-press-green);color:var(--s2-press-green);font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;border-radius:3px}
+  .pv-stamp-filed{display:inline-block;padding:6px 14px;background:var(--s2-ink);color:var(--s2-paper);font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;border-radius:3px}
+  .pv-seg{display:inline-flex;background:rgba(120,120,128,0.12);border-radius:9px;padding:2px;gap:0}
+  .pv-seg div{padding:7px 14px;font-family:var(--s2-sans);font-size:13px;font-weight:500;color:var(--s2-ink);cursor:pointer;border-radius:7px}
+  .pv-seg div.active{background:var(--s2-paper);box-shadow:0 3px 8px rgba(0,0,0,.08)}
+  .pv-timer{background:rgba(12,12,12,0.05);border-radius:14px;padding:14px 16px;max-width:420px;display:flex;flex-direction:column;gap:8px}
+  .pv-timer-row{display:flex;justify-content:space-between;align-items:baseline}
+  .pv-timer-lbl{font-family:var(--s2-mono);font-size:11px;font-weight:500;color:var(--s2-press-green);letter-spacing:.14em;text-transform:uppercase}
+  .pv-timer-meta{font-family:var(--s2-mono);font-size:11px;color:var(--s2-smoke)}
+  .pv-timer-val{font-family:var(--s2-sans);font-weight:300;font-size:40px;letter-spacing:-0.02em;color:var(--s2-ink);line-height:1;font-variant-numeric:tabular-nums}
+  .pv-timer-bar-wrap{height:3px;background:rgba(140,133,124,0.2);border-radius:2px;overflow:hidden;margin-top:4px}
+  .pv-timer-bar{height:100%;width:38%;background:var(--s2-press-green)}
+
+  /* Voice examples */
+  .voice-ex{background:rgba(12,12,12,0.05);border-left:2px solid var(--s2-ink);padding:14px 18px;margin-bottom:10px;font-family:var(--s2-serif);font-size:19px;line-height:1.35}
+  .voice-ex .label{display:block;font-family:var(--s2-mono);font-size:10px;color:var(--s2-smoke);letter-spacing:.15em;text-transform:uppercase;margin-bottom:4px;font-weight:500}
+
+  /* Retired */
+  .retired{font-family:var(--s2-mono);font-size:12px;color:var(--s2-smoke);line-height:1.8}
+  .retired span{text-decoration:line-through;margin-right:14px}
+</style>
+</head>
+<body>
+
+<div class="lede">Brand Guide · v2 · April 2026</div>
+<h1>Scout</h1>
+<p class="subtitle">A photo-a-day field journal. Editorial, not appy. Paper and ink. Quiet confidence.</p>
+
+<h2>Principles</h2>
+<ul>
+  <li><b>Editorial, not appy.</b> Scout behaves like a newspaper desk — dispatch datelines, stamps, field notes.</li>
+  <li><b>Paper and ink.</b> Warm paper, deep ink, quiet type. Color shows up only at intentional moments.</li>
+  <li><b>Quiet confidence.</b> No exclamation points. No emoji. Terse, literary, a little dry.</li>
+  <li><b>One thing at a time.</b> One brief, one photo, one note per day.</li>
+</ul>
+
+<h2>Color</h2>
+
+<h3>Paper & Ink — Light</h3>
+<div class="swatch-grid">
+  <div class="swatch"><div class="chip" style="background:#FFFDFA;border-bottom:1px solid var(--s2-bone)"></div><div class="meta"><div class="name">--s2-paper</div><div class="hex">#FFFDFA</div><div class="role">Primary surface — brief reveal, day detail</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#F7F3EC"></div><div class="meta"><div class="name">--s2-paper-2</div><div class="hex">#F7F3EC</div><div class="role">Legacy secondary surface</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#F2F1EC"></div><div class="meta"><div class="name">--s2-grouped-bg</div><div class="hex">#F2F1EC</div><div class="role">Grouped list bg — Compose tray</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#0C0C0C"></div><div class="meta"><div class="name">--s2-ink</div><div class="hex">#0C0C0C</div><div class="role">Primary text, CTAs</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#3A3A35"></div><div class="meta"><div class="name">--s2-archive</div><div class="hex">#3A3A35</div><div class="role">Secondary text</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#8A8680"></div><div class="meta"><div class="name">--s2-smoke</div><div class="hex">#8A8680</div><div class="role">Muted text, labels</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#D8D7D4"></div><div class="meta"><div class="name">--s2-bone</div><div class="hex">#D8D7D4</div><div class="role">Rules, borders</div></div></div>
+</div>
+
+<h3>Paper & Ink — Dark</h3>
+<div class="swatch-grid">
+  <div class="swatch"><div class="chip" style="background:#0C0C0C"></div><div class="meta"><div class="name">--s2-paper (dark)</div><div class="hex">#0C0C0C</div><div class="role">Primary dark surface</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#1A1A18"></div><div class="meta"><div class="name">--s2-ink-2</div><div class="hex">#1A1A18</div><div class="role">Dark secondary surface</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#050505"></div><div class="meta"><div class="name">--s2-grouped-bg (dark)</div><div class="hex">#050505</div><div class="role">Grouped list bg (dark)</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#22221F"></div><div class="meta"><div class="name">Card tint (dark)</div><div class="hex">#22221F</div><div class="role">Angle/Context/Pill bg in dark</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#FFFDFA;border-bottom:1px solid var(--s2-bone)"></div><div class="meta"><div class="name">Text primary (dark)</div><div class="hex">#FFFDFA</div><div class="role">Body text on dark</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#B8B2A3"></div><div class="meta"><div class="name">--s2-archive-dark</div><div class="hex">#B8B2A3</div><div class="role">Secondary text (dark)</div></div></div>
+</div>
+
+<h3>Accent — Press green</h3>
+<div class="swatch-grid">
+  <div class="swatch"><div class="chip" style="background:#007C04"></div><div class="meta"><div class="name">--s2-press-green</div><div class="hex">#007C04</div><div class="role">Timer bar, New Assignment stamp, Editor's Note ready banner</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#E0ECDE"></div><div class="meta"><div class="name">--s2-green-100</div><div class="hex">#E0ECDE</div><div class="role">Reserved</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#7FA876"></div><div class="meta"><div class="name">--s2-green-300</div><div class="hex">#7FA876</div><div class="role">Reserved</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#00330A"></div><div class="meta"><div class="name">--s2-green-900</div><div class="hex">#00330A</div><div class="role">Reserved</div></div></div>
+</div>
+
+<h3>Card tint (the neutral strategy)</h3>
+<p>Cards on Compose use a <em>tint</em> rather than a pigment, so they sit on the surface instead of introducing a new hue.</p>
+<div class="swatch-grid">
+  <div class="swatch"><div class="chip" style="background:rgba(12,12,12,0.05)"></div><div class="meta"><div class="name">Tint — light</div><div class="hex">rgba(12,12,12,0.05)</div><div class="role">Angle, Context, Mood pill, Timer bg</div></div></div>
+  <div class="swatch"><div class="chip" style="background:#22221F"></div><div class="meta"><div class="name">Tint — dark</div><div class="hex">#22221F</div><div class="role">Same components, dark</div></div></div>
+</div>
+
+<h3>Rules</h3>
+<ul>
+  <li>Most of the app is ink on paper.</li>
+  <li>Press green only appears at earned moments (active timer, new assignment, note ready). Never on nav or chrome.</li>
+  <li>No gradients, no decorative shadows, no grain textures.</li>
+</ul>
+
+<h2>Typography</h2>
+
+<div class="type-row">
+  <div class="type-meta">Fraunces · 56 · 500 · -0.025em<br>Display</div>
+  <div class="type-sample s-fraunces" style="font-weight:500;font-size:56px;letter-spacing:-.025em;line-height:1">Daily Brief</div>
+</div>
+<div class="type-row">
+  <div class="type-meta">Fraunces · 36 · 400<br>Filed headline</div>
+  <div class="type-sample s-fraunces" style="font-weight:400;font-size:36px;line-height:1.15;letter-spacing:-.02em">Your take is in.</div>
+</div>
+<div class="type-row">
+  <div class="type-meta">Fraunces · 30 · 400<br>Brief body</div>
+  <div class="type-sample s-fraunces" style="font-weight:400;font-size:30px;line-height:1.2;letter-spacing:-.015em">Edge light only.</div>
+</div>
+<div class="type-row">
+  <div class="type-meta">Fraunces · 17 · 300<br>Editor's Note body</div>
+  <div class="type-sample s-fraunces" style="font-weight:300;font-size:17px;line-height:1.55;letter-spacing:-.005em;max-width:520px">The frame does more work than the subject. It draws the outline, carries the time of day, and gives the shot its temperature. Keep chasing that rim.</div>
+</div>
+<div class="type-row">
+  <div class="type-meta">SF Pro · 40 · 300<br>Timer value</div>
+  <div class="type-sample s-sans" style="font-weight:300;font-size:40px;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums">11:52</div>
+</div>
+<div class="type-row">
+  <div class="type-meta">Geist Mono · 10 · 500 · 0.15em<br>Section label</div>
+  <div class="type-sample s-mono" style="font-size:10px;font-weight:500;letter-spacing:.15em">How are you feeling?</div>
+</div>
+<div class="type-row">
+  <div class="type-meta">Geist Mono · 11 · 400 · 0.18em<br>Dispatch dateline</div>
+  <div class="type-sample s-mono" style="font-size:11px;font-weight:400;letter-spacing:.18em">Mon · Apr 20 · № 110</div>
+</div>
+<div class="type-row">
+  <div class="type-meta">Geist Mono · 14 · 500 · 0.1em<br>Primary button</div>
+  <div class="type-sample s-mono" style="font-size:14px;font-weight:500;letter-spacing:.1em">Compose Brief</div>
+</div>
+<div class="type-row">
+  <div class="type-meta">SF Pro · 15 · 400<br>Body / mood pill</div>
+  <div class="type-sample s-sans" style="font-size:15px">Restless, pensive, quietly electric.</div>
+</div>
+
+<h2>Components</h2>
+
+<div class="preview-block">
+  <h3>Primary button</h3>
+  <div class="preview-row"><button class="pv-btn">Compose Brief</button></div>
+
+  <h3>Mood pill (SF Pro · 15)</h3>
+  <div class="preview-row">
+    <button class="pv-pill active">Lovely</button>
+    <button class="pv-pill">Relaxed</button>
+    <button class="pv-pill">Restless</button>
+    <button class="pv-pill">Pensive</button>
+  </div>
+
+  <h3>Segmented (Time Box)</h3>
+  <div class="preview-row"><div class="pv-seg">
+    <div class="active">Off</div><div>3 min</div><div>15 min</div><div>1 hr</div><div>3 hr</div>
+  </div></div>
+
+  <h3>Stamps</h3>
+  <div class="preview-row">
+    <span class="pv-stamp-dispatch">● New Assignment</span>
+    <span class="pv-stamp-filed">Filed</span>
+  </div>
+
+  <h3>Angle card</h3>
+  <div class="preview-row">
+    <div class="pv-card">
+      <div class="pv-card-h">"Edge light only."</div>
+      <div><span class="pv-card-action">↻ Try another</span><span class="pv-card-skip">Skip</span></div>
+    </div>
+  </div>
+
+  <h3>Timer card</h3>
+  <div class="preview-row">
+    <div class="pv-timer">
+      <div class="pv-timer-row">
+        <span class="pv-timer-lbl">Time Box</span>
+        <span class="pv-timer-meta">expires 9:57 PM</span>
+      </div>
+      <div class="pv-timer-val">11:52</div>
+      <div class="pv-timer-bar-wrap"><div class="pv-timer-bar"></div></div>
+    </div>
+  </div>
+</div>
+
+<h2>Voice</h2>
+<p>Editorial, field-journal, terse. 4–15 words. Fragments with periods. Never <i>photo</i>, <i>picture</i>, <i>shoot</i>, <i>capture</i>. The photography is implied.</p>
+
+<div class="voice-ex"><span class="label">Brief</span>Edge light only.</div>
+<div class="voice-ex"><span class="label">Empty state</span>Today's brief is waiting.</div>
+<div class="voice-ex"><span class="label">Timer expired</span>File your take — or let it go.</div>
+<div class="voice-ex"><span class="label">Filed</span>Your take is in.</div>
+<div class="voice-ex"><span class="label">Signature</span>— The Editor</div>
+
+<h2>Motion</h2>
+<ul>
+  <li>Tray entry: 380ms <code>cubic-bezier(0.32, 0.72, 0, 1)</code></li>
+  <li>Page push: 320ms same curve</li>
+  <li>Typewriter brief: 42ms/char · editor's note: 28ms/char</li>
+  <li>Button <code>:active</code> opacity 0.75, 150ms</li>
+  <li>No spring, no bounce, no stagger</li>
+</ul>
+
+<h2>Retired</h2>
+<p class="retired">
+  <span>Flapjack wordmark</span>
+  <span>Inconsolata body</span>
+  <span>Terracotta #D6542D</span>
+  <span>Sage #4F5E2E</span>
+  <span>Gold #E2B554</span>
+  <span>Grain textures</span>
+  <span>Week Review modal</span>
+  <span>Weekly-theme pipeline</span>
+</p>
+
+</body>
+</html>
