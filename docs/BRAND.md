@@ -167,16 +167,16 @@ Ratio is roughly **1.18**. Base is 16px.
 - Icon-only buttons (`.s2-tab-btn`), 52×44 each. Active state: ink bg + paper icon.
 - No press-green. Active is ink, not accent.
 
-### Compose tray components *(spec — not yet on main)*
+### Compose tray components — inline-styled in `src/compose/ComposeScreen.jsx`
 
-The following are documented here as the target spec but currently live only on the Compose feature branch. They are not yet part of the merged `src/App.jsx`:
+These components ship as live UI in the Compose tray but are **not implemented as named CSS classes**. They're built from inline styles plus the generic utility classes (`.s2-btn-primary`, `.s2-stamp-*`, `.s2-serif`, `.s2-mono`, `.s2-sans`, `.s2-page-header`, `.s2-spinner`, `.s2-icon-btn`, `.s2-typewriter-caret`). The visual spec below is the intent; edit `ComposeScreen.jsx` to change it.
 
-- `.s2-mood-pill` — horizontal scrolling container, snap-x-mandatory, 20px gutter. Inactive: card tint bg, ink text. Active: ink bg, paper text, weight 500.
-- `.s2-angle-card` / `.s2-ctx-card` — card tint bg, 14px radius. Inline links in Geist Mono/SF Pro, press-green for primary, smoke for secondary.
-- `.s2-timer-card` — label in Geist Mono press-green, value in SF Pro 300 / 40px with tabular-nums, thin press-green progress bar. Expired state swaps label to ink and adds "Dismiss".
-- `.today-empty` — mono label ("NO BRIEF FILED") → Fraunces headline → sans subcopy → primary CTA.
+- **Mood pill** — horizontal scrolling row, snap-x-mandatory, 20px gutter. Inactive: card tint bg, ink text. Active: ink bg, paper text, weight 500.
+- **Angle card / Context card** — card tint bg, 14px radius. Inline links in Geist Mono / SF Pro; press-green for primary action, smoke for secondary.
+- **Timer card** — label in Geist Mono press-green; value in SF Pro 300 / 40px with tabular-nums; thin press-green progress bar. Expired state swaps label to ink and adds a "Dismiss" action.
+- **Today empty state** — mono label ("NO BRIEF FILED" or similar) → Fraunces headline → sans subcopy → primary CTA.
 
-When the Compose branch merges, promote these sections out of the spec-only block and verify values against the shipped CSS.
+If these are ever extracted into named CSS rules, reasonable class names would be `.s2-mood-pill`, `.s2-angle-card`, `.s2-ctx-card`, `.s2-timer-card`, `.today-empty` — none currently exist in the codebase.
 
 ---
 
