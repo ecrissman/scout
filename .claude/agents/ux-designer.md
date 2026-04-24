@@ -26,9 +26,11 @@ Always read SCOUT_APP_SUMMARY.md at the start of any session for full context on
 --ink:           #0C0C0C     /* Pure black for high-contrast elements */
 ```
 
-### Typography
-- **Display:** TAY Flapjack (self-hosted, all-caps, brand moments)
-- **UI / body:** Inconsolata (variable weight, all interface text)
+### Typography (v2 — April 2026)
+- **Display / editorial:** Fraunces (self-hosted variable, opsz 9–144, wght 100–900, SOFT/WONK axes). Brief body, Filed headline, timer value, Editor's Note body.
+- **Labels / datelines / stamps:** Geist Mono (self-hosted variable, wght 100–900). Dispatch stamps, section labels, meta.
+- **UI / body / primary button:** SF Pro system stack. Buttons, form controls, mood pills, body copy.
+- Full spec: `docs/BRAND.md` §4.
 
 ### Design Rules
 - Most of the app is ink on paper — color only at meaningful moments

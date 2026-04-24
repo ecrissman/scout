@@ -210,10 +210,13 @@ All use **Claude claude-haiku-4-5**. All gated by `aiEnabled` localStorage flag.
 --text-3:        rgba(245,241,235,0.30)
 ```
 
-### Typography
-- **Display / brand:** TAY Flapjack (self-hosted in `/public/fonts/TAYFlapjack.woff2`)
-- **UI / body:** Inconsolata (Google Fonts, variable weight)
-- **CSS vars:** `--brand`, `--serif`, `--sans` all resolve to Flapjack → Inconsolata → system
+### Typography (v2 — April 2026 brand pass)
+- **Display / editorial:** Fraunces (self-hosted variable font at `/public/fonts/Fraunces-VariableFont_SOFT_WONK_opsz_wght.ttf` + italic, opsz 9–144, wght 100–900)
+- **Labels / datelines / stamps:** Geist Mono (self-hosted variable font at `/public/fonts/GeistMono-VariableFont_wght.ttf`)
+- **UI / body / primary button:** SF Pro (system stack — `-apple-system, BlinkMacSystemFont, 'SF Pro Text', ...`)
+- **CSS vars:** `--s2-serif` → Fraunces · `--s2-mono` → Geist Mono · `--s2-sans` → SF Pro stack. Legacy `--brand`/`--serif`/`--sans` aliases kept for unmigrated v1 classes.
+
+Source of truth: `docs/BRAND.md`.
 
 ### Design Rules
 - Most UI is ink on paper — color only at meaningful moments
@@ -355,12 +358,13 @@ Dynamically updated via `<meta name="theme-color">`:
 │   ├── sw.js                 # Service worker
 │   ├── icon-192.png          # PWA icon
 │   ├── icon-512.png          # PWA icon
-│   ├── scout-logo-m.svg      # Logo used on login screen
-│   ├── scout-lockup.svg      # Logo + wordmark used on landing screen
+│   ├── scout-wordmark.svg    # Current wordmark (ink)
 │   ├── trail.svg             # Decorative SVG (onboarding step 2)
+│   ├── personas/             # Editor illustrations (Novak, Calder, Walsh)
 │   └── fonts/
-│       ├── TAYFlapjack.woff2 # Display font
-│       └── TAYFlapjack.woff  # Fallback format
+│       ├── Fraunces-VariableFont_SOFT_WONK_opsz_wght.ttf
+│       ├── Fraunces-Italic-VariableFont_SOFT_WONK_opsz_wght.ttf
+│       └── GeistMono-VariableFont_wght.ttf
 ├── CLAUDE.md                 # Project context for Claude sessions
 ├── SCOUT_APP_SUMMARY.md      # This file
 ├── SCOUT_CREATIVE_BRIEF.md   # Full rebrand brief

@@ -77,7 +77,7 @@ Bad prompts:
 - Example: "Day one." / "Start your visual record."
 
 ### Labels & UI Strings
-- ALL CAPS for section labels (Inconsolata convention)
+- ALL CAPS for section labels (Geist Mono, tracked 0.15em)
 - Sentence case for body/explanatory text
 - No punctuation on standalone labels
 - Error messages: plain, human, never technical
