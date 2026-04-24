@@ -1,5 +1,6 @@
 import { isPushSupported, maybePromptForPush, unsubscribePush } from '../push';
 import { setAnalyticsOptOut } from '../analytics';
+import { PERSONAS } from '../personas';
 
 export default function SettingsSheet({
   open, onClose,
@@ -7,6 +8,7 @@ export default function SettingsSheet({
   aiEnabled, setAiEnabled,
   pushEnabled, setPushEnabled,
   analyticsEnabled, setAnalyticsEnabled,
+  briefVoice, setBriefVoice,
 }) {
   if (!open) return null;
   return (
@@ -66,6 +68,33 @@ export default function SettingsSheet({
                 </button>
               </div>
             )}
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <div className="settings-section-label">Your editor</div>
+          <div className="onb-persona-list">
+            {PERSONAS.map(p => {
+              const active = briefVoice === p.id;
+              return (
+                <button
+                  key={p.id}
+                  className={`onb-persona-row${active ? ' active' : ''}`}
+                  onClick={() => setBriefVoice(p.id)}
+                  aria-pressed={active}
+                >
+                  <div className="onb-persona-avatar" data-persona={p.id} aria-hidden="true">
+                    <span>{p.initial}</span>
+                  </div>
+                  <div className="onb-persona-copy">
+                    <div className="onb-persona-name s2-serif">{p.name}</div>
+                    <div className="onb-persona-title s2-mono">{p.title} · {p.publication}</div>
+                    <div className="onb-persona-short s2-sans">{p.short}</div>
+                  </div>
+                  {active && <span className="onb-persona-check" aria-hidden="true">✓</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
 

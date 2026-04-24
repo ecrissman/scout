@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scout — A daily practice in looking</title>
+<meta name="description" content="One assignment each morning. A single frame. An editor's note at 8pm. Scout is a daily photography practice, coming soon to iOS." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --s2-paper:#FFFDFA;
+    --s2-paper-2:#F7F3EC;
+    --s2-grouped-bg:#F2F1EC;
+    --s2-ink:#0C0C0C;
+    --s2-ink-2:#22221F;
+    --s2-bone:#D8D7D4;
+    --s2-smoke:#8A8680;
+    --s2-archive:#3A3A35;
+    --s2-press-green:#007C04;
+    --s2-terracotta:#D6542D;
+    --s2-sage:#4F5E2E;
+    --s2-gold:#E2B554;
+    --s2-serif:'Fraunces',Georgia,serif;
+    --s2-mono:'Geist Mono',ui-monospace,monospace;
+    --s2-sans:-apple-system,BlinkMacSystemFont,'SF Pro Text','SF Pro Display',Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--s2-paper);color:var(--s2-ink);font-family:var(--s2-sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{min-height:100vh;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+
+  /* ───────────── Masthead ───────────── */
+  .masthead{
+    max-width:1120px;margin:0 auto;
+    padding:28px 40px 0;
+    display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid var(--s2-bone);padding-bottom:20px;
+  }
+  .wordmark{display:flex;align-items:center;gap:14px}
+  .wordmark-text{font-family:var(--s2-serif);font-weight:500;font-size:22px;letter-spacing:-0.01em}
+  .wordmark-rule{width:26px;height:2px;background:var(--s2-press-green)}
+  .masthead-meta{font-family:var(--s2-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--s2-smoke)}
+  .pill-coming{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--s2-ink);border-radius:999px;font-family:var(--s2-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase}
+  .pill-dot{width:6px;height:6px;border-radius:50%;background:var(--s2-press-green)}
+
+  /* ───────────── Hero ───────────── */
+  .hero{
+    max-width:1120px;margin:0 auto;
+    padding:100px 40px 80px;
+    display:grid;grid-template-columns:1.15fr 1fr;gap:80px;align-items:center;
+  }
+  .hero-eyebrow{font-family:var(--s2-mono);font-size:11px;letter-spacing:.20em;text-transform:uppercase;color:var(--s2-smoke);margin-bottom:24px}
+  .hero-h1{font-family:var(--s2-serif);font-weight:400;font-size:84px;line-height:0.98;letter-spacing:-0.035em;margin-bottom:28px}
+  .hero-h1 em{font-style:italic;font-weight:300}
+  .hero-lede{font-family:var(--s2-serif);font-weight:300;font-size:22px;line-height:1.5;color:var(--s2-archive);max-width:520px;margin-bottom:40px}
+  .hero-cta-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .cta-primary{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:16px 28px;background:var(--s2-ink);color:var(--s2-paper);
+    font-family:var(--s2-mono);font-size:13px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+    border-radius:14px;border:none;cursor:pointer;
+    transition:opacity .15s;
+  }
+  .cta-primary:hover{opacity:.88}
+  .cta-secondary{
+    font-family:var(--s2-mono);font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--s2-ink);padding:6px 2px;border-bottom:1px solid var(--s2-ink);
+  }
+  .cta-note{font-family:var(--s2-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--s2-smoke);margin-top:16px}
+
+  /* Hero phone mock */
+  .hero-phone{
+    justify-self:center;
+    position:relative;
+    transform:rotate(-2deg);
+  }
+  .phone-frame{
+    width:300px;height:620px;
+    background:var(--s2-ink);
+    border-radius:44px;
+    padding:10px;
+    box-shadow:0 40px 80px -20px rgba(12,12,12,.25),0 10px 30px -10px rgba(12,12,12,.15);
+    position:relative;
+  }
+  .phone-screen{
+    width:100%;height:100%;
+    border-radius:34px;
+    overflow:hidden;
+    background:var(--s2-paper);
+    position:relative;
+  }
+  .phone-notch{
+    position:absolute;top:10px;left:50%;transform:translateX(-50%);
+    width:110px;height:28px;background:var(--s2-ink);border-radius:0 0 18px 18px;z-index:2;
+  }
+  .phone-statusbar{
+    position:absolute;top:0;left:0;right:0;height:44px;
+    display:flex;align-items:center;justify-content:space-between;padding:14px 24px 0;
+    font-family:var(--s2-sans);font-size:11px;font-weight:600;color:var(--s2-ink);
+    z-index:1;
+  }
+
+  /* Mock Brief screen inside phone */
+  .mock-brief{padding:70px 24px 24px;height:100%;display:flex;flex-direction:column}
+  .mock-brief .mock-stamp{
+    align-self:flex-start;
+    font-family:var(--s2-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-press-green);
+    border:1px solid var(--s2-press-green);padding:4px 8px;border-radius:4px;margin-bottom:50px;
+  }
+  .mock-brief .mock-body{
+    font-family:var(--s2-serif);font-weight:400;font-size:20px;line-height:1.4;letter-spacing:-0.01em;color:var(--s2-ink);
+  }
+  .mock-brief .mock-meta{
+    margin-top:auto;text-align:center;
+    font-family:var(--s2-mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-smoke);
+    padding-top:18px;border-top:1px solid var(--s2-bone);
+  }
+
+  /* ───────────── The Three Acts ───────────── */
+  .acts{
+    background:var(--s2-grouped-bg);
+    padding:100px 40px;
+  }
+  .acts-inner{max-width:1120px;margin:0 auto}
+  .acts-eyebrow{font-family:var(--s2-mono);font-size:11px;letter-spacing:.20em;text-transform:uppercase;color:var(--s2-smoke);margin-bottom:14px;text-align:center}
+  .acts-h2{font-family:var(--s2-serif);font-weight:400;font-size:44px;line-height:1.05;letter-spacing:-0.025em;text-align:center;margin-bottom:64px;max-width:620px;margin-left:auto;margin-right:auto}
+  .acts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+  .act{padding:0 4px}
+  .act-num{font-family:var(--s2-mono);font-size:10px;letter-spacing:.22em;color:var(--s2-press-green);margin-bottom:20px}
+  .act-h{font-family:var(--s2-serif);font-weight:400;font-size:28px;line-height:1.1;letter-spacing:-0.02em;margin-bottom:14px}
+  .act-p{font-family:var(--s2-sans);font-size:15px;line-height:1.6;color:var(--s2-archive)}
+
+  /* ───────────── Screenshot strip ───────────── */
+  .shots{
+    max-width:1120px;margin:0 auto;
+    padding:120px 40px 80px;
+  }
+  .shots-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px;gap:40px;flex-wrap:wrap}
+  .shots-eyebrow{font-family:var(--s2-mono);font-size:11px;letter-spacing:.20em;text-transform:uppercase;color:var(--s2-smoke);margin-bottom:10px}
+  .shots-h2{font-family:var(--s2-serif);font-weight:400;font-size:38px;line-height:1.05;letter-spacing:-0.02em;max-width:500px}
+  .shots-note{font-family:var(--s2-sans);font-size:14px;line-height:1.5;color:var(--s2-archive);max-width:340px}
+  .shots-row{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+  .shot{position:relative}
+  .shot-frame{
+    aspect-ratio:9/19.5;
+    background:var(--s2-ink);
+    border-radius:32px;
+    padding:6px;
+    box-shadow:0 20px 40px -15px rgba(12,12,12,.20),0 6px 18px -6px rgba(12,12,12,.12);
+  }
+  .shot-screen{
+    width:100%;height:100%;border-radius:26px;overflow:hidden;background:var(--s2-paper);
+    position:relative;display:flex;flex-direction:column;
+  }
+  .shot-label{
+    margin-top:16px;
+    font-family:var(--s2-mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-smoke);
+  }
+  .shot-title{
+    font-family:var(--s2-serif);font-weight:400;font-size:15px;color:var(--s2-ink);margin-top:2px;
+  }
+
+  /* Mock screen variants */
+  .ss-common-pad{padding:36px 14px 14px}
+  .ss-brief .ss-dateline{font-family:var(--s2-mono);font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-press-green);margin-bottom:32px}
+  .ss-brief .ss-body{font-family:var(--s2-serif);font-size:13px;line-height:1.4;color:var(--s2-ink);letter-spacing:-0.01em}
+  .ss-brief .ss-meta{margin-top:auto;text-align:center;font-family:var(--s2-mono);font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-smoke);padding-top:10px;border-top:1px solid var(--s2-bone)}
+
+  .ss-filed{background:var(--s2-ink);color:var(--s2-paper);justify-content:center;align-items:center;text-align:center;padding:14px}
+  .ss-filed .ss-stamp{font-family:var(--s2-mono);font-size:7px;letter-spacing:.22em;color:var(--s2-press-green);margin-bottom:18px;border:1px solid var(--s2-press-green);padding:2px 6px;border-radius:3px}
+  .ss-filed .ss-filed-h{font-family:var(--s2-serif);font-weight:400;font-size:28px;letter-spacing:-0.02em;line-height:1}
+  .ss-filed .ss-filed-sub{font-family:var(--s2-mono);font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-smoke);margin-top:10px}
+
+  .ss-note{padding:28px 14px 14px}
+  .ss-note .ss-note-label{font-family:var(--s2-mono);font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:var(--s2-press-green);margin-bottom:14px}
+  .ss-note .ss-note-h{font-family:var(--s2-serif);font-weight:400;font-size:14px;letter-spacing:-0.01em;line-height:1.35;color:var(--s2-ink);margin-bottom:12px}
+  .ss-note .ss-note-body{font-family:var(--s2-sans);font-size:9px;line-height:1.5;color:var(--s2-archive)}
+
+  .ss-archive{padding:24px 10px 10px}
+  .ss-archive .ss-arch-h{font-family:var(--s2-serif);font-weight:400;font-size:18px;letter-spacing:-0.02em;margin-bottom:3px}
+  .ss-archive .ss-arch-eyebrow{font-family:var(--s2-mono);font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--s2-smoke);margin-bottom:14px}
+  .ss-archive .ss-arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .ss-archive .ss-tile{aspect-ratio:1;background:linear-gradient(135deg,var(--s2-bone),var(--s2-smoke))}
+  .ss-archive .ss-tile:nth-child(2){background:linear-gradient(135deg,#8a8680,#3a3a35)}
+  .ss-archive .ss-tile:nth-child(3){background:linear-gradient(135deg,#a39481,#6b5d4a)}
+  .ss-archive .ss-tile:nth-child(4){background:linear-gradient(135deg,#7a8675,#4a5249)}
+  .ss-archive .ss-tile:nth-child(5){background:linear-gradient(135deg,#b5a894,#7a6e5e)}
+  .ss-archive .ss-tile:nth-child(6){background:linear-gradient(135deg,#909588,#4d544b)}
+
+  /* ───────────── Try-it-now block ───────────── */
+  .tryit{
+    background:var(--s2-ink);color:var(--s2-paper);
+    padding:100px 40px;
+  }
+  .tryit-inner{max-width:920px;margin:0 auto;text-align:center}
+  .tryit-eyebrow{font-family:var(--s2-mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--s2-gold);margin-bottom:22px}
+  .tryit-h2{font-family:var(--s2-serif);font-weight:400;font-size:52px;line-height:1.02;letter-spacing:-0.03em;margin-bottom:24px}
+  .tryit-h2 em{font-style:italic;font-weight:300}
+  .tryit-lede{font-family:var(--s2-serif);font-weight:300;font-size:20px;line-height:1.5;color:#B8B3AB;max-width:580px;margin:0 auto 40px}
+  .tryit-url{
+    display:inline-block;
+    font-family:var(--s2-mono);font-size:15px;letter-spacing:.05em;
+    padding:18px 32px;
+    background:var(--s2-paper);color:var(--s2-ink);
+    border-radius:12px;
+    margin-bottom:48px;
+    transition:transform .15s;
+  }
+  .tryit-url:hover{transform:translateY(-2px)}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;text-align:left;max-width:760px;margin:0 auto}
+  .step-num{font-family:var(--s2-mono);font-size:10px;letter-spacing:.22em;color:var(--s2-gold);margin-bottom:10px}
+  .step-h{font-family:var(--s2-serif);font-weight:400;font-size:17px;line-height:1.25;letter-spacing:-0.01em;margin-bottom:8px}
+  .step-p{font-family:var(--s2-sans);font-size:13px;line-height:1.55;color:#B8B3AB}
+
+  /* ───────────── Waitlist ───────────── */
+  .waitlist{
+    max-width:1120px;margin:0 auto;
+    padding:120px 40px;
+    display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;
+  }
+  .waitlist-eyebrow{font-family:var(--s2-mono);font-size:11px;letter-spacing:.20em;text-transform:uppercase;color:var(--s2-smoke);margin-bottom:18px}
+  .waitlist-h{font-family:var(--s2-serif);font-weight:400;font-size:44px;line-height:1.02;letter-spacing:-0.025em;margin-bottom:20px}
+  .waitlist-p{font-family:var(--s2-serif);font-weight:300;font-size:19px;line-height:1.5;color:var(--s2-archive);max-width:480px}
+  .waitlist-form{display:flex;gap:8px}
+  .waitlist-form input{
+    flex:1;min-width:0;
+    padding:16px 18px;
+    background:var(--s2-paper);color:var(--s2-ink);
+    border:1px solid var(--s2-bone);border-radius:12px;
+    font-family:var(--s2-sans);font-size:15px;
+    outline:none;
+  }
+  .waitlist-form input:focus{border-color:var(--s2-ink)}
+  .waitlist-form button{
+    padding:0 26px;
+    background:var(--s2-ink);color:var(--s2-paper);
+    border:none;border-radius:12px;cursor:pointer;
+    font-family:var(--s2-mono);font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;
+    transition:opacity .15s;
+  }
+  .waitlist-form button:hover{opacity:.88}
+
+  /* ───────────── Colophon ───────────── */
+  .colophon{
+    border-top:1px solid var(--s2-bone);
+    padding:40px;
+    max-width:1120px;margin:0 auto;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:var(--s2-mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--s2-smoke);
+  }
+  .colophon a:hover{color:var(--s2-ink)}
+
+  /* ───────────── Responsive ───────────── */
+  @media (max-width: 900px){
+    .hero{grid-template-columns:1fr;gap:60px;padding:60px 24px 40px}
+    .hero-h1{font-size:54px}
+    .hero-lede{font-size:18px}
+    .acts{padding:70px 24px}
+    .acts-h2{font-size:32px}
+    .acts-grid{grid-template-columns:1fr;gap:36px}
+    .shots{padding:70px 24px 50px}
+    .shots-row{grid-template-columns:repeat(2,1fr);gap:20px}
+    .shots-h2{font-size:30px}
+    .tryit{padding:70px 24px}
+    .tryit-h2{font-size:36px}
+    .steps{grid-template-columns:1fr;gap:28px}
+    .waitlist{grid-template-columns:1fr;gap:40px;padding:70px 24px}
+    .waitlist-h{font-size:32px}
+    .masthead{padding:20px 24px 16px}
+    .colophon{flex-direction:column;gap:12px;text-align:center;padding:30px 24px}
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ─── Masthead ─── -->
+<header class="masthead">
+  <div class="wordmark">
+    <span class="wordmark-text">Scout</span>
+    <span class="wordmark-rule"></span>
+    <span class="masthead-meta">Field Notes · No. 001</span>
+  </div>
+  <span class="pill-coming"><span class="pill-dot"></span>Coming soon to iOS</span>
+</header>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div>
+    <div class="hero-eyebrow">A daily photography practice</div>
+    <h1 class="hero-h1">A daily <em>practice</em> in looking.</h1>
+    <p class="hero-lede">
+      One assignment each morning. A single frame. An editor's note at eight.
+      No rolls, no drafts — the constraint is the practice.
+    </p>
+    <div class="hero-cta-row">
+      <a class="cta-primary" href="#try">
+        Get early access →
+      </a>
+      <a class="cta-secondary" href="https://scoutphoto.app">Try on the web</a>
+    </div>
+    <div class="cta-note">Native iOS — Q3 2026 · Web app live now</div>
+  </div>
+
+  <!-- Hero phone mockup -->
+  <div class="hero-phone">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-statusbar">
+          <span>9:41</span>
+          <span>● ● ●</span>
+        </div>
+        <div class="mock-brief">
+          <span class="mock-stamp">New Assignment</span>
+          <div class="mock-body">
+            Find an edge. Shoot something soft against something hard. Twenty minutes.
+          </div>
+          <div class="mock-meta">Brief 110 / 365 · File by 23:59</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Three acts ─── -->
+<section class="acts">
+  <div class="acts-inner">
+    <div class="acts-eyebrow">The Practice</div>
+    <h2 class="acts-h2">Three small moments, every day.</h2>
+    <div class="acts-grid">
+      <div class="act">
+        <div class="act-num">No. 01 · Morning</div>
+        <h3 class="act-h">A brief.</h3>
+        <p class="act-p">
+          Each day Scout sends one assignment — a mood, an angle, a time box.
+          Small enough to carry in your pocket, specific enough to change how you see.
+        </p>
+      </div>
+      <div class="act">
+        <div class="act-num">No. 02 · Anytime</div>
+        <h3 class="act-h">A single frame.</h3>
+        <p class="act-p">
+          One photo per day. No rolls, no drafts, no do-overs.
+          File it by midnight. The limit is the lesson.
+        </p>
+      </div>
+      <div class="act">
+        <div class="act-num">No. 03 · At 8pm</div>
+        <h3 class="act-h">An editor's note.</h3>
+        <p class="act-p">
+          A short read on what the frame did — and what to try tomorrow.
+          Off the record, just for you. A daily conversation with the work.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Screenshots ─── -->
+<section class="shots">
+  <div class="shots-header">
+    <div>
+      <div class="shots-eyebrow">Inside the App</div>
+      <h2 class="shots-h2">Built like a photographer's notebook.</h2>
+    </div>
+    <p class="shots-note">
+      Editorial typography, paper-and-ink palette, a brief on the front page.
+      Nothing that doesn't earn its place.
+    </p>
+  </div>
+
+  <div class="shots-row">
+    <!-- Shot 1 — Brief -->
+    <div class="shot">
+      <div class="shot-frame">
+        <div class="shot-screen ss-common-pad ss-brief">
+          <div class="ss-dateline">Dispatch · Apr 20 · Mon</div>
+          <div class="ss-body">Find an edge. Shoot something soft against something hard. Twenty minutes.</div>
+          <div class="ss-meta">Brief 110 / 365</div>
+        </div>
+      </div>
+      <div class="shot-label">No. 01</div>
+      <div class="shot-title">The morning brief</div>
+    </div>
+
+    <!-- Shot 2 — Filed -->
+    <div class="shot">
+      <div class="shot-frame">
+        <div class="shot-screen ss-filed">
+          <div class="ss-stamp">Filed</div>
+          <div class="ss-filed-h">Today's<br/>is in.</div>
+          <div class="ss-filed-sub">20:00 · Apr 20</div>
+        </div>
+      </div>
+      <div class="shot-label">No. 02</div>
+      <div class="shot-title">Filing the frame</div>
+    </div>
+
+    <!-- Shot 3 — Editor's Note -->
+    <div class="shot">
+      <div class="shot-frame">
+        <div class="shot-screen ss-note">
+          <div class="ss-note-label">Editor's Note · 20:00</div>
+          <div class="ss-note-h">The shadow across the top third does more than the subject.</div>
+          <div class="ss-note-body">Tomorrow — follow light that cuts, not light that fills. Wait for the corona to break.</div>
+        </div>
+      </div>
+      <div class="shot-label">No. 03</div>
+      <div class="shot-title">The evening note</div>
+    </div>
+
+    <!-- Shot 4 — Archive -->
+    <div class="shot">
+      <div class="shot-frame">
+        <div class="shot-screen ss-archive">
+          <div class="ss-arch-eyebrow">110 Filed</div>
+          <div class="ss-arch-h">Archive</div>
+          <div class="ss-arch-grid">
+            <div class="ss-tile"></div><div class="ss-tile"></div>
+            <div class="ss-tile"></div><div class="ss-tile"></div>
+            <div class="ss-tile"></div><div class="ss-tile"></div>
+          </div>
+        </div>
+      </div>
+      <div class="shot-label">No. 04</div>
+      <div class="shot-title">A body of work</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Try it now ─── -->
+<section class="tryit" id="try">
+  <div class="tryit-inner">
+    <div class="tryit-eyebrow">Don't wait for the app store</div>
+    <h2 class="tryit-h2">Add to home screen <em>today.</em></h2>
+    <p class="tryit-lede">
+      Scout runs in the browser and installs to your phone's home screen like any native app.
+      Same offline support, same daily brief. Open it on your phone:
+    </p>
+
+    <a class="tryit-url" href="https://scoutphoto.app">scoutphoto.app</a>
+
+    <div class="steps">
+      <div>
+        <div class="step-num">Step 01</div>
+        <h3 class="step-h">Open in Safari</h3>
+        <p class="step-p">Go to scoutphoto.app on your iPhone. Chrome won't work — iOS only allows home-screen installs from Safari.</p>
+      </div>
+      <div>
+        <div class="step-num">Step 02</div>
+        <h3 class="step-h">Tap Share → Add to Home Screen</h3>
+        <p class="step-p">Hit the share icon at the bottom, scroll down, and tap "Add to Home Screen." Confirm with "Add."</p>
+      </div>
+      <div>
+        <div class="step-num">Step 03</div>
+        <h3 class="step-h">Launch from your icon</h3>
+        <p class="step-p">Scout opens full-screen like a native app. Your first brief arrives with it — ready in seconds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Waitlist ─── -->
+<section class="waitlist">
+  <div>
+    <div class="waitlist-eyebrow">When the iOS app lands</div>
+    <h2 class="waitlist-h">Be the first to know.</h2>
+    <p class="waitlist-p">
+      One note when Scout hits the App Store — native push for the 8pm edition,
+      camera shortcuts, offline archive. No updates in between.
+    </p>
+  </div>
+  <form class="waitlist-form" onsubmit="event.preventDefault();this.querySelector('button').textContent='On the list ✓'">
+    <input type="email" required placeholder="you@email.com" aria-label="Email" />
+    <button type="submit">Join</button>
+  </form>
+</section>
+
+<!-- ─── Colophon ─── -->
+<footer class="colophon">
+  <div>Scout · A daily practice in looking</div>
+  <div>© 2026 · <a href="https://scoutphoto.app">scoutphoto.app</a></div>
+</footer>
+
+</body>
+</html>

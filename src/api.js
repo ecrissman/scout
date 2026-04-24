@@ -90,9 +90,9 @@ export async function getContext({ lat, lon }) {
 // v2 brand: compose a brief from user inputs + server-detected light/place.
 // Returns { brief, autoLight, autoPlace }. Client passes lat/lon; server
 // handles weather + reverse-geo so the Anthropic key stays on the edge.
-export async function composeBrief({ mood, time, constraint, lat, lon }) {
+export async function composeBrief({ mood, time, constraint, lat, lon, voice }) {
   try {
-    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { mood, time, constraint, lat, lon }));
+    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { mood, time, constraint, lat, lon, voice }));
     if (!r.ok) return null;
     return r.json();
   } catch { return null; }
@@ -100,9 +100,9 @@ export async function composeBrief({ mood, time, constraint, lat, lon }) {
 
 // v2 brand: editor's note for a filed photo. Returns { editorNote, editorNoteAt }.
 // Persists the note into the photo's meta.json.
-export async function getEditorNote(date) {
+export async function getEditorNote(date, voice) {
   try {
-    const r = await fetch(`${BASE}/ai/editor-note/${date}`, await req('POST'));
+    const r = await fetch(`${BASE}/ai/editor-note/${date}`, await req('POST', { voice }));
     if (!r.ok) return null;
     return r.json();
   } catch { return null; }

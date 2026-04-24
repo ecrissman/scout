@@ -1,24 +1,85 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { composeBrief, getContext, uploadPhoto, getEditorNote } from '../api';
+import { splitBrief } from '../personas';
 import { extractEXIF, compressFile, makeThumb } from '../exif';
 import { startTimer, clearTimer, getTimer, parseTimeLabel } from './timer';
 import TimerBlock from './TimerBlock';
 
 const MOODS = ['Lovely', 'Relaxed', 'Restless', 'Pensive', 'Electric', 'Quiet', 'Curious', 'Tender', 'Bold'];
 const TIMES = ['Off', '3 min', '15 min', '1 hr', '3 hr'];
+// Weather glyph set — 24x24, 1.8 stroke, inherits currentColor. Matches the
+// labels returned by /api/ai/context (see functions/api lightDescFromCode).
+// Keys are lowercased; fallback is 'ambient' (sun).
+const WeatherIcon = ({ label }) => {
+  const k = (label || '').toLowerCase();
+  const common = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true, className: 's2-ctx-card-icon' };
+  if (k.startsWith('clear') || k === 'mostly clear' || k === 'ambient') return (
+    <svg {...common}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+  );
+  if (k === 'partly cloudy') return (
+    <svg {...common}><circle cx="8" cy="9" r="3" /><path d="M8 2v1.5M2.5 9H4M3.6 4.6l1 1M12.4 4.6l-1 1" /><path d="M9 15h7.5a3.5 3.5 0 0 1 0 7H9a3.5 3.5 0 0 1 0-7z" /></svg>
+  );
+  if (k === 'overcast') return (
+    <svg {...common}><path d="M6 10h10.5a3.5 3.5 0 0 1 0 7H6a3.5 3.5 0 0 1 0-7z" /><path d="M4 15.5h10.5a3.5 3.5 0 0 1 0 7H4" /></svg>
+  );
+  if (k === 'fog') return (
+    <svg {...common}><path d="M4 8h16M3 13h18M5 18h14" /></svg>
+  );
+  if (k === 'drizzle') return (
+    <svg {...common}><path d="M7 11h10a3.5 3.5 0 0 1 0 7H7a3.5 3.5 0 0 1 0-7z" /><path d="M10 20v1.5M14 20v1.5" /></svg>
+  );
+  if (k === 'rain' || k === 'showers') return (
+    <svg {...common}><path d="M7 8h10a3.5 3.5 0 0 1 0 7H7a3.5 3.5 0 0 1 0-7z" /><path d="M9 17l-1 4M13 17l-1 4M17 17l-1 4" /></svg>
+  );
+  if (k === 'snow') return (
+    <svg {...common}><path d="M7 8h10a3.5 3.5 0 0 1 0 7H7a3.5 3.5 0 0 1 0-7z" /><path d="M9 18v3M9 19.5h0M13 18v3M13 19.5h0M17 18v3M17 19.5h0" /></svg>
+  );
+  if (k === 'storm') return (
+    <svg {...common}><path d="M7 8h10a3.5 3.5 0 0 1 0 7H7a3.5 3.5 0 0 1 0-7z" /><path d="M13 16l-3 4h3l-2 3" /></svg>
+  );
+  // Fallback
+  return (
+    <svg {...common}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>
+  );
+};
+
 const CONSTRAINTS = [
   'Look up',
+  'Look down',
   'One color only',
   'No people',
-  'Shoot through something',
+  'Only reflections',
+  'Through something',
+  'Through glass',
   'Find an edge',
   'Lowest angle you can',
   "Only what's within arm's reach",
+  "Nothing farther than 10 feet",
   'Negative space',
   'A single shape, repeated',
   'Where light ends',
   'Between two things',
   'Soft against hard',
+  'Out of focus on purpose',
+  'Deliberate blur',
+  'Just a texture',
+  'One shadow',
+  'A corner, any corner',
+  'The thing behind the thing',
+  "What you almost stepped on",
+  'An accidental still life',
+  'Something small, made large',
+  'Something plastic',
+  'Something handwritten',
+  'A mess, not cleaned up',
+  "What's on the floor",
+  "The view from sitting down",
+  "A thing someone else placed",
+  'One object, your worst angle of it',
+  "The ugliest thing nearby",
+  'Only warm tones',
+  'Only cool tones',
+  'A face that isn\'t a face',
 ];
 
 // Format the clock portion of the Compose dateline — "8:17" or "14:47".
@@ -163,12 +224,20 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
 
   const [firstBrief, setFirstBrief] = useState(() => localStorage.getItem('scout-first-brief-seen') !== '1');
 
+  const dismissFirstBrief = () => {
+    if (!firstBrief) return;
+    localStorage.setItem('scout-first-brief-seen', '1');
+    setFirstBrief(false);
+  };
+
+  const pickMood = (m) => {
+    setMood(m);
+    dismissFirstBrief();
+  };
+
   const compose = async () => {
     if (!canCompose) return;
-    if (firstBrief) {
-      localStorage.setItem('scout-first-brief-seen', '1');
-      setFirstBrief(false);
-    }
+    dismissFirstBrief();
     setLoading(true);
     setError(null);
     const res = await composeBrief({
@@ -177,6 +246,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       constraint,
       lat: coords?.lat,
       lon: coords?.lon,
+      voice: (typeof localStorage !== 'undefined' && localStorage.getItem('scout-brief-voice')) || 'current',
     });
     setLoading(false);
     if (!res || res.error) {
@@ -287,7 +357,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // (as the Field Note block) when the user closes this tray.
   useEffect(() => {
     if (stage !== 'filed') return;
-    getEditorNote(todayKey).catch(() => {});
+    const voice = (typeof localStorage !== 'undefined' && localStorage.getItem('scout-brief-voice')) || 'editor';
+    getEditorNote(todayKey, voice).catch(() => {});
   }, [stage, todayKey]);
 
   // Header dateline: "Overcast · Capitol Hill · 8:17" (filtered for nulls).
@@ -309,18 +380,15 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     return (
       <div className={trayClass}>
         <PageHeader />
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 28px', alignItems: 'stretch' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 80, marginBottom: 40 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '36px 28px 32px', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 96, marginBottom: 56 }}>
             <span className="s2-stamp-filed" style={{ fontSize: 'var(--fs-base)', padding: '10px 22px' }}>Filed</span>
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-3xl)', color: 'var(--s2-text-primary)', lineHeight: 1.15, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 14 }}>
+          <div className="s2-serif" style={{ fontSize: 'var(--fs-3xl)', color: 'var(--s2-text-primary)', lineHeight: 1.15, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 22 }}>
             Your take is in.
           </div>
-          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-base)', color: 'var(--s2-text-secondary)', lineHeight: 1.5, textAlign: 'center', maxWidth: 320, margin: '0 auto 16px' }}>
+          <div className="s2-sans" style={{ fontFamily: 'var(--s2-sans)', fontSize: 'var(--fs-base)', color: 'var(--s2-text-secondary)', lineHeight: 1.55, textAlign: 'center', maxWidth: 320, margin: '0 auto', marginBottom: 'auto' }}>
             Your editor will review it. We'll let you know when their note is ready.
-          </div>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.22em', textTransform: 'uppercase', textAlign: 'center', marginBottom: 'auto' }}>
-            Archive {formatDispatchDate(now)} · {clock}
           </div>
           <button className="s2-btn-primary" onClick={dismiss}>
             Close
@@ -427,13 +495,21 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
   // competes with the brief itself.
   if (stage === 'brief' && brief) {
     const briefNumber = dayOfYear(now);
-    const revealed = brief.slice(0, briefShown);
+    const { body: briefBody, signature: briefSig } = splitBrief(brief);
+    const revealedFull = brief.slice(0, briefShown);
     const typing = briefShown < brief.length;
+    // Reveal the sign-off line only once the body is fully typed, and keep
+    // the typewriter strictly on the body portion so the signature doesn't
+    // type character-by-character.
+    const bodyRevealed = briefSig
+      ? revealedFull.slice(0, Math.min(revealedFull.length, briefBody.length))
+      : revealedFull;
+    const sigShown = briefSig && briefShown >= brief.length;
     return (
       <div className={trayClass}>
         <PageHeader />
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '28px 28px 28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '44px 28px 36px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 72 }}>
             <span className="s2-stamp-dispatch">New Assignment</span>
             <button
               className="s2-icon-btn"
@@ -447,20 +523,20 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
               </svg>
             </button>
           </div>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', letterSpacing: '0.18em', color: 'var(--s2-text-muted)', textTransform: 'uppercase', marginBottom: 36 }}>
-            Dispatch · {formatDispatchDate(now)} · {clock}
+          <div style={{ marginBottom: 'auto' }}>
+            <div className="s2-serif" style={{ fontSize: 'var(--fs-xl)', color: 'var(--s2-text-primary)', lineHeight: 1.4, letterSpacing: '-0.01em' }}>
+              {bodyRevealed}
+              {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
+            </div>
+            {sigShown && (
+              <div className="note-reveal-sig" style={{ marginTop: 20 }}>{briefSig}</div>
+            )}
           </div>
-          <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.2, letterSpacing: '-0.015em', marginBottom: 'auto' }}>
-            {revealed}
-            {typing && <span className="s2-typewriter-caret" aria-hidden="true">▍</span>}
-          </div>
-          <div style={{ margin: '16px -28px 0' }}>
+          <div style={{ margin: '32px -28px 0' }}>
             <TimerBlock />
           </div>
-          <div className="s2-mono" style={{ fontSize: 'var(--fs-2xs)', color: 'var(--s2-text-muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 20, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <span>Brief {briefNumber} / 365</span>
-            <span style={{ color: 'var(--s2-bone)' }}>·</span>
-            <span>File by 23:59</span>
+          <div className="s2-mono" style={{ fontSize: 12, color: 'var(--s2-text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 48, marginBottom: 36, textAlign: 'center' }}>
+            Brief {briefNumber} / 365 &nbsp;·&nbsp; File by 23:59
           </div>
           {fileError && (
             <div className="s2-mono" style={{ color: 'var(--s2-warn)', fontSize: 'var(--fs-sm)', marginBottom: 10 }}>
@@ -482,6 +558,13 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     <div className={trayClass}>
       <PageHeader />
 
+      {firstBrief && (
+        <div className="s2-first-assignment" role="note">
+          <div className="s2-first-assignment-label">Your first assignment</div>
+          <div className="s2-first-assignment-body">Pick a mood to compose your first brief.</div>
+        </div>
+      )}
+
       <div className="s2-title-block">
         <h1 className="s2-title">Daily Brief</h1>
         <div className="s2-dateline" style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}>
@@ -495,7 +578,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <button
             key={m}
             className={`s2-mood-pill ${mood === m ? 'active' : ''}`}
-            onClick={() => setMood(m)}
+            onClick={() => pickMood(m)}
           >
             {m}
           </button>
@@ -529,10 +612,7 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
           <div className="s2-section-label">Context</div>
           <div className="s2-ctx-row">
             <div className="s2-ctx-card">
-              <svg className="s2-ctx-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-              </svg>
+              <WeatherIcon label={autoLight} />
               <div className="s2-ctx-card-val">{autoLight || '—'}</div>
               <div className="s2-ctx-card-sub">{clock}</div>
             </div>
@@ -555,8 +635,16 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       )}
 
       <div style={{ marginTop: 'auto', padding: '16px 16px 26px' }}>
-        <button className={`s2-btn-primary${firstBrief && canCompose ? ' s2-btn-primary--pulse' : ''}`} disabled={!canCompose} onClick={compose}>
-          {loading ? (<><span className="s2-spinner" />Composing…</>) : firstBrief ? 'Compose your first brief' : 'Compose'}
+        <button
+          className="s2-btn-primary"
+          disabled={mood === null}
+          aria-busy={loading}
+          onClick={compose}
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          {loading
+            ? (<><span className="s2-spinner" /><span>Composing…</span></>)
+            : <span>Compose</span>}
         </button>
       </div>
     </div>

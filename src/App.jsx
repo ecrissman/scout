@@ -3,6 +3,7 @@ import { getPhoto, uploadPhoto, updateCaption, deletePhoto, deleteAccount, listY
 import { isPushSupported, isPushSubscribedLocal, maybePromptForPush } from './push';
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { supabase } from './supabase.js';
+import { splitBrief, migrateVoiceId } from './personas';
 import { initAnalytics, identify, resetIdentity, track } from './analytics';
 const ComposeScreen = lazy(() => import('./compose/ComposeScreen.jsx'));
 import ScoutWordmark from './ScoutWordmark.jsx';
@@ -42,6 +43,9 @@ const _authInUrl = window.location.hash.includes('access_token') ||
 
 
 
+
+// splitBrief + persona metadata live in src/personas.js now (shared with
+// ComposeScreen, OnboardingFlow, SettingsSheet).
 
 const MONTHS   = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTHS_S = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
@@ -244,6 +248,8 @@ export default function App() {
   const [locationName,  setLocationName]  = useState(null);
   const [aiEnabled,    setAiEnabled]    = useState(()=> localStorage.getItem('scout-ai-enabled') !== 'false');
   useEffect(()=>{ localStorage.setItem('scout-ai-enabled', String(aiEnabled)); }, [aiEnabled]);
+  const [briefVoice, setBriefVoice] = useState(() => migrateVoiceId());
+  useEffect(() => { localStorage.setItem('scout-brief-voice', briefVoice); }, [briefVoice]);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(()=> localStorage.getItem('scout-analytics-optout') !== 'true');
   const [pushEnabled, setPushEnabled] = useState(()=> isPushSupported() && isPushSubscribedLocal());
   const fileRef        = useRef(null);
@@ -453,12 +459,13 @@ export default function App() {
       // v1 feedback field; both render inside the same Field Note block.
       const note = data?.editorNote || data?.feedback || null;
       if (note) setFeedback(note);
-      // Evening-edition gate: for today's note, suppress the reveal until
-      // 20:00 local. Past-dated notes aren't gated (they were held back
-      // when originally filed). Seen flag is per-date.
+      // Evening-edition gate: the reveal auto-fires only for today, and
+      // only after 20:00 local. Past dates never auto-reveal — tapping
+      // an archive tile opens the lightbox, not the note. The banner on
+      // the day detail is still how users re-read a past note.
       const nowHour = new Date().getHours();
-      const gatedToday = sel === todayStr && nowHour < 20;
-      if (note && sel && !gatedToday && !localStorage.getItem(`scout-note-seen-${sel}`)) {
+      const gatedToday = nowHour < 20;
+      if (note && sel === todayStr && !gatedToday && !localStorage.getItem(`scout-note-seen-${sel}`)) {
         setNoteReveal(sel);
         setNoteRevealShown(0);
       }
@@ -731,7 +738,10 @@ export default function App() {
         }
         if (exif?.lat != null && exif?.lon != null) reverseGeocode(exif.lat, exif.lon).then(name => { if (name) setLocationName(name); });
         else setLocationName(null);
-        if (aiEnabled) {
+        // Only fire the editor-note pipeline for today's filings. Back-
+        // filling a past date is a logistical action, not a creative
+        // submission — no note, no 20:00 reveal.
+        if (aiEnabled && sel === todayStr) {
           getFeedback(sel).then(result => {
             if (result?.feedback) setFeedback(result.feedback);
           });
@@ -869,7 +879,11 @@ export default function App() {
   );
 
   if (!onboarded) return (
-    <OnboardingFlow onDone={() => { localStorage.setItem('scout-onboarded', '1'); setOnboarded(true); }} />
+    <OnboardingFlow
+      briefVoice={briefVoice}
+      setBriefVoice={setBriefVoice}
+      onDone={() => { localStorage.setItem('scout-onboarded', '1'); setOnboarded(true); }}
+    />
   );
 
   if (!authed && showLanding) return (
@@ -1042,9 +1056,15 @@ export default function App() {
 
         {/* ── Archive tab (masonry feed, newest first, month-grouped) ── */}
         <div className="archive-scroll" style={{display: activeTab==='archive' ? 'block' : 'none'}}>
+          {photoDates.size > 0 && (
+            <div className="page-header">
+              <div className="page-header-eyebrow">{photoDates.size} FILED</div>
+              <h1 className="page-header-title">Back Issues</h1>
+            </div>
+          )}
           {photoDates.size===0 ? (
             <div className="archive-empty">
-              <div className="archive-empty-lbl">The Archive</div>
+              <div className="archive-empty-lbl">Back Issues</div>
               <div className="archive-empty-h">Nothing filed yet.</div>
               <div className="archive-empty-sub">File today's take and it lands here.</div>
             </div>
@@ -1083,6 +1103,10 @@ export default function App() {
 
         {/* ── Calendar tab — scrollable month view, current month first ── */}
         <div className="month-scroll" style={{display: activeTab==='calendar' ? 'block' : 'none'}}>
+          <div className="page-header">
+            <div className="page-header-eyebrow">{TY}</div>
+            <h1 className="page-header-title">Editions</h1>
+          </div>
           {Array.from({length:TM+1},(_,i)=> TM - i).map(mi=>{
             const fd=new Date(TY,mi,1).getDay(), dim=new Date(TY,mi+1,0).getDate();
             const cells=[
@@ -1275,7 +1299,9 @@ export default function App() {
               {/* ── The Brief chip ──
                   Tap to expand inline. Surfaces the original assignment so
                   the photo stays in context long after filing. */}
-              {dayMeta?.compose?.brief&&(
+              {dayMeta?.compose?.brief&&(() => {
+                const { body: briefBody, signature: briefSig } = splitBrief(dayMeta.compose.brief);
+                return (
                 <div className="brief-chip">
                   <button className="brief-chip-toggle" onClick={()=>setBriefExpanded(v=>!v)}>
                     <span className="brief-chip-lbl">{briefExpanded ? 'Hide the brief' : 'Read the brief'}</span>
@@ -1284,10 +1310,14 @@ export default function App() {
                     </svg>
                   </button>
                   <div className={`brief-chip-body${briefExpanded?' open':''}`}>
-                    <div className="brief-chip-body-inner">{dayMeta.compose.brief}</div>
+                    <div className="brief-chip-body-inner">{briefBody}</div>
+                    {briefSig && (
+                      <div className="note-reveal-sig" style={{ marginTop: 12, paddingBottom: 4 }}>{briefSig}</div>
+                    )}
                   </div>
                 </div>
-              )}
+                );
+              })()}
 
             </div>
           </>
@@ -1333,7 +1363,7 @@ export default function App() {
               <button
                 className={`s2-tab-btn${activeTab==='archive'?' active':''}`}
                 onClick={() => switchTab('archive')}
-                aria-label="Archive"
+                aria-label="Back Issues"
                 aria-current={activeTab==='archive' ? 'page' : undefined}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -1346,7 +1376,7 @@ export default function App() {
               <button
                 className={`s2-tab-btn${activeTab==='calendar'?' active':''}`}
                 onClick={() => switchTab('calendar')}
-                aria-label="Calendar"
+                aria-label="Editions"
                 aria-current={activeTab==='calendar' ? 'page' : undefined}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -1447,10 +1477,19 @@ export default function App() {
               <div className="note-reveal-thumb-wrap">
                 <AuthImage className="note-reveal-thumb" src={thumbUrl(noteReveal)} alt="" />
               </div>
-              <div className="note-reveal-body">
-                {feedback}
-              </div>
-              <div className="note-reveal-sig">— The Editor</div>
+              {(() => {
+                // Strip the persona's sign-off from the note body and render
+                // it on its own line in the same mono/sans treatment used
+                // elsewhere. Prevents the "— Novak" showing inline at the
+                // end of the body AND as a duplicate signature below.
+                const { body: noteBody, signature: noteSig } = splitBrief(feedback || '');
+                return (
+                  <>
+                    <div className="note-reveal-body">{noteBody}</div>
+                    <div className="note-reveal-sig">{noteSig || '— The Editor'}</div>
+                  </>
+                );
+              })()}
               <div style={{ flex: 1, minHeight: 32 }} />
               <button className="s2-btn-primary" style={{ marginTop: 24 }} onClick={dismiss}>Close</button>
             </div>
@@ -1504,6 +1543,7 @@ export default function App() {
         aiEnabled={aiEnabled} setAiEnabled={setAiEnabled}
         pushEnabled={pushEnabled} setPushEnabled={setPushEnabled}
         analyticsEnabled={analyticsEnabled} setAnalyticsEnabled={setAnalyticsEnabled}
+        briefVoice={briefVoice} setBriefVoice={setBriefVoice}
       />}
 
       {accountOpen && <AccountSheet
@@ -1538,6 +1578,7 @@ export default function App() {
         feedback={feedback} setFeedback={setFeedback}
         setNoteReveal={setNoteReveal} setNoteRevealShown={setNoteRevealShown}
         sel={sel}
+        briefVoice={briefVoice} setBriefVoice={setBriefVoice}
       />
 
     </div>
