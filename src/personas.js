@@ -14,7 +14,9 @@ export const PERSONAS = [
     title: 'Editor',
     publication: 'Chicago Sun-Times, retired',
     initial: 'N',
+    portrait: '/personas/novak.png',
     short: 'Direct. Specific. Dry.',
+    sample: 'Light\u2019s doing the work here. Frame could\u2019ve asked more of the subject \u2014 next one.',
     signatureDisplay: 'Novak —',
   },
   {
@@ -23,7 +25,9 @@ export const PERSONAS = [
     title: 'Contributing Editor',
     publication: 'small photo zine, Providence',
     initial: 'R',
+    portrait: '/personas/calder.png',
     short: 'Warm. Curious. Indie.',
+    sample: 'this does the work \u2014 subject\u2019s clean, light supports it. curious what happens if you push the background.',
     signatureDisplay: '— rob',
   },
   {
@@ -32,7 +36,9 @@ export const PERSONAS = [
     title: 'Editor at Large',
     publication: 'photography quarterly',
     initial: 'E',
+    portrait: '/personas/walsh.png',
     short: 'Spare. Considered. Silent.',
+    sample: 'the frame rests. received.',
     signatureDisplay: '— e.w.',
   },
 ];
