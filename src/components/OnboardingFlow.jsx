@@ -102,15 +102,16 @@ export default function OnboardingFlow({ onDone, briefVoice, setBriefVoice }) {
                   onClick={() => setBriefVoice(p.id)}
                   aria-pressed={active}
                 >
-                  <div className="onb-persona-avatar" data-persona={p.id} aria-hidden="true">
-                    <span>{p.initial}</span>
+                  <div className="onb-persona-portrait" aria-hidden="true">
+                    <img src={p.portrait} alt="" loading="lazy" />
                   </div>
                   <div className="onb-persona-copy">
+                    <div className="s2-mono onb-persona-role">{p.title}</div>
                     <div className="s2-serif onb-persona-name">{p.name}</div>
-                    <div className="s2-mono onb-persona-title">{p.title} · {p.publication}</div>
-                    <div className="s2-sans onb-persona-short">{p.short}</div>
+                    <div className="s2-mono onb-persona-pub">{p.publication}</div>
+                    <div className="s2-serif onb-persona-sample">"{p.sample}"</div>
                   </div>
-                  {active && <span className="onb-persona-check" aria-hidden="true">✓</span>}
+                  {active && <span className="onb-persona-stamp" aria-hidden="true">Your desk</span>}
                 </button>
               );
             })}
