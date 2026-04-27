@@ -2,17 +2,27 @@ import { useState, useRef, useEffect } from 'react';
 import ScoutWordmark from '../ScoutWordmark.jsx';
 import { PERSONAS } from '../personas';
 
-// First-run flow. Three screens:
-//   intro → masthead (carousel) → terms → onDone
-// The masthead carousel folds the former "edition cycle" screen into each
-// persona card — swiping through the editors *is* the cycle preview, since
-// each card shows that editor's brief + filed + editor's note in their
-// own voice. Auth happens after onDone.
+// First-run flow. Four screens:
+//   intro → cycle → masthead (carousel) → terms → onDone
+// The cycle screen is a generic, diagrammatic explainer of the edition
+// loop (brief in, frame out, note back). It bridges the intro tagline
+// and the masthead pick — without it, "Pick your editor" arrives before
+// the user knows why there's an editor. The masthead carousel keeps
+// per-card content minimal: portrait, role + publication, name, sample
+// brief in their voice. Auth happens after onDone.
 export default function OnboardingFlow({ onDone, briefVoice, setBriefVoice }) {
   const [step, setStep] = useState('intro');
 
   if (step === 'intro') {
-    return <IntroGrid onBegin={() => setStep('masthead')} />;
+    return <IntroGrid onBegin={() => setStep('cycle')} />;
+  }
+  if (step === 'cycle') {
+    return (
+      <CycleScreen
+        onContinue={() => setStep('masthead')}
+        onSkip={() => setStep('masthead')}
+      />
+    );
   }
   if (step === 'masthead') {
     return (
@@ -27,6 +37,40 @@ export default function OnboardingFlow({ onDone, briefVoice, setBriefVoice }) {
     return <TermsScreen onDone={onDone} />;
   }
   return null;
+}
+
+// ── Edition cycle (bridge screen) ─────────────────────────────────
+// Generic — no editor's voice yet, since we haven't picked one. Three
+// rule-separated rows describe the loop in brand-voice fragments. Skip
+// link top-right jumps straight to the masthead for users who don't
+// need the explainer.
+function CycleScreen({ onContinue, onSkip }) {
+  return (
+    <div className="onb-screen onb-cycle">
+      <button type="button" className="onb-skip" onClick={onSkip}>Skip</button>
+      <div className="onb-pitch-body">
+        <div className="s2-mono onb-eyebrow">The edition cycle</div>
+        <h1 className="s2-serif onb-headline">How a day runs.</h1>
+        <div className="onb-cycle-list">
+          <div className="onb-cycle-block">
+            <div className="s2-mono onb-cycle-label">06:00 · Brief</div>
+            <div className="s2-sans onb-cycle-body">A short assignment from your editor.</div>
+          </div>
+          <div className="onb-cycle-block">
+            <div className="s2-mono onb-cycle-label">Take</div>
+            <div className="s2-sans onb-cycle-body">One frame, filed by you.</div>
+          </div>
+          <div className="onb-cycle-block">
+            <div className="s2-mono onb-cycle-label">20:00 · Note</div>
+            <div className="s2-sans onb-cycle-body">A reply on what you saw.</div>
+          </div>
+        </div>
+      </div>
+      <div className="onb-cta">
+        <button className="s2-btn-primary" onClick={onContinue}>Meet the masthead</button>
+      </div>
+    </div>
+  );
 }
 
 // ── Masthead carousel ─────────────────────────────────────────────
@@ -88,19 +132,9 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
             </div>
             <div className="onb-card-role">{p.title} · {p.publication}</div>
             <div className="s2-serif onb-card-name">{p.name}</div>
-            <div className="onb-card-cycle">
-              <div className="onb-card-block">
-                <div className="onb-card-dateline">Brief · 06:00</div>
-                <div className="s2-serif onb-card-brief">&ldquo;{p.sampleBrief}&rdquo;</div>
-              </div>
-              <div className="onb-card-stamp">
-                <span className="s2-stamp-filed">Filed</span>
-              </div>
-              <div className="onb-card-block">
-                <div className="onb-card-dateline">Editor&rsquo;s note · 20:00</div>
-                <div className="s2-sans onb-card-note">&ldquo;{p.sampleNote}&rdquo;</div>
-                <div className="onb-card-sig">{p.signatureDisplay}</div>
-              </div>
+            <div className="onb-card-quote-wrap">
+              <div className="s2-serif onb-card-brief">&ldquo;{p.sampleBrief}&rdquo;</div>
+              <div className="onb-card-brief-label">— Brief</div>
             </div>
           </article>
         ))}
@@ -146,9 +180,10 @@ function TermsScreen({ onDone }) {
             <div className="s2-sans onb-primer-sub">Your work stays yours. Off the record.</div>
           </li>
         </ul>
+        <p className="s2-sans onb-deal-perms">Location, notifications, camera — asked when each one matters.</p>
       </div>
       <div className="onb-cta">
-        <button className="s2-btn-primary" onClick={onDone}>Begin</button>
+        <button className="s2-btn-primary" onClick={onDone}>Step inside</button>
       </div>
     </div>
   );
@@ -201,7 +236,7 @@ function IntroGrid({ onBegin }) {
         </div>
         <div className="onb-intro-tag">The beat is yours.</div>
         <div className="onb-cta">
-          <button className="s2-btn-primary" onClick={onBegin}>Step inside</button>
+          <button className="s2-btn-primary" onClick={onBegin}>Begin</button>
         </div>
       </div>
     </div>
