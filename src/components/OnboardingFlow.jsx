@@ -1,118 +1,157 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ScoutWordmark from '../ScoutWordmark.jsx';
 import { PERSONAS } from '../personas';
 
-// First-run flow. Runs before auth on first launch. State machine:
-//   intro → editor → cycle → deal → onDone
-// The masthead leads (screen 2) so the cycle pane (screen 3) can render in
-// the chosen editor's voice — meeting their editor doing real work is the
-// payload, not the mechanic. Auth happens after onDone. Act 5 (first-brief
-// pulse) lives in the main app, gated separately.
+// First-run flow. Three screens:
+//   intro → masthead (carousel) → terms → onDone
+// The masthead carousel folds the former "edition cycle" screen into each
+// persona card — swiping through the editors *is* the cycle preview, since
+// each card shows that editor's brief + filed + editor's note in their
+// own voice. Auth happens after onDone.
 export default function OnboardingFlow({ onDone, briefVoice, setBriefVoice }) {
   const [step, setStep] = useState('intro');
 
   if (step === 'intro') {
-    return <IntroGrid onBegin={() => setStep('editor')} />;
+    return <IntroGrid onBegin={() => setStep('masthead')} />;
   }
-
-  if (step === 'editor') {
-    const picked = PERSONAS.find(p => p.id === briefVoice) || PERSONAS[0];
+  if (step === 'masthead') {
     return (
-      <div className="onb-screen onb-editor">
-        <div className="onb-pitch-body">
-          <div className="s2-mono onb-eyebrow">The masthead</div>
-          <h1 className="s2-serif onb-headline">Three editors. Pick yours.</h1>
-          <p className="s2-sans onb-body onb-editor-sub">Each comes from a different corner of the industry. You can request a transfer any time.</p>
-          <div className="onb-persona-list">
-            {PERSONAS.map(p => {
-              const active = picked.id === p.id;
-              return (
-                <button
-                  key={p.id}
-                  className={`onb-persona-row${active ? ' active' : ''}`}
-                  onClick={() => setBriefVoice(p.id)}
-                  aria-pressed={active}
-                >
-                  <div className="onb-persona-portrait" aria-hidden="true">
-                    <img src={p.portrait} alt="" loading="lazy" />
-                  </div>
-                  <div className="onb-persona-copy">
-                    <div className="s2-mono onb-persona-role">{p.title}</div>
-                    <div className="s2-serif onb-persona-name">{p.name}</div>
-                    <div className="s2-mono onb-persona-pub">{p.publication}</div>
-                    <div className="s2-serif onb-persona-sample">"{p.sample}"</div>
-                  </div>
-                  {active && <span className="onb-persona-stamp" aria-hidden="true">Your desk</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <div className="onb-cta">
-          <button className="s2-btn-primary" onClick={() => setStep('cycle')}>File for {picked.name.split(' ')[0]}</button>
-        </div>
-      </div>
+      <MastheadCarousel
+        briefVoice={briefVoice}
+        setBriefVoice={setBriefVoice}
+        onNext={() => setStep('terms')}
+      />
     );
   }
-
-  if (step === 'cycle') {
-    const picked = PERSONAS.find(p => p.id === briefVoice) || PERSONAS[0];
-    return (
-      <div className="onb-screen onb-cycle">
-        <div className="onb-pitch-body">
-          <div className="s2-mono onb-eyebrow">The edition cycle</div>
-          <h1 className="s2-serif onb-headline">How a day runs.</h1>
-          <div className="onb-sample">
-            <div className="s2-mono onb-sample-dateline">BRIEF · 06:00</div>
-            <div className="s2-serif onb-sample-quote">{picked.sampleBrief}</div>
-          </div>
-          <div className="onb-cycle-stamp">
-            <span className="s2-stamp-filed">Filed</span>
-          </div>
-          <div className="onb-sample">
-            <div className="s2-mono onb-sample-dateline">EDITOR'S NOTE · 20:00</div>
-            <div className="s2-sans onb-sample-note">{picked.sampleNote}</div>
-            <div className="s2-mono onb-cycle-sig">{picked.signatureDisplay}</div>
-          </div>
-          <p className="s2-sans onb-body onb-cycle-caption">Brief out. One frame. Note back at 8.</p>
-        </div>
-        <div className="onb-cta">
-          <button className="s2-btn-primary" onClick={() => setStep('deal')}>One more thing</button>
-        </div>
-      </div>
-    );
+  if (step === 'terms') {
+    return <TermsScreen onDone={onDone} />;
   }
-
-  if (step === 'deal') {
-    return (
-      <div className="onb-screen onb-deal">
-        <div className="onb-pitch-body">
-          <div className="s2-mono onb-eyebrow">The terms</div>
-          <h1 className="s2-serif onb-headline">What you're agreeing to.</h1>
-          <ul className="onb-primer-list">
-            <li>
-              <div className="s2-mono onb-primer-label">Daily</div>
-              <div className="s2-sans onb-primer-sub">One brief, one frame, one note. Miss a day, the paper notices.</div>
-            </li>
-            <li>
-              <div className="s2-mono onb-primer-label">Honest</div>
-              <div className="s2-sans onb-primer-sub">The editor won't flatter you. They'll make you better.</div>
-            </li>
-            <li>
-              <div className="s2-mono onb-primer-label">Private</div>
-              <div className="s2-sans onb-primer-sub">Your work is yours. Off the record.</div>
-            </li>
-          </ul>
-          <p className="s2-sans onb-deal-perms">Location, notifications, camera — asked when each one matters.</p>
-        </div>
-        <div className="onb-cta">
-          <button className="s2-btn-primary" onClick={onDone}>Begin</button>
-        </div>
-      </div>
-    );
-  }
-
   return null;
+}
+
+// ── Masthead carousel ─────────────────────────────────────────────
+// Horizontal snap-scroller, one editor per card. Active editor is whichever
+// card is currently centered in the viewport (derived from scrollLeft, no
+// separate selection state). Sticky CTA at the bottom always commits the
+// centered editor: "Begin with [first name]".
+function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
+  const scrollRef = useRef(null);
+  const initialIdx = Math.max(0, PERSONAS.findIndex(p => p.id === briefVoice));
+  const [activeIdx, setActiveIdx] = useState(initialIdx);
+
+  // Land returning users on their existing pick. Instant scroll so the
+  // carousel doesn't animate from #0 on every entry.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const card = el.children[initialIdx];
+    if (card) el.scrollLeft = card.offsetLeft;
+  }, [initialIdx]);
+
+  const onScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const w = el.clientWidth;
+    if (!w) return;
+    const idx = Math.round(el.scrollLeft / w);
+    if (idx !== activeIdx && idx >= 0 && idx < PERSONAS.length) {
+      setActiveIdx(idx);
+    }
+  };
+
+  const goToIdx = (i) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const card = el.children[i];
+    if (card) el.scrollTo({ left: card.offsetLeft, behavior: 'smooth' });
+  };
+
+  const active = PERSONAS[activeIdx];
+  const firstName = active.name.split(' ')[0];
+
+  const begin = () => {
+    setBriefVoice(active.id);
+    onNext();
+  };
+
+  return (
+    <div className="onb-screen onb-masthead">
+      <div className="onb-masthead-head">
+        <div className="s2-mono onb-eyebrow">The masthead</div>
+        <h1 className="s2-serif onb-headline">Pick your editor.</h1>
+      </div>
+      <div className="onb-carousel" ref={scrollRef} onScroll={onScroll}>
+        {PERSONAS.map((p) => (
+          <article key={p.id} className="onb-card">
+            <div className="onb-card-portrait" aria-hidden="true">
+              <img src={p.portrait} alt="" loading="lazy" />
+            </div>
+            <div className="onb-card-role">{p.title} · {p.publication}</div>
+            <div className="s2-serif onb-card-name">{p.name}</div>
+            <div className="onb-card-cycle">
+              <div className="onb-card-block">
+                <div className="onb-card-dateline">Brief · 06:00</div>
+                <div className="s2-serif onb-card-brief">&ldquo;{p.sampleBrief}&rdquo;</div>
+              </div>
+              <div className="onb-card-stamp">
+                <span className="s2-stamp-filed">Filed</span>
+              </div>
+              <div className="onb-card-block">
+                <div className="onb-card-dateline">Editor&rsquo;s note · 20:00</div>
+                <div className="s2-sans onb-card-note">&ldquo;{p.sampleNote}&rdquo;</div>
+                <div className="onb-card-sig">{p.signatureDisplay}</div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="onb-pager" role="tablist" aria-label="Editors">
+        {PERSONAS.map((p, i) => (
+          <button
+            key={p.id}
+            type="button"
+            className={`onb-pager-dot${i === activeIdx ? ' active' : ''}`}
+            onClick={() => goToIdx(i)}
+            aria-label={`Show ${p.name}`}
+            aria-selected={i === activeIdx}
+            role="tab"
+          />
+        ))}
+      </div>
+      <div className="onb-switch-line">You can switch any time.</div>
+      <div className="onb-cta">
+        <button className="s2-btn-primary" onClick={begin}>Begin with {firstName}</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Terms ─────────────────────────────────────────────────────────
+// Two items only — "Honest" was implied by having an editor at all, and
+// the permissions line was retired (each permission asks itself in
+// context when it's first needed).
+function TermsScreen({ onDone }) {
+  return (
+    <div className="onb-screen onb-deal">
+      <div className="onb-pitch-body">
+        <div className="s2-mono onb-eyebrow">The terms</div>
+        <h1 className="s2-serif onb-headline">What you&rsquo;re agreeing to.</h1>
+        <ul className="onb-primer-list">
+          <li>
+            <div className="s2-mono onb-primer-label">Daily</div>
+            <div className="s2-sans onb-primer-sub">One brief, one frame, one note. Miss a day, the paper notices.</div>
+          </li>
+          <li>
+            <div className="s2-mono onb-primer-label">Private</div>
+            <div className="s2-sans onb-primer-sub">Your work stays yours. Off the record.</div>
+          </li>
+        </ul>
+      </div>
+      <div className="onb-cta">
+        <button className="s2-btn-primary" onClick={onDone}>Begin</button>
+      </div>
+    </div>
+  );
 }
 
 // ── Act 1 intro (zoom-out) ────────────────────────────────────────
@@ -160,8 +199,7 @@ function IntroGrid({ onBegin }) {
         <div className="onb-intro-mark">
           <ScoutWordmark size={56} color="#FFFDFA" ruleColor="#007C04" gap={44} />
         </div>
-        <div className="onb-intro-tag">Founded 1961. Still filing.</div>
-        <div className="onb-intro-dateline">Est. 1961 · West 22nd St · NY</div>
+        <div className="onb-intro-tag">The beat is yours.</div>
         <div className="onb-cta">
           <button className="s2-btn-primary" onClick={onBegin}>Step inside</button>
         </div>
