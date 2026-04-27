@@ -125,10 +125,19 @@ export default function App() {
   const now = new Date();
   const [TY,TM,TD] = [now.getFullYear(),now.getMonth(),now.getDate()];
 
-  // ── Theme: pref is 'light' | 'dark' | 'system', default 'system' ──
-  const [themePref, setThemePref] = useState(()=>
-    localStorage.getItem('scout-theme-pref') || 'system'
-  );
+  // ── Theme: pref is 'light' | 'dark' | 'system', default 'light' ──
+  // One-time migration (v1): existing users on the prior 'system' default
+  // or who explicitly picked 'dark' are bumped to 'light'. The toggle in
+  // Settings still honors any later explicit choice. Drop this migration
+  // once dark mode is re-enabled as a first-class option.
+  const [themePref, setThemePref] = useState(() => {
+    if (!localStorage.getItem('scout-theme-migrated-v1')) {
+      localStorage.setItem('scout-theme-pref', 'light');
+      localStorage.setItem('scout-theme-migrated-v1', '1');
+      return 'light';
+    }
+    return localStorage.getItem('scout-theme-pref') || 'light';
+  });
   const [systemTheme, setSystemTheme] = useState(()=>
     window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   );

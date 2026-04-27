@@ -49,7 +49,6 @@ function CycleScreen({ onContinue, onSkip }) {
     <div className="onb-screen onb-cycle">
       <button type="button" className="onb-skip" onClick={onSkip}>Skip</button>
       <div className="onb-pitch-body">
-        <div className="s2-mono onb-eyebrow">The edition cycle</div>
         <h1 className="s2-serif onb-headline">How a day runs.</h1>
         <div className="onb-cycle-list">
           <div className="onb-cycle-block">
@@ -67,7 +66,7 @@ function CycleScreen({ onContinue, onSkip }) {
         </div>
       </div>
       <div className="onb-cta">
-        <button className="s2-btn-primary" onClick={onContinue}>Meet the masthead</button>
+        <button className="s2-btn-primary" onClick={onContinue}>Meet the editors</button>
       </div>
     </div>
   );
@@ -121,7 +120,6 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
   return (
     <div className="onb-screen onb-masthead">
       <div className="onb-masthead-head">
-        <div className="s2-mono onb-eyebrow">The masthead</div>
         <h1 className="s2-serif onb-headline">Pick your editor.</h1>
       </div>
       <div className="onb-carousel" ref={scrollRef} onScroll={onScroll}>
