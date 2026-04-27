@@ -73,26 +73,23 @@ export default function SettingsSheet({
 
         <div className="settings-section">
           <div className="settings-section-label">Your editor</div>
-          <div className="onb-persona-list">
+          <div className="settings-persona-list">
             {PERSONAS.map(p => {
               const active = briefVoice === p.id;
               return (
                 <button
                   key={p.id}
-                  className={`onb-persona-row${active ? ' active' : ''}`}
+                  className={`settings-persona-row${active ? ' active' : ''}`}
                   onClick={() => setBriefVoice(p.id)}
                   aria-pressed={active}
                 >
-                  <div className="onb-persona-portrait" aria-hidden="true">
+                  <div className="settings-persona-portrait" aria-hidden="true">
                     <img src={p.portrait} alt="" loading="lazy" />
                   </div>
-                  <div className="onb-persona-copy">
-                    <div className="s2-mono onb-persona-role">{p.title}</div>
-                    <div className="s2-serif onb-persona-name">{p.name}</div>
-                    <div className="s2-mono onb-persona-pub">{p.publication}</div>
-                    <div className="s2-serif onb-persona-sample">"{p.sample}"</div>
+                  <div className="settings-persona-copy">
+                    <div className="s2-serif settings-persona-name">{p.name}</div>
+                    <div className="s2-mono settings-persona-role">{p.title} · {p.publication}</div>
                   </div>
-                  {active && <span className="onb-persona-stamp" aria-hidden="true">Your desk</span>}
                 </button>
               );
             })}
