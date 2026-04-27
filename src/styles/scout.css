@@ -548,13 +548,29 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .onb-pager-dot{width:6px;height:6px;border-radius:50%;background:var(--s2-text-muted);opacity:0.35;transition:opacity .2s ease,width .2s ease,background .2s ease}
 .onb-pager-dot.active{opacity:1;width:20px;border-radius:3px;background:var(--s2-text-primary)}
 
-/* Onboarding — terms (final screen). Two mono-labeled commitment rows.
-   "Honest" was implied by having an editor; permissions ask in context. */
+/* Onboarding — edition cycle (bridge screen). Three rule-separated rows
+   describe the day's loop in brand-voice fragments. Generic — no editor
+   voice yet, since we haven't picked one. */
+.onb-cycle .onb-pitch-body{justify-content:flex-start;padding-top:14px}
+.onb-cycle-list{display:flex;flex-direction:column;margin-top:18px}
+.onb-cycle-block{padding:18px 0;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.onb-cycle-block + .onb-cycle-block{border-top:1px solid var(--s2-bone)}
+.onb-cycle-label{font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted)}
+.onb-cycle-body{font-family:var(--s2-sans);font-size:16px;line-height:1.45;color:var(--s2-text-primary)}
+
+/* Skip link — top-right, mono caps, smoke. Only used on the cycle screen
+   for now, but generic enough to drop on any onb screen. */
+.onb-skip{position:absolute;top:calc(env(safe-area-inset-top) + 18px);right:14px;background:none;border:none;font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--s2-text-muted);padding:8px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:10}
+.onb-skip:active{opacity:0.6}
+
+/* Onboarding — terms (final screen). Two mono-labeled commitment rows
+   plus a quiet perms line. "Honest" was implied by having an editor. */
 .onb-primer-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:16px}
 .onb-primer-list li{background:rgba(12,12,12,0.05);border-radius:14px;padding:14px 16px}
 [data-theme="dark"] .onb-primer-list li{background:#22221F}
 .onb-primer-label{font-family:var(--s2-mono);font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-primary);margin-bottom:6px}
 .onb-primer-sub{font-family:var(--s2-sans);font-size:14px;line-height:1.5;color:var(--s2-text-secondary)}
+.onb-deal-perms{margin-top:18px;font-family:var(--s2-sans);font-size:13px;line-height:1.5;color:var(--s2-text-muted);max-width:340px}
 
 .onb-cta{margin-top:24px;width:100%;max-width:420px;align-self:center}
 
@@ -577,15 +593,11 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 [data-theme="dark"] .onb-card-portrait{background:#22221F}
 .onb-card-portrait img{width:100%;height:100%;object-fit:cover}
 .onb-card-role{font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted);margin-bottom:6px;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.onb-card-name{font-size:26px;font-weight:400;letter-spacing:-0.015em;line-height:1.1;color:var(--s2-text-primary);margin-bottom:18px}
-.onb-card-cycle{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px}
-.onb-card-block{display:flex;flex-direction:column;gap:6px;align-items:center}
-.onb-card-dateline{font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted);line-height:1.3}
-.onb-card-brief{font-size:19px;line-height:1.3;letter-spacing:-0.01em;color:var(--s2-text-primary);font-weight:400}
-.onb-card-note{font-family:var(--s2-sans);font-size:14.5px;line-height:1.45;color:var(--s2-text-primary)}
-.onb-card-sig{font-family:var(--s2-mono);font-size:11px;font-weight:500;letter-spacing:0.04em;color:var(--s2-text-muted);margin-top:2px}
-.onb-card-stamp{display:flex;justify-content:center;margin:2px 0}
-.onb-masthead .onb-pager{margin:14px 0 6px;flex-shrink:0}
+.onb-card-name{font-size:26px;font-weight:400;letter-spacing:-0.015em;line-height:1.1;color:var(--s2-text-primary);margin-bottom:20px}
+.onb-card-quote-wrap{display:flex;flex-direction:column;gap:10px;align-items:center;width:100%;max-width:320px}
+.onb-card-brief{font-size:24px;line-height:1.25;letter-spacing:-0.015em;color:var(--s2-text-primary);font-weight:400}
+.onb-card-brief-label{font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--s2-text-muted);line-height:1.3}
+.onb-masthead .onb-pager{margin:8px 0 6px;flex-shrink:0}
 .onb-switch-line{text-align:center;font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted);margin:2px 0 14px;flex-shrink:0}
 .onb-masthead .onb-cta{padding:0 22px;flex-shrink:0;margin-top:0}
 
