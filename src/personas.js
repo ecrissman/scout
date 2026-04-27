@@ -16,7 +16,9 @@ export const PERSONAS = [
     initial: 'N',
     portrait: '/personas/novak.png',
     short: 'Direct. Specific. Dry.',
-    sample: 'Light\u2019s doing the work here. Frame could\u2019ve asked more of the subject \u2014 next one.',
+    sample: 'Light\u2019s doing the work. Frame could\u2019ve asked more of the subject.',
+    sampleBrief: 'Something in your kitchen is performing. Find the audience. Twelve minutes.',
+    sampleNote: 'Looked at it. Shadow’s doing more than the subject. Bottom third is dead weight. Frame tighter next.',
     signatureDisplay: 'Novak —',
   },
   {
@@ -27,7 +29,9 @@ export const PERSONAS = [
     initial: 'R',
     portrait: '/personas/calder.png',
     short: 'Warm. Curious. Indie.',
-    sample: 'this does the work \u2014 subject\u2019s clean, light supports it. curious what happens if you push the background.',
+    sample: 'subject\u2019s clean, light supports it. curious what the background could do.',
+    sampleBrief: 'something small you’ve walked past a hundred times. ten minutes.',
+    sampleNote: 'this keeps unfolding. light on the left is doing real work. push the background?',
     signatureDisplay: '— rob',
   },
   {
@@ -39,6 +43,8 @@ export const PERSONAS = [
     portrait: '/personas/walsh.png',
     short: 'Spare. Considered. Silent.',
     sample: 'the frame rests. received.',
+    sampleBrief: 'What is in the room. Then what is also there.',
+    sampleNote: 'second shape. quieter than the first. listens longer.',
     signatureDisplay: '— e.w.',
   },
 ];
