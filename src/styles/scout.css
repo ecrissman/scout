@@ -599,22 +599,22 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .onb-masthead{padding-left:0;padding-right:0}
 .onb-masthead-head{padding:0 22px;text-align:center;margin-bottom:10px;flex-shrink:0}
 .onb-masthead-head .onb-eyebrow{margin-bottom:6px}
-.onb-masthead-head .onb-headline{margin:0;font-size:30px}
+.onb-masthead-head .onb-headline{margin:0;font-size:26px}
 .onb-carousel{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-height:0}
 .onb-carousel::-webkit-scrollbar{display:none}
-.onb-card{flex:0 0 100%;width:100%;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 28px 12px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.onb-card{flex:0 0 100%;width:100%;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 28px 12px;overflow-y:auto;-webkit-overflow-scrolling:touch;gap:0}
 .onb-card::-webkit-scrollbar{display:none}
 .onb-card-portrait{width:148px;height:148px;border-radius:50%;overflow:hidden;background:rgba(12,12,12,0.05);display:grid;place-items:center;margin-bottom:14px;flex-shrink:0}
 [data-theme="dark"] .onb-card-portrait{background:#22221F}
 .onb-card-portrait img{width:100%;height:100%;object-fit:cover}
 .onb-card-role{font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted);margin-bottom:6px;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.onb-card-name{font-size:26px;font-weight:400;letter-spacing:-0.015em;line-height:1.1;color:var(--s2-text-primary);margin-bottom:20px}
-.onb-card-quote-wrap{display:flex;flex-direction:column;gap:10px;align-items:center;width:100%;max-width:320px}
-.onb-card-brief{font-size:24px;line-height:1.25;letter-spacing:-0.015em;color:var(--s2-text-primary);font-weight:400}
+.onb-card-name{font-size:20px;font-weight:500;letter-spacing:-0.01em;line-height:1.2;color:var(--s2-text-primary);margin-bottom:24px}
+.onb-card-quote-wrap{display:flex;flex-direction:column;gap:14px;align-items:center;width:100%;max-width:320px}
+.onb-card-brief{font-size:24px;line-height:1.28;letter-spacing:-0.015em;color:var(--s2-text-primary);font-weight:400}
 .onb-card-brief-label{font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--s2-text-muted);line-height:1.3}
-.onb-masthead .onb-pager{margin:8px 0 6px;flex-shrink:0}
-.onb-switch-line{text-align:center;font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted);margin:2px 0 14px;flex-shrink:0}
-.onb-masthead .onb-cta{padding:0 22px;flex-shrink:0;margin-top:0}
+.onb-masthead .onb-pager{margin:14px 0 0;flex-shrink:0}
+.onb-switch-line{text-align:center;font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted);margin:14px 0 0;flex-shrink:0}
+.onb-masthead .onb-cta{padding:0 22px;flex-shrink:0;margin-top:22px}
 
 /* First-assignment card (Act 5). Light press-green tray above the
    Daily Brief title on the user's first compose. Dismissed when the

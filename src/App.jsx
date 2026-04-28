@@ -12,7 +12,6 @@ import AuthImage from './components/AuthImage.jsx';
 const LegalSheet = lazy(() => import('./components/LegalSheet.jsx'));
 const SettingsSheet = lazy(() => import('./components/SettingsSheet.jsx'));
 const AccountSheet = lazy(() => import('./components/AccountSheet.jsx'));
-const SupportSheet = lazy(() => import('./components/SupportSheet.jsx'));
 import NavPanel from './components/NavPanel.jsx';
 import OnboardingFlow from './components/OnboardingFlow.jsx';
 import DevPanel from './components/DevPanel.jsx';
@@ -195,7 +194,6 @@ export default function App() {
   // ── Legal (Privacy / Terms) ──
   const [legalOpen, setLegalOpen] = useState(null); // null | 'privacy' | 'terms'
   const [accountOpen,  setAccountOpen]  = useState(false);
-  const [supportOpen,  setSupportOpen]  = useState(false);
   const [devPanelOpen, setDevPanelOpen] = useState(false);
 
   // ── Auth ──
@@ -255,8 +253,11 @@ export default function App() {
   const [lightboxOpen,  setLightboxOpen]  = useState(false);
   const [overflowOpen,  setOverflowOpen]  = useState(false);
   const [locationName,  setLocationName]  = useState(null);
-  const [aiEnabled,    setAiEnabled]    = useState(()=> localStorage.getItem('scout-ai-enabled') !== 'false');
-  useEffect(()=>{ localStorage.setItem('scout-ai-enabled', String(aiEnabled)); }, [aiEnabled]);
+  // AI features are always on. The user-facing toggle was retired; the
+  // localStorage key is no longer read or written. Keeping the constant
+  // avoids touching the dozens of `aiEnabled && …` call sites scattered
+  // through the app — re-introduce a setter here if/when the toggle returns.
+  const aiEnabled = true;
   const [briefVoice, setBriefVoice] = useState(() => migrateVoiceId());
   useEffect(() => { localStorage.setItem('scout-brief-voice', briefVoice); }, [briefVoice]);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(()=> localStorage.getItem('scout-analytics-optout') !== 'true');
@@ -1538,7 +1539,6 @@ export default function App() {
         theme={theme} userEmail={userEmail}
         onAccount={() => setAccountOpen(true)}
         onSettings={() => setSettingsOpen(true)}
-        onSupport={() => setSupportOpen(true)}
         onDev={() => setDevPanelOpen(true)}
         onSignOut={handleSignOut}
       />
@@ -1549,10 +1549,10 @@ export default function App() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         themePref={themePref} setThemePref={setThemePref}
-        aiEnabled={aiEnabled} setAiEnabled={setAiEnabled}
         pushEnabled={pushEnabled} setPushEnabled={setPushEnabled}
         analyticsEnabled={analyticsEnabled} setAnalyticsEnabled={setAnalyticsEnabled}
         briefVoice={briefVoice} setBriefVoice={setBriefVoice}
+        onOpenLegal={setLegalOpen}
       />}
 
       {accountOpen && <AccountSheet
@@ -1570,12 +1570,6 @@ export default function App() {
         handleDownloadAllPhotos={handleDownloadAllPhotos}
         dlProgress={dlProgress}
         photoDates={photoDates}
-      />}
-
-      {supportOpen && <SupportSheet
-        open={supportOpen}
-        onClose={() => setSupportOpen(false)}
-        onOpenLegal={setLegalOpen}
       />}
 
       {legalOpen && <LegalSheet which={legalOpen} onClose={() => setLegalOpen(null)} />}

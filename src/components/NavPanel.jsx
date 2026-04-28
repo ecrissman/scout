@@ -3,7 +3,7 @@ import ScoutWordmark from '../ScoutWordmark.jsx';
 export default function NavPanel({
   open, closing, onDismiss,
   theme, userEmail,
-  onAccount, onSettings, onSupport, onDev, onSignOut,
+  onAccount, onSettings, onDev, onSignOut,
 }) {
   if (!open) return null;
   return (
@@ -17,7 +17,6 @@ export default function NavPanel({
         <nav className="nav-panel-nav">
           <button className="nav-panel-item" onClick={() => { onDismiss(); setTimeout(onAccount, 310); }}>Account</button>
           <button className="nav-panel-item" onClick={() => { onDismiss(); setTimeout(onSettings, 310); }}>Settings</button>
-          <button className="nav-panel-item" onClick={() => { onDismiss(); setTimeout(onSupport, 310); }}>Support</button>
           {userEmail === 'ecrissman@gmail.com' && (
             <button className="nav-panel-item" onClick={() => { onDismiss(); setTimeout(onDev, 310); }}>Developer</button>
           )}
