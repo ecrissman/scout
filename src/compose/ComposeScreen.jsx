@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { composeBrief, uploadPhoto, getEditorNote } from '../api';
 import { splitBrief } from '../personas';
 import { extractEXIF, compressFile, makeThumb } from '../exif';
+import { startTimer, clearTimer, getTimer } from './timer';
+import TimerBlock from './TimerBlock';
 
 // Format the dispatch datestamp for the multi-pick review header — "04.18.26".
 const formatDispatchDate = (d) => {
@@ -64,6 +66,23 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     const p = new URLSearchParams(window.location.search);
     return p.get('brief') || null;
   });
+  // Challenge mode lights up on ~1-in-7 days, decided server-side and
+  // returned with the brief. The duration is threaded into the brief copy
+  // ("Twelve minutes. …"); the timer mirrors it so the urgency in the
+  // language matches the urgency on the clock.
+  const [challenge, setChallenge] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return p.get('challenge') === '1';
+  });
+  const [durationMinutes, setDurationMinutes] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    const v = parseInt(p.get('duration') || '', 10);
+    return Number.isFinite(v) && v > 0 ? v : null;
+  });
+  // Snapshot the timer's deadline ms in component state so the file-late
+  // calculation survives the timer being cleared (user can dismiss the
+  // expired-state TimerBlock, which deletes the localStorage record).
+  const [challengeDeadlineMs, setChallengeDeadlineMs] = useState(null);
 
   // File-a-take state machine. Loading → Brief → Uploading → Filed.
   // Filed is terminal — the editor's note is persisted on the photo via a
@@ -143,6 +162,8 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         return;
       }
       setBrief(res.brief);
+      setChallenge(!!res.challenge);
+      setDurationMinutes(res.durationMinutes || null);
       if (res.autoLight) setAutoLight(res.autoLight);
       if (res.autoPlace) setAutoPlace(res.autoPlace);
       setStage('brief');
@@ -167,15 +188,27 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       const exif = await extractEXIF(file);
       const fullSrc = await compressFile(file);
       const thumbSrc = await makeThumb(fullSrc);
+      // On challenge days, mark whether the file landed before or after the
+      // timer expired. Filed late = filed without the challenge stamp on
+      // archive (per the design conversation — the timer earns its drama
+      // by being unforgiving). Computed from the deadline snapshot, so it
+      // survives the user dismissing the expired-state TimerBlock.
+      const challengeFiledLate = challenge && challengeDeadlineMs != null && Date.now() > challengeDeadlineMs;
       const composeStack = {
         autoLight,
         autoPlace,
         brief,
+        challenge: !!challenge,
+        challengeDurationMinutes: durationMinutes,
+        challengeFiledLate,
         filedAt: new Date().toISOString(),
         via: 'picker',
       };
       const ok = await uploadPhoto(todayKey, { fullSrc, thumbSrc, exif, caption: '', compose: composeStack });
       if (!ok) throw new Error('Upload failed. Check connection and retry.');
+      // Clear the challenge timer regardless of late/on-time — the take is
+      // in, the countdown's job is done.
+      if (challenge) clearTimer();
       setStage('filed');
       if (typeof onFiled === 'function') {
         try { onFiled({ date: todayKey, compose: composeStack }); } catch {}
@@ -230,6 +263,25 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
     if (stage === 'brief' && brief) setBriefShown(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brief]);
+
+  // Challenge mode: kick off the countdown the moment the brief lands.
+  // Idempotent — getTimer() already returns the active timer if one exists
+  // for today, so reopening Compose mid-challenge picks up where it left
+  // off. Cleared in uploadOne() once the take is filed (or filed late).
+  // Snapshot the deadline so file-late detection survives a dismissed
+  // TimerBlock (Dismiss removes the localStorage record).
+  useEffect(() => {
+    if (stage !== 'brief' || !challenge || !durationMinutes || !brief) return;
+    const existing = getTimer();
+    let startMs;
+    if (existing && existing.date === todayKey) {
+      startMs = new Date(existing.startedAt).getTime();
+    } else {
+      const t = startTimer({ date: todayKey, durationMs: durationMinutes * 60_000, brief });
+      startMs = new Date(t.startedAt).getTime();
+    }
+    setChallengeDeadlineMs(startMs + durationMinutes * 60_000);
+  }, [stage, challenge, durationMinutes, brief, todayKey]);
 
   // Fire the editor's-note endpoint in the background once we hit 'filed'
   // so the note is persisted on the photo's meta. Don't navigate — Filed
@@ -414,8 +466,11 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       <div className={trayClass}>
         <PageHeader />
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '44px 28px 36px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', marginBottom: 72 }}>
-            <span className="s2-stamp-dispatch">New Assignment</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', marginBottom: challenge ? 48 : 72 }}>
+            {challenge
+              ? <span className="s2-stamp-dispatch s2-stamp-urgent">Urgent · {durationMinutes} min</span>
+              : <span className="s2-stamp-dispatch">New Assignment</span>
+            }
           </div>
           <div style={{ marginBottom: 'auto' }}>
             <div className="s2-serif" style={{ fontSize: 'var(--fs-2xl)', color: 'var(--s2-text-primary)', lineHeight: 1.3, letterSpacing: '-0.015em' }}>
@@ -426,8 +481,13 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
               <div className="note-reveal-sig" style={{ marginTop: 20 }}>{briefSig}</div>
             )}
           </div>
-          <div className="s2-mono" style={{ fontSize: 12, color: 'var(--s2-text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 48, marginBottom: 36, textAlign: 'center' }}>
-            Brief {briefNumber} / 365 &nbsp;·&nbsp; File by 23:59
+          {challenge && (
+            <div style={{ margin: '32px -28px 0' }}>
+              <TimerBlock />
+            </div>
+          )}
+          <div className="s2-mono" style={{ fontSize: 12, color: 'var(--s2-text-muted)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: challenge ? 32 : 48, marginBottom: 36, textAlign: 'center' }}>
+            Brief {briefNumber} / 365 &nbsp;·&nbsp; {challenge ? 'On the clock' : 'File by 23:59'}
           </div>
           {fileError && (
             <div className="s2-mono" style={{ color: 'var(--s2-warn)', fontSize: 'var(--fs-sm)', marginBottom: 10 }}>

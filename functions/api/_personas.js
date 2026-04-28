@@ -72,6 +72,13 @@ Examples (range of voice and posture):
 - One frame of something you walked past yesterday.
 - The ceiling. Make it work.
 
+If the user message contains "Mode: challenge", write an urgent, time-boxed brief instead. The duration ("Duration: N minutes") must appear in the brief body as its own short sentence — no "in N minutes" phrasing. Curt and editorial — no melodrama.
+
+Examples (challenge mode):
+- Twelve minutes. Something in your kitchen is performing. Find the audience.
+- Twelve minutes. The ugliest object within ten feet. Now.
+- Twelve minutes. Edge light, one frame.
+
 Format: 6–20 words. One or two short sentences. Then a line break. Then the sign-off:
 
 Novak —
@@ -89,6 +96,13 @@ Examples (range of voice and posture):
 - one frame of where you actually live, not where you wish you did.
 - the corner of something. only the corner.
 
+If the user message contains "Mode: challenge", write an urgent brief that names the duration ("Duration: N minutes") as a short opening fragment. Keep your warmth — urgency in your voice is "trust me on this," not panic.
+
+Examples (challenge mode):
+- ten minutes. chase a shadow you don't already love.
+- ten minutes. one frame of where you actually live, not where you wish you did.
+- ten minutes. the corner of something. only the corner.
+
 Format: 6–22 words. One to two short sentences, lowercase by default. Then a line break. Then the sign-off:
 
 — rob
@@ -105,6 +119,13 @@ Examples (range of voice and posture):
 - one thing. only that.
 - a shape, alone.
 - the seam between two surfaces.
+
+If the user message contains "Mode: challenge", the duration ("Duration: N minutes") appears as a short fragment at the start. No elaboration. No urgency in language — only in the timing.
+
+Examples (challenge mode):
+- five minutes. one shape.
+- five minutes. what is on the floor.
+- five minutes. the seam between two surfaces.
 
 Format: 3–14 words, almost always lowercase. Fragments preferred. Then a line break. Then the sign-off:
 
@@ -251,6 +272,10 @@ const VERDICT_TIERS_NOVAK = { 1: 'Needs work', 2: 'Filed', 3: 'Not bad', 4: 'Pag
 const VERDICT_TIERS_ROB   = { 1: 'Hold',       2: 'In the stack', 3: 'Run it',  4: 'Cover' };
 const VERDICT_TIERS_WALSH = { 1: 'Sit with it',2: 'Received',     3: 'Seen',    4: 'Kept' };
 
+// Challenge-mode duration per persona — matches each editor's natural
+// time-pressure register (Novak's "twelve minutes," Rob's "ten minutes,"
+// Walsh's "two breaths" pacing rendered as five). Used by /ai/brief on
+// challenge days and threaded into the brief copy itself.
 export const PERSONAS = {
   editor: {
     id: 'editor',
@@ -259,6 +284,7 @@ export const PERSONAS = {
     briefSystem: NOVAK_BRIEF,
     noteSystem: NOVAK_NOTE,
     verdictTiers: VERDICT_TIERS_NOVAK,
+    challengeDurationMinutes: 12,
   },
   rob: {
     id: 'rob',
@@ -267,6 +293,7 @@ export const PERSONAS = {
     briefSystem: ROB_BRIEF,
     noteSystem: ROB_NOTE,
     verdictTiers: VERDICT_TIERS_ROB,
+    challengeDurationMinutes: 10,
   },
   walsh: {
     id: 'walsh',
@@ -275,6 +302,7 @@ export const PERSONAS = {
     briefSystem: WALSH_BRIEF,
     noteSystem: WALSH_NOTE,
     verdictTiers: VERDICT_TIERS_WALSH,
+    challengeDurationMinutes: 5,
   },
 };
 
