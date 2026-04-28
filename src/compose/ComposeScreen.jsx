@@ -154,7 +154,11 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
       if (briefFetchedRef.current) return;
       briefFetchedRef.current = true;
       const voice = (typeof localStorage !== 'undefined' && localStorage.getItem('scout-brief-voice')) || 'editor';
-      const res = await composeBrief({ lat: coords?.lat, lon: coords?.lon, voice });
+      // todayKey is the client's local YYYY-MM-DD. Pass it as localDate so
+      // the challenge-day cadence keys on the user's calendar, not UTC — a
+      // PT user opening Compose late evening would otherwise see tomorrow's
+      // UTC date and could roll the same bucket across two calendar days.
+      const res = await composeBrief({ lat: coords?.lat, lon: coords?.lon, voice, localDate: todayKey });
       if (!res || res.error) {
         setError(res?.error || "Couldn't load today's brief. Pull down or close and reopen.");
         // Allow retry on next mount/reopen.

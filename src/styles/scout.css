@@ -631,11 +631,11 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
    adjacent cards peek on either side at reduced opacity so the swipe
    affordance is unmistakable. scroll-snap-align: center keeps the
    active card centered in the viewport. */
-.onb-carousel{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-height:0;padding-inline:10%;scroll-padding-inline:10%;gap:14px}
+.onb-carousel{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-height:0;padding-inline:11%;scroll-padding-inline:0;gap:14px}
 .onb-carousel::-webkit-scrollbar{display:none}
-.onb-card{flex:0 0 80%;scroll-snap-align:center;scroll-snap-stop:always;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px;overflow-y:auto;-webkit-overflow-scrolling:touch;gap:0;background:var(--s2-paper);border:1px solid var(--s2-bone);border-radius:16px}
+.onb-card{flex:0 0 78%;scroll-snap-align:center;scroll-snap-stop:always;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px 22px;overflow-y:auto;-webkit-overflow-scrolling:touch;gap:0;background:var(--s2-paper);border:1px solid var(--s2-bone);border-radius:16px}
 .onb-card::-webkit-scrollbar{display:none}
-.onb-card-portrait{width:148px;height:148px;display:grid;place-items:center;margin-bottom:14px;flex-shrink:0;background:transparent}
+.onb-card-portrait{width:148px;height:148px;display:grid;place-items:center;margin-bottom:24px;flex-shrink:0;background:transparent}
 .onb-card-portrait img{width:100%;height:100%;object-fit:cover}
 .onb-card-role{font-family:var(--s2-mono);font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--s2-text-muted);margin-bottom:6px;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .onb-card-name{font-size:20px;font-weight:500;letter-spacing:-0.01em;line-height:1.2;color:var(--s2-text-primary);margin-bottom:24px}

@@ -151,3 +151,31 @@ These terms are governed by the laws of the United States. Any disputes will be 
 
 Questions: ${LEGAL_CONTACT_EMAIL}
 `.trim();
+
+export const ABOUT_SCOUT = `
+# About Scout
+
+**Founded:** April 2026
+
+A daily edition for readers of one — yourself.
+
+## A short history
+
+Scout was founded in April 2026 on a simple idea: photography is better with an editor.
+
+Newspapers used to assign photographers. Editors used to read frames and write notes back. Scout brings that loop, at miniature scale, to a single reader. You.
+
+Three editors share the masthead, each with their own voice and standards. **Stan Novak** runs the desk in the terse register of a retired big-city picture editor. **Rob Calder** writes from a Providence loft like he might run your photo in his next zine. **Eileen Woo** edits a literary quarterly and rarely says more than necessary.
+
+## The basic premise
+
+At 06:00 your editor files a brief.
+You respond with one frame during the day.
+At 20:00 the editor writes back.
+
+One brief. One frame. One note. Every day. Miss a day, the paper notices.
+
+About once a week, the editor issues a challenge instead — urgent, time-boxed.
+
+Your work stays yours. No feed, no streaks, no badges. Off the record.
+`.trim();
