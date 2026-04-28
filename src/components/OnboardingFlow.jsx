@@ -239,15 +239,19 @@ function IntroGrid({ onBegin }) {
   return (
     <div className="onb-screen onb-intro onb-intro--zoom">
       <div className="onb-grid onb-grid--zoom" aria-hidden="true">
-        {Array.from({ length: 36 }).map((_, i) => (
-          <div
-            key={i}
-            className={`onb-tile${i === HERO_IDX ? ' onb-tile-hero' : ''}${POP_TILES.has(i) ? ' onb-tile-pop' : ''}`}
-            data-variant={i % 6}
-            data-idx={i}
-            style={zoomStart(i)}
-          />
-        ))}
+        {Array.from({ length: 36 }).map((_, i) => {
+          const idx = String(i).padStart(2, '0');
+          return (
+            <div
+              key={i}
+              className={`onb-tile${i === HERO_IDX ? ' onb-tile-hero' : ''}${POP_TILES.has(i) ? ' onb-tile-pop' : ''}`}
+              data-idx={i}
+              style={zoomStart(i)}
+            >
+              <img src={`/onboarding/tile-${idx}.jpg`} alt="" decoding="async" />
+            </div>
+          );
+        })}
       </div>
       <div className="onb-intro-overlay">
         <div className="onb-intro-mark">
