@@ -87,12 +87,13 @@ export async function getContext({ lat, lon }) {
   } catch { return null; }
 }
 
-// v2 brand: compose a brief from user inputs + server-detected light/place.
-// Returns { brief, autoLight, autoPlace }. Client passes lat/lon; server
-// handles weather + reverse-geo so the Anthropic key stays on the edge.
-export async function composeBrief({ mood, time, constraint, lat, lon, voice }) {
+// Compose a brief. The editor decides — no user inputs (mood/time/constraint
+// were retired). Light is server-detected from lat/lon and passed silently
+// to the model as context. Place is fetched for UI dateline display only.
+// Returns { brief, autoLight, autoPlace, voice }.
+export async function composeBrief({ lat, lon, voice }) {
   try {
-    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { mood, time, constraint, lat, lon, voice }));
+    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { lat, lon, voice }));
     if (!r.ok) return null;
     return r.json();
   } catch { return null; }
