@@ -706,17 +706,16 @@ export async function onRequest({ request, env, params }) {
   }
 
   // ── POST /api/ai/brief ───────────────────────────────────────────────────
-  // v2 brand — composes an editorial brief from user inputs (mood, time,
-  // constraint) plus server-fetched context (autoLight from weather, autoPlace
-  // from reverse-geocoding). Client passes lat/lon; server handles the rest
-  // so the Anthropic call, weather lookup, and Nominatim lookup all run in
-  // parallel on the edge.
+  // Composes the daily brief. The editor decides — no user inputs (mood,
+  // time, constraint were retired in the Compose redesign). Light is
+  // server-detected from lat/lon and passed to the model as silent context;
+  // place is fetched for UI dateline only and intentionally withheld from
+  // the model (it pattern-matches geography even when the photographer
+  // isn't near the named feature). Anthropic call + weather + reverse-geo
+  // all run in parallel on the edge.
   if (route === 'ai/brief' && method === 'POST') {
     const body = await request.json().catch(() => ({}));
-    const { mood, time, constraint, lat: inLat, lon: inLon, voice: inVoice } = body;
-    if (!mood) {
-      return json({ error: 'mood is required' }, 400);
-    }
+    const { lat: inLat, lon: inLon, voice: inVoice } = body;
 
     // Fall back to Seattle if no coords provided (mirrors /ai/prompt behavior).
     const lat = typeof inLat === 'number' ? inLat : 47.6062;
@@ -729,16 +728,10 @@ export async function onRequest({ request, env, params }) {
     const persona = resolvePersona(inVoice);
     const voice = persona.id;
 
-    // Place is intentionally withheld from the model — it pattern-matches
-    // geography from the city name (Seattle → tide/harbor) even when the
-    // photographer is nowhere near that feature. UI still displays autoPlace
-    // in the Compose header.
-    const userContent = [
-      `Mood: ${mood}`,
-      `Light: ${autoLight}`,
-      time ? `Time available: ${time}` : null,
-      constraint ? `Constraint: ${constraint}` : null,
-    ].filter(Boolean).join('\n');
+    // Light only. The model sees the available light as silent flavor, not
+    // a directive — examples in the system prompt show the model how to
+    // weave it (or ignore it) editorially.
+    const userContent = `Light today: ${autoLight}`;
 
     const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
