@@ -7,6 +7,25 @@
 // module holds display metadata (for onboarding + settings cards) and the
 // signature-parsing helpers (for rendering the sign-off as a separate line).
 
+// Verdict-tier vocabulary per persona — mirror of functions/api/_personas.js.
+// Source: docs/personas/MATRIX.md §1. Tier 4 is announced in the note body
+// (no badge); tiers 1–3 render as the persona's word in the note-reveal stamp.
+export const VERDICT_TIERS = {
+  editor: { 1: 'Needs work', 2: 'Filed',         3: 'Not bad', 4: 'Page one' },
+  rob:    { 1: 'Hold',       2: 'In the stack',  3: 'Run it',  4: 'Cover' },
+  walsh:  { 1: 'Sit with it',2: 'Received',      3: 'Seen',    4: 'Kept' },
+};
+
+// Resolve a persona ID + verdict tier to the badge label for the note reveal.
+// Returns null when the tier is 4 (announced in body), unknown, or the
+// persona ID isn't in the map — caller should hide the badge in that case.
+export function verdictLabel(personaId, tier) {
+  const t = Number(tier);
+  if (t === 4) return null;
+  const map = VERDICT_TIERS[personaId] || VERDICT_TIERS.editor;
+  return map[t] || null;
+}
+
 export const PERSONAS = [
   {
     id: 'editor',
