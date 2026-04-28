@@ -49,7 +49,7 @@ export default function DevPanel({
             {[
               { id:'editor', label:'Stan Novak',   hint:'Editor · big-city daily' },
               { id:'rob',    label:'Rob Calder',   hint:'Contributing · indie zine' },
-              { id:'walsh',  label:'Eileen Walsh', hint:'Editor at Large · quarterly' },
+              { id:'walsh',  label:'Eileen Woo',   hint:'Editor at Large · quarterly' },
             ].map(v => (
               <button
                 key={v.id}

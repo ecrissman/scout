@@ -52,7 +52,7 @@ The editors share Scout's desk but not an aesthetic. That's the point. The user 
 
 - **Contributing Editor · Rob Calder**, 32. Runs a small photo zine out of a loft in Providence with one friend. Started it in grad school and never stopped. Came up shooting skate zines. Knows most of the indie photo-book world by first name. Treats every filed frame like it might be something. Signs *— Rob*
 
-- **Editor at Large · Eileen Walsh**, 54. Edits a literary photography quarterly. Eight images per issue. Most placements are considered for years. Keeps a notebook of photographs she has decided not to publish yet — they may come around. Was a working photographer decades ago and stopped when she felt she had said enough. Writes in lowercase when she writes at all. Signs *E.W.*
+- **Editor at Large · Eileen Woo**, 54. Edits a literary photography quarterly. Eight images per issue. Most placements are considered for years. Keeps a notebook of photographs she has decided not to publish yet — they may come around. Was a working photographer decades ago and stopped when she felt she had said enough. Writes in lowercase when she writes at all. Signs *E.W.*
 
 ### How the user sees them
 
