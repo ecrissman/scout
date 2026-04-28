@@ -3,7 +3,7 @@ import { getPhoto, uploadPhoto, updateCaption, deletePhoto, deleteAccount, listY
 import { isPushSupported, isPushSubscribedLocal, maybePromptForPush } from './push';
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { supabase } from './supabase.js';
-import { splitBrief, migrateVoiceId } from './personas';
+import { splitBrief, migrateVoiceId, verdictLabel } from './personas';
 import { initAnalytics, identify, resetIdentity, track } from './analytics';
 const ComposeScreen = lazy(() => import('./compose/ComposeScreen.jsx'));
 import ScoutWordmark from './ScoutWordmark.jsx';
@@ -1480,9 +1480,20 @@ export default function App() {
               </button>
             </div>
             <div className="note-reveal-inner">
-              <div className="note-reveal-stamp-wrap">
-                <span className="s2-stamp-filed">Edition</span>
-              </div>
+              {(() => {
+                // Verdict-driven badge. Tiers 1–3 render the persona's word
+                // (Novak: NEEDS WORK / FILED / NOT BAD; Rob: HOLD / IN THE
+                // STACK / RUN IT; Walsh: SIT WITH IT / RECEIVED / SEEN).
+                // Tier 4 hides the badge — the verdict is announced in the
+                // note body per docs/personas/MATRIX.md §1.
+                const stamp = verdictLabel(dayMeta?.editorVoice, dayMeta?.verdictTier);
+                if (!stamp) return null;
+                return (
+                  <div className="note-reveal-stamp-wrap">
+                    <span className="s2-stamp-filed">{stamp}</span>
+                  </div>
+                );
+              })()}
               <div className="note-reveal-dateline">Dispatch · {dispatchDate} · Evening</div>
               <div className="note-reveal-thumb-wrap">
                 <AuthImage className="note-reveal-thumb" src={thumbUrl(noteReveal)} alt="" />

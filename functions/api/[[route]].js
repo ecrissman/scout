@@ -822,21 +822,40 @@ export async function onRequest({ request, env, params }) {
       return json({ error: `Anthropic ${aiRes.status}: ${errBody?.error?.message ?? JSON.stringify(errBody)}` }, 502);
     }
     const aiData = await aiRes.json();
-    const editorNote = (aiData.content?.[0]?.text ?? '').trim();
+    const rawText = (aiData.content?.[0]?.text ?? '').trim();
+
+    // Parse the structured response. Each persona's note prompt instructs
+    // the model to emit {"tier": 1|2|3|4, "body": "…"}. If parsing fails
+    // (model went off-format), fall back to the raw text as a tier-2 note —
+    // the archive still renders, just without a verdict-driven badge.
+    let editorNote = rawText;
+    let verdictTier = 2;
+    try {
+      const parsed = JSON.parse(rawText);
+      if (parsed && typeof parsed.body === 'string') {
+        editorNote = parsed.body.trim();
+        const t = Number(parsed.tier);
+        if (t === 1 || t === 2 || t === 3 || t === 4) verdictTier = t;
+      }
+    } catch {
+      // JSON parse failed — keep editorNote = rawText, verdictTier = 2.
+    }
+
     const editorNoteAt = new Date().toISOString();
 
     // Persist into meta.json. editorVoice records which persona wrote the
     // note so the archive can re-render the sign-off correctly even if the
-    // user switches personas later.
+    // user switches personas later. verdictTier drives the dynamic badge
+    // on the note reveal (1–3) or hides it (4 — announced in body).
     if (meta) {
       await env.PHOTOS.put(
         `photos/${uid}/${date}/meta.json`,
-        JSON.stringify({ ...meta, editorNote, editorNoteAt, editorVoice: persona.id }),
+        JSON.stringify({ ...meta, editorNote, editorNoteAt, editorVoice: persona.id, verdictTier }),
         { httpMetadata: { contentType: 'application/json' } }
       );
     }
 
-    return json({ editorNote, editorNoteAt, editorVoice: persona.id });
+    return json({ editorNote, editorNoteAt, editorVoice: persona.id, verdictTier });
   }
 
   // ── POST /api/ai/caption/[date] ──────────────────────────────────────────
