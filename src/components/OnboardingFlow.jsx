@@ -91,15 +91,21 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
     if (card) el.scrollLeft = card.offsetLeft;
   }, [initialIdx]);
 
+  // Debounce the index update until the snap settles. Without this the
+  // active dot flickers across editors during inertial scroll because
+  // scrollLeft passes through every card mid-flight. ~80ms is enough to
+  // outlast iOS's snap animation without feeling laggy.
+  const scrollEndRef = useRef(null);
   const onScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const w = el.clientWidth;
-    if (!w) return;
-    const idx = Math.round(el.scrollLeft / w);
-    if (idx !== activeIdx && idx >= 0 && idx < PERSONAS.length) {
-      setActiveIdx(idx);
-    }
+    if (scrollEndRef.current) clearTimeout(scrollEndRef.current);
+    scrollEndRef.current = setTimeout(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const w = el.clientWidth;
+      if (!w) return;
+      const idx = Math.round(el.scrollLeft / w);
+      setActiveIdx(prev => (idx !== prev && idx >= 0 && idx < PERSONAS.length) ? idx : prev);
+    }, 80);
   };
 
   const goToIdx = (i) => {
@@ -129,7 +135,7 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
               <img src={p.portrait} alt="" loading="lazy" />
             </div>
             <div className="onb-card-role">{p.title} · {p.publication}</div>
-            <div className="s2-serif onb-card-name">{p.name}</div>
+            <div className="s2-sans onb-card-name">{p.name}</div>
             <div className="onb-card-quote-wrap">
               <div className="s2-serif onb-card-brief">&ldquo;{p.sampleBrief}&rdquo;</div>
               <div className="onb-card-brief-label">— Brief</div>
@@ -166,8 +172,7 @@ function TermsScreen({ onDone }) {
   return (
     <div className="onb-screen onb-deal">
       <div className="onb-pitch-body">
-        <div className="s2-mono onb-eyebrow">The terms</div>
-        <h1 className="s2-serif onb-headline">What you&rsquo;re agreeing to.</h1>
+        <h1 className="s2-serif onb-headline">Before you begin.</h1>
         <ul className="onb-primer-list">
           <li>
             <div className="s2-mono onb-primer-label">Daily</div>
