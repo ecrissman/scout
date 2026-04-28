@@ -82,29 +82,43 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
   const initialIdx = Math.max(0, PERSONAS.findIndex(p => p.id === briefVoice));
   const [activeIdx, setActiveIdx] = useState(initialIdx);
 
-  // Land returning users on their existing pick. Instant scroll so the
-  // carousel doesn't animate from #0 on every entry.
+  // Land returning users on their existing pick. scrollIntoView with
+  // inline:'center' matches the playing-card layout (cards are <100% wide
+  // and snap to center, not start).
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const card = el.children[initialIdx];
-    if (card) el.scrollLeft = card.offsetLeft;
+    if (!card) return;
+    // Use scrollLeft directly for the initial position so it doesn't
+    // animate. With 86% cards, scroll-to-center = card.offsetLeft -
+    // (carousel.clientWidth - card.offsetWidth) / 2.
+    el.scrollLeft = Math.max(0, card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2);
   }, [initialIdx]);
 
   // Debounce the index update until the snap settles. Without this the
   // active dot flickers across editors during inertial scroll because
-  // scrollLeft passes through every card mid-flight. ~80ms is enough to
-  // outlast iOS's snap animation without feeling laggy.
+  // scrollLeft passes through every card mid-flight. ~80ms outlasts iOS's
+  // snap animation without feeling laggy.
+  //
+  // With center-snapped cards we can't infer index from scrollLeft / width.
+  // Instead, find the card whose center is closest to the viewport center.
   const scrollEndRef = useRef(null);
   const onScroll = () => {
     if (scrollEndRef.current) clearTimeout(scrollEndRef.current);
     scrollEndRef.current = setTimeout(() => {
       const el = scrollRef.current;
       if (!el) return;
-      const w = el.clientWidth;
-      if (!w) return;
-      const idx = Math.round(el.scrollLeft / w);
-      setActiveIdx(prev => (idx !== prev && idx >= 0 && idx < PERSONAS.length) ? idx : prev);
+      const center = el.scrollLeft + el.clientWidth / 2;
+      let nearest = 0;
+      let nearestDist = Infinity;
+      for (let i = 0; i < el.children.length; i++) {
+        const child = el.children[i];
+        const childCenter = child.offsetLeft + child.offsetWidth / 2;
+        const d = Math.abs(childCenter - center);
+        if (d < nearestDist) { nearestDist = d; nearest = i; }
+      }
+      setActiveIdx(prev => (nearest !== prev && nearest >= 0 && nearest < PERSONAS.length) ? nearest : prev);
     }, 80);
   };
 
@@ -112,7 +126,9 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
     const el = scrollRef.current;
     if (!el) return;
     const card = el.children[i];
-    if (card) el.scrollTo({ left: card.offsetLeft, behavior: 'smooth' });
+    if (!card) return;
+    const target = Math.max(0, card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2);
+    el.scrollTo({ left: target, behavior: 'smooth' });
   };
 
   const active = PERSONAS[activeIdx];
@@ -129,8 +145,8 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
         <h1 className="s2-serif onb-headline">Pick your editor.</h1>
       </div>
       <div className="onb-carousel" ref={scrollRef} onScroll={onScroll}>
-        {PERSONAS.map((p) => (
-          <article key={p.id} className="onb-card">
+        {PERSONAS.map((p, i) => (
+          <article key={p.id} className={`onb-card${i === activeIdx ? ' active' : ''}`}>
             <div className="onb-card-portrait" aria-hidden="true">
               <img src={p.portrait} alt="" loading="lazy" />
             </div>
