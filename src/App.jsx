@@ -1486,11 +1486,18 @@ export default function App() {
                 // STACK / RUN IT; Woo: SIT WITH IT / RECEIVED / SEEN).
                 // Tier 4 hides the badge — the verdict is announced in the
                 // note body per docs/personas/MATRIX.md §1.
-                const stamp = verdictLabel(dayMeta?.editorVoice, dayMeta?.verdictTier);
+                //
+                // Color coding: press-green only on tier 3 (the "earned
+                // moment" per BRAND.md). Tiers 1 and 2 render in ink so
+                // they read as record stamps, not rewards. The tier class
+                // on the stamp drives the override in scout.css.
+                const tier = Number(dayMeta?.verdictTier) || 0;
+                const stamp = verdictLabel(dayMeta?.editorVoice, tier);
                 if (!stamp) return null;
+                const tierClass = (tier === 1 || tier === 2) ? ` s2-stamp-tier-${tier}` : '';
                 return (
                   <div className="note-reveal-stamp-wrap">
-                    <span className="s2-stamp-filed">{stamp}</span>
+                    <span className={`s2-stamp-filed${tierClass}`}>{stamp}</span>
                   </div>
                 );
               })()}
