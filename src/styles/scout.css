@@ -404,6 +404,17 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 .s2-stamp-dispatch{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border:1.5px solid var(--s2-press-green);border-radius:2px;font-family:var(--s2-mono);font-size:9px;font-weight:500;letter-spacing:0.25em;text-transform:uppercase;color:var(--s2-press-green);background:transparent}
 .s2-stamp-dispatch::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--s2-press-green);flex-shrink:0}
 
+/* Urgent variant — challenge days only. Inverted (filled press-green
+   bg + paper text) so the stamp reads as a different temperature from
+   the everyday "New Assignment" outline. The leading dot pulses so the
+   eye catches the urgency before the brief copy lands. */
+.s2-stamp-urgent{background:var(--s2-press-green);color:var(--s2-paper);border-color:var(--s2-press-green)}
+.s2-stamp-urgent::before{background:var(--s2-paper);animation:s2StampUrgentPulse 1.4s ease-in-out infinite}
+@keyframes s2StampUrgentPulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@media (prefers-reduced-motion: reduce){
+  .s2-stamp-urgent::before{animation:none}
+}
+
 /* Utility text styles */
 .s2-mono{font-family:var(--s2-mono);letter-spacing:0.02em}
 .s2-serif{font-family:var(--s2-serif);letter-spacing:-0.015em}

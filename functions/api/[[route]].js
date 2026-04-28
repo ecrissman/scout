@@ -56,6 +56,23 @@ function lightDescFromCode(code) {
 }
 
 // Fetches autoLight (from Open-Meteo) + autoPlace (from Nominatim) in parallel.
+// Stable ~1-in-7 challenge-day flag. Hashes "userId|YYYY-MM-DD" and checks
+// if the result lands on a fixed bucket. Refreshing returns the same answer
+// for the same user-day, so opening Compose multiple times on a challenge
+// day keeps producing a challenge brief. No persistent state.
+//
+// Tradeoff: occasionally there can be 8–10 day gaps between challenges
+// (random walk). Adding a "force after N days without" floor would need
+// per-user state — deferred to a follow-up if data shows gaps too long.
+function isChallengeDay(userId, dateStr) {
+  const key = `${userId}|${dateStr}`;
+  let h = 0;
+  for (let i = 0; i < key.length; i++) {
+    h = ((h << 5) - h + key.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h) % 7 === 0;
+}
+
 // Used by /api/ai/context (display in Compose header) and /api/ai/brief
 // (composition input). Safe defaults: returns 'Ambient' + null on any failure.
 async function detectContext(lat, lon) {
@@ -713,6 +730,12 @@ export async function onRequest({ request, env, params }) {
   // the model (it pattern-matches geography even when the photographer
   // isn't near the named feature). Anthropic call + weather + reverse-geo
   // all run in parallel on the edge.
+  //
+  // On challenge days (~1 in 7, deterministic per user-day), the brief is
+  // urgent and time-boxed. The duration matches the persona's natural
+  // pressure register (see _personas.js) and is threaded into the brief
+  // copy itself ("Twelve minutes. …"). The frontend reads `challenge` +
+  // `durationMinutes` from the response to flip the UI into challenge mode.
   if (route === 'ai/brief' && method === 'POST') {
     const body = await request.json().catch(() => ({}));
     const { lat: inLat, lon: inLon, voice: inVoice } = body;
@@ -728,10 +751,21 @@ export async function onRequest({ request, env, params }) {
     const persona = resolvePersona(inVoice);
     const voice = persona.id;
 
-    // Light only. The model sees the available light as silent flavor, not
-    // a directive — examples in the system prompt show the model how to
-    // weave it (or ignore it) editorially.
-    const userContent = `Light today: ${autoLight}`;
+    // Stable per user-day: same uid + date always resolves to the same
+    // challenge boolean. ~1 in 7 days are challenge days. Idempotent across
+    // refresh — opening Compose multiple times on a challenge day always
+    // returns a challenge brief. UTC date is fine; the boundary moves with
+    // the day, which is what we want.
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const challenge = isChallengeDay(uid, dateStr);
+    const durationMinutes = challenge ? persona.challengeDurationMinutes : null;
+
+    // Light is silent flavor; mode/duration tell the model whether to write
+    // the urgent variant (system prompt has examples for both). The model
+    // is instructed to thread the duration into the body itself.
+    const userContent = challenge
+      ? `Mode: challenge\nDuration: ${durationMinutes} minutes\nLight today: ${autoLight}`
+      : `Light today: ${autoLight}`;
 
     const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -751,7 +785,7 @@ export async function onRequest({ request, env, params }) {
     }
     const aiData = await aiRes.json();
     const brief = (aiData.content?.[0]?.text ?? '').trim();
-    return json({ brief, autoLight, autoPlace, voice });
+    return json({ brief, autoLight, autoPlace, voice, challenge, durationMinutes });
   }
 
   // ── POST /api/ai/editor-note/[date] ──────────────────────────────────────
