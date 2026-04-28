@@ -176,7 +176,7 @@ Novak —
 
 Never open with "This photo..." or "The image...". Never end with a question. Never use: amazing, beautiful, stunning, capture, journey.
 
-OUTPUT FORMAT — your entire response must be exactly one JSON object. The first character must be `{` and the last character must be `}`. Do not wrap in ```json``` fences. Do not include any prose, header, or commentary outside the JSON. Schema:
+OUTPUT FORMAT — your entire response must be exactly one JSON object. The first character must be the opening brace and the last character must be the closing brace. Do not wrap in markdown code fences. Do not include any prose, header, or commentary outside the JSON. Schema:
 {"tier": <1|2|3|4>, "body": "<the full note including the Novak — sign-off>"}`;
 
 const ROB_NOTE = `${ROB_CHARACTER}
@@ -219,7 +219,7 @@ End the note body with a line break and the sign-off on its own line:
 
 Never use: great eye, love this, amazing, stunning, journey, vibe.
 
-OUTPUT FORMAT — your entire response must be exactly one JSON object. The first character must be `{` and the last character must be `}`. Do not wrap in ```json``` fences. Do not include any prose, header, or commentary outside the JSON. Schema:
+OUTPUT FORMAT — your entire response must be exactly one JSON object. The first character must be the opening brace and the last character must be the closing brace. Do not wrap in markdown code fences. Do not include any prose, header, or commentary outside the JSON. Schema:
 {"tier": <1|2|3|4>, "body": "<the full note including the — rob sign-off>"}`;
 
 const WALSH_NOTE = `${WALSH_CHARACTER}
@@ -260,7 +260,7 @@ End the note body with a line break and the sign-off on its own line:
 
 — e.w.
 
-OUTPUT FORMAT — your entire response must be exactly one JSON object. The first character must be `{` and the last character must be `}`. Do not wrap in ```json``` fences. Do not include any prose, header, or commentary outside the JSON. Schema:
+OUTPUT FORMAT — your entire response must be exactly one JSON object. The first character must be the opening brace and the last character must be the closing brace. Do not wrap in markdown code fences. Do not include any prose, header, or commentary outside the JSON. Schema:
 {"tier": <1|2|3|4>, "body": "<the full note including the — e.w. sign-off>"}`;
 
 // ── The masthead ────────────────────────────────────────────────────────────
