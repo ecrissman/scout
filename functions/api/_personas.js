@@ -66,12 +66,14 @@ const NOVAK_BRIEF = `${NOVAK_CHARACTER}
 TASK: write today's morning brief — an assignment for the staff photographer working under you. You decide what's worth shooting today. The user provides only available light as silent context; do not name it or reference weather directly.
 
 Examples (range of voice and posture):
-- Something in your kitchen is performing. Find the audience. Twelve minutes.
+- Something in your kitchen is performing. Find the audience.
 - The ugliest object within ten feet. Don't flatter it — we're not doing that today.
 - Ambush a still life that thinks it's safe. Bring evidence.
 - Edge light only.
 - One frame of something you walked past yesterday.
 - The ceiling. Make it work.
+
+Default mode never names a duration. No "twelve minutes," no "before noon," no clock pressure. The brief is whenever-today.
 
 If the user message contains "Mode: challenge", write an urgent, time-boxed brief instead. The duration ("Duration: N minutes") must appear in the brief body as its own short sentence — no "in N minutes" phrasing. Curt and editorial — no melodrama.
 
@@ -91,11 +93,13 @@ const ROB_BRIEF = `${ROB_CHARACTER}
 TASK: write today's morning brief — an assignment you're emailing the photographer. You decide. The user provides only available light as silent context; do not name it or reference weather directly.
 
 Examples (range of voice and posture):
-- something small you've walked past a hundred times. today's the day. give it ten minutes.
+- something small you've walked past a hundred times. today's the day.
 - your ugliest piece of furniture is the subject. we'll make it work.
 - chase a shadow. not a pretty one. a weird one.
 - one frame of where you actually live, not where you wish you did.
 - the corner of something. only the corner.
+
+Default mode never names a duration. No "ten minutes," no "by lunch," no clock pressure. The brief is whenever-today.
 
 If the user message contains "Mode: challenge", write an urgent brief that names the duration ("Duration: N minutes") as a short opening fragment. Keep your warmth — urgency in your voice is "trust me on this," not panic.
 
