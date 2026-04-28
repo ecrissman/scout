@@ -738,7 +738,7 @@ export async function onRequest({ request, env, params }) {
   // `durationMinutes` from the response to flip the UI into challenge mode.
   if (route === 'ai/brief' && method === 'POST') {
     const body = await request.json().catch(() => ({}));
-    const { lat: inLat, lon: inLon, voice: inVoice } = body;
+    const { lat: inLat, lon: inLon, voice: inVoice, localDate: inLocalDate } = body;
 
     // Fall back to Seattle if no coords provided (mirrors /ai/prompt behavior).
     const lat = typeof inLat === 'number' ? inLat : 47.6062;
@@ -752,11 +752,17 @@ export async function onRequest({ request, env, params }) {
     const voice = persona.id;
 
     // Stable per user-day: same uid + date always resolves to the same
-    // challenge boolean. ~1 in 7 days are challenge days. Idempotent across
-    // refresh — opening Compose multiple times on a challenge day always
-    // returns a challenge brief. UTC date is fine; the boundary moves with
-    // the day, which is what we want.
-    const dateStr = new Date().toISOString().slice(0, 10);
+    // challenge boolean. ~1 in 7 days are challenge days. Idempotent
+    // across refresh — opening Compose multiple times on a challenge
+    // day always returns a challenge brief.
+    //
+    // The cadence keys on the *client's* local YYYY-MM-DD (passed as
+    // body.localDate) so a UTC boundary mid-day can't fire the same
+    // bucket across two perceived calendar days — a PT user opening
+    // Compose late evening would otherwise see tomorrow's UTC date.
+    // Falls back to UTC if the client doesn't pass a date.
+    const isValidDate = typeof inLocalDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(inLocalDate);
+    const dateStr = isValidDate ? inLocalDate : new Date().toISOString().slice(0, 10);
     const challenge = isChallengeDay(uid, dateStr);
     const durationMinutes = challenge ? persona.challengeDurationMinutes : null;
 

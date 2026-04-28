@@ -90,10 +90,13 @@ export async function getContext({ lat, lon }) {
 // Compose a brief. The editor decides — no user inputs (mood/time/constraint
 // were retired). Light is server-detected from lat/lon and passed silently
 // to the model as context. Place is fetched for UI dateline display only.
-// Returns { brief, autoLight, autoPlace, voice }.
-export async function composeBrief({ lat, lon, voice }) {
+// localDate is the client's local YYYY-MM-DD; the backend uses it to key
+// the challenge-day cadence so a UTC boundary mid-day doesn't cause the
+// same bucket to fire across two perceived calendar days.
+// Returns { brief, autoLight, autoPlace, voice, challenge, durationMinutes }.
+export async function composeBrief({ lat, lon, voice, localDate }) {
   try {
-    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { lat, lon, voice }));
+    const r = await fetch(`${BASE}/ai/brief`, await req('POST', { lat, lon, voice, localDate }));
     if (!r.ok) return null;
     return r.json();
   } catch { return null; }
