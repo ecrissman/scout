@@ -155,19 +155,22 @@ Questions: ${LEGAL_CONTACT_EMAIL}
 export const ABOUT_SCOUT = `
 # About Scout
 
-**Founded:** April 2026
+**Founded:** 1961
+**Address:** West 22nd St · NY
 
 A daily edition for readers of one — yourself.
 
 ## A short history
 
-Scout was founded in April 2026 on a simple idea: photography is better with an editor.
+Scout began on West 22nd Street in 1961 as a one-room photo desk inside a paper that had four. The editors there ran a particular kind of operation: brief out at six, frame back by dusk, note from the desk by lights-out. No bylines. No trophies. No nice words for a slack frame. Just the loop, every day, until the photographer was someone.
 
-Newspapers used to assign photographers. Editors used to read frames and write notes back. Scout brings that loop, at miniature scale, to a single reader. You.
+The paper folded in '78. The desk did not. The editors kept reading frames the way they always had — slowly, on their own time, for whoever asked.
 
-Three editors share the masthead, each with their own voice and standards. **Stan Novak** runs the desk in the terse register of a retired big-city picture editor. **Rob Calder** writes from a Providence loft like he might run your photo in his next zine. **Eileen Woo** edits a literary quarterly and rarely says more than necessary.
+Scout is that desk, miniaturized for one. The masthead is real. They sit on it because they earned the chair: **Stan Novak**, who ran the picture desk at the Sun-Times until they made him stop; **Rob Calder**, who has run a photo zine out of a Providence loft since grad school; **Eileen Woo**, who edits a literary quarterly and has decided not to publish more frames than she has.
 
-## The basic premise
+You pick one. They read what you file.
+
+## The cycle
 
 At 06:00 your editor files a brief.
 You respond with one frame during the day.
@@ -176,6 +179,8 @@ At 20:00 the editor writes back.
 One brief. One frame. One note. Every day. Miss a day, the paper notices.
 
 About once a week, the editor issues a challenge instead — urgent, time-boxed.
+
+## The terms
 
 Your work stays yours. No feed, no streaks, no badges. Off the record.
 `.trim();

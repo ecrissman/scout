@@ -1,6 +1,6 @@
 import { PRIVACY_POLICY, TERMS_OF_SERVICE, ABOUT_SCOUT } from '../legal.js';
 
-const SHEET_TITLES = { privacy: 'Privacy Policy', terms: 'Terms of Service', about: 'About Scout' };
+// The sheet has no header label — the markdown's own h1 is the title.
 const SHEET_CONTENT = { privacy: PRIVACY_POLICY, terms: TERMS_OF_SERVICE, about: ABOUT_SCOUT };
 
 // Tiny markdown renderer for legal docs. Handles h1/h2, paragraphs, bullet
@@ -43,7 +43,6 @@ export default function LegalSheet({ which, onClose }) {
     <div className="settings-backdrop" onClick={onClose}>
       <div className="legal-sheet" onClick={e => e.stopPropagation()}>
         <div className="legal-header">
-          <div className="legal-title">{SHEET_TITLES[which] || ''}</div>
           <button className="legal-close" onClick={onClose}>Close</button>
         </div>
         <div className="legal-content">
