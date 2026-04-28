@@ -125,16 +125,6 @@ export default function SettingsSheet({
         </div>
 
         <div className="settings-section">
-          <div className="settings-section-label">About</div>
-          <div className="settings-group">
-            <button className="settings-row-btn" onClick={() => { onClose(); onOpenLegal('about'); }}>
-              <span className="settings-row-label">About Scout</span>
-              <svg className="settings-row-chev" viewBox="0 0 7 12"><polyline points="1,1 6,6 1,11"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <div className="settings-section">
           <div className="settings-section-label">Legal</div>
           <div className="settings-group">
             <button className="settings-row-btn" onClick={() => { onClose(); onOpenLegal('privacy'); }}>

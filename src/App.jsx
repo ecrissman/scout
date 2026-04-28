@@ -1555,6 +1555,7 @@ export default function App() {
       <NavPanel
         open={panelOpen} closing={panelClosing} onDismiss={dismissPanel}
         theme={theme} userEmail={userEmail}
+        onAbout={() => setLegalOpen('about')}
         onAccount={() => setAccountOpen(true)}
         onSettings={() => setSettingsOpen(true)}
         onDev={() => setDevPanelOpen(true)}

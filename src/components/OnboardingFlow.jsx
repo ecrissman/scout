@@ -83,17 +83,14 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
   const [activeIdx, setActiveIdx] = useState(initialIdx);
 
   // Land returning users on their existing pick. scrollIntoView with
-  // inline:'center' matches the playing-card layout (cards are <100% wide
-  // and snap to center, not start).
+  // inline:'center' lets the browser compute the snap target in agreement
+  // with the CSS scroll-snap engine — manual scrollLeft math could land
+  // a half-pixel off on iOS and the snap would never correct it for the
+  // first/last cards.
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const card = el.children[initialIdx];
+    const card = scrollRef.current?.children[initialIdx];
     if (!card) return;
-    // Use scrollLeft directly for the initial position so it doesn't
-    // animate. With 86% cards, scroll-to-center = card.offsetLeft -
-    // (carousel.clientWidth - card.offsetWidth) / 2.
-    el.scrollLeft = Math.max(0, card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2);
+    card.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
   }, [initialIdx]);
 
   // Debounce the index update until the snap settles. Without this the
@@ -123,12 +120,9 @@ function MastheadCarousel({ briefVoice, setBriefVoice, onNext }) {
   };
 
   const goToIdx = (i) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const card = el.children[i];
+    const card = scrollRef.current?.children[i];
     if (!card) return;
-    const target = Math.max(0, card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2);
-    el.scrollTo({ left: target, behavior: 'smooth' });
+    card.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
   };
 
   const active = PERSONAS[activeIdx];
