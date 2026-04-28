@@ -42,15 +42,18 @@ All CSS is a single template literal `const CSS` at the top of `App.jsx` (lines 
 - `.lb-*` Lightbox
 - `.week-*` Week chip
 
-### Design Tokens (CSS variables)
+### Design Tokens — v2 (CSS variables, defined in `src/styles/scout.css`)
 ```css
---bg, --bg-secondary, --surface, --border
---text, --text-2, --text-3
---accent (#4F5E2E sage), --accent-fg
---terracotta (#E34822), --gold (#E2B554)
---paper (#FFFDFA), --ink (#0C0C0C)
---brand (Flapjack font), --sans (Inconsolata)
+/* Surfaces */
+--s2-paper (#FFFDFA), --s2-paper-2 (#F7F3EC), --s2-grouped-bg (#F2F1EC)
+/* Ink */
+--s2-ink (#0C0C0C), --s2-archive (#3A3A35), --s2-smoke (#8A8680), --s2-bone (#D8D7D4)
+/* Press green — only earned accent */
+--s2-press-green (#007C04)
+/* Type */
+--s2-serif (Fraunces), --s2-mono (Geist Mono), --s2-sans (SF Pro stack)
 ```
+Legacy aliases `--bg`, `--text`, `--accent`, `--brand`, `--serif`, `--sans` all resolve to v2 tokens for unmigrated v1 classes. Source of truth: `docs/BRAND.md`.
 
 ### State Navigation
 No router. Key state variables:
