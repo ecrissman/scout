@@ -852,13 +852,21 @@ export async function onRequest({ request, env, params }) {
     const rawText = (aiData.content?.[0]?.text ?? '').trim();
 
     // Parse the structured response. Each persona's note prompt instructs
-    // the model to emit {"tier": 1|2|3|4, "body": "…"}. If parsing fails
-    // (model went off-format), fall back to the raw text as a tier-2 note —
-    // the archive still renders, just without a verdict-driven badge.
+    // the model to emit {"tier": 1|2|3|4, "body": "…"}. Haiku occasionally
+    // wraps in markdown fences (```json … ```) despite the instruction, so
+    // we strip those first, then extract the first {…} substring as a
+    // last line of defense against pre/postamble. If everything fails,
+    // fall back to the raw text as a tier-2 note.
     let editorNote = rawText;
     let verdictTier = 2;
+    // Strip optional ```json … ``` or ``` … ``` fences.
+    const fenceMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    const candidate = fenceMatch ? fenceMatch[1].trim() : rawText;
+    // Extract the first JSON object substring even if surrounded by prose.
+    const objMatch = candidate.match(/\{[\s\S]*\}/);
+    const jsonStr = objMatch ? objMatch[0] : candidate;
     try {
-      const parsed = JSON.parse(rawText);
+      const parsed = JSON.parse(jsonStr);
       if (parsed && typeof parsed.body === 'string') {
         editorNote = parsed.body.trim();
         const t = Number(parsed.tier);
