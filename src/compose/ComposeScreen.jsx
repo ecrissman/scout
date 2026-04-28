@@ -161,9 +161,17 @@ export default function ComposeScreen({ onClose, onFiled } = {}) {
         briefFetchedRef.current = false;
         return;
       }
+      // Dev override: ?nochallenge=1 forces the regular flow on a server-
+      // declared challenge day. Useful for QA on rare-event UI when you
+      // happen to roll a challenge bucket. The brief copy itself may still
+      // mention the duration since the model already generated it — close
+      // and reopen to fetch a fresh non-challenge brief, or pair with
+      // ?brief= to short-circuit.
+      const params = new URLSearchParams(window.location.search);
+      const noChallenge = params.get('nochallenge') === '1';
       setBrief(res.brief);
-      setChallenge(!!res.challenge);
-      setDurationMinutes(res.durationMinutes || null);
+      setChallenge(noChallenge ? false : !!res.challenge);
+      setDurationMinutes(noChallenge ? null : (res.durationMinutes || null));
       if (res.autoLight) setAutoLight(res.autoLight);
       if (res.autoPlace) setAutoPlace(res.autoPlace);
       setStage('brief');
