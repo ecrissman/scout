@@ -85,8 +85,13 @@ html,body{height:100%;min-height:100dvh;width:100%;overflow-x:hidden;overscroll-
 /* ── Archive (masonry feed) ── */
 .archive-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 24px;background:var(--bg)}
 .archive-month-header{padding:22px 20px 10px;font-family:var(--s2-mono);font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--text-3)}
-.archive-masonry{column-count:2;column-gap:8px;padding:0 12px}
-.archive-tile{break-inside:avoid;margin:0 0 8px;display:block;cursor:pointer;background:var(--surface);border-radius:4px;overflow:hidden;-webkit-tap-highlight-color:transparent;padding:0;border:none;width:100%}
+/* Switched from column-count to a 2-col grid because CSS columns can
+   land the second column's first item a pixel or two below the first
+   on Safari, breaking the masthead-row read. With photos filed at
+   similar aspects the visual loss vs. true masonry is minimal, and
+   align-items:start guarantees both columns share a top edge. */
+.archive-masonry{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px;align-items:start}
+.archive-tile{display:block;cursor:pointer;background:var(--surface);border-radius:4px;overflow:hidden;-webkit-tap-highlight-color:transparent;padding:0;border:none;width:100%;margin:0}
 .archive-tile:active{opacity:0.75}
 .archive-tile img{width:100%;height:auto;display:block}
 .today-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center}

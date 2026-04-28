@@ -1069,12 +1069,12 @@ export default function App() {
           {photoDates.size > 0 && (
             <div className="page-header">
               <div className="page-header-eyebrow">{photoDates.size} FILED</div>
-              <h1 className="page-header-title">Back Issues</h1>
+              <h1 className="page-header-title">Archive</h1>
             </div>
           )}
           {photoDates.size===0 ? (
             <div className="archive-empty">
-              <div className="archive-empty-lbl">Back Issues</div>
+              <div className="archive-empty-lbl">Archive</div>
               <div className="archive-empty-h">Nothing filed yet.</div>
               <div className="archive-empty-sub">File today's take and it lands here.</div>
             </div>
@@ -1115,7 +1115,7 @@ export default function App() {
         <div className="month-scroll" style={{display: activeTab==='calendar' ? 'block' : 'none'}}>
           <div className="page-header">
             <div className="page-header-eyebrow">{TY}</div>
-            <h1 className="page-header-title">Editions</h1>
+            <h1 className="page-header-title">Back Issues</h1>
           </div>
           {Array.from({length:TM+1},(_,i)=> TM - i).map(mi=>{
             const fd=new Date(TY,mi,1).getDay(), dim=new Date(TY,mi+1,0).getDate();
@@ -1373,7 +1373,7 @@ export default function App() {
               <button
                 className={`s2-tab-btn${activeTab==='archive'?' active':''}`}
                 onClick={() => switchTab('archive')}
-                aria-label="Back Issues"
+                aria-label="Archive"
                 aria-current={activeTab==='archive' ? 'page' : undefined}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -1386,7 +1386,7 @@ export default function App() {
               <button
                 className={`s2-tab-btn${activeTab==='calendar'?' active':''}`}
                 onClick={() => switchTab('calendar')}
-                aria-label="Editions"
+                aria-label="Back Issues"
                 aria-current={activeTab==='calendar' ? 'page' : undefined}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
