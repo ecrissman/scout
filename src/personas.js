@@ -16,6 +16,33 @@ export const VERDICT_TIERS = {
   walsh:  { 1: 'Sit with it',2: 'Received',      3: 'Seen',    4: 'Kept' },
 };
 
+// Repair an editor note that was persisted in raw model-output form
+// (e.g., ```json {"tier": 2, "body": "…"} ``` or even just an unwrapped
+// JSON object). The backend parser handles this on fresh notes, but
+// older photos in R2 may have been written before the parser was
+// hardened — apply the same recovery here on read so the archive
+// renders cleanly without a meta migration. Returns the body string,
+// or the original text if no JSON shape is detected.
+export function repairEditorNote(text) {
+  if (!text || typeof text !== 'string') return text;
+  const trimmed = text.trim();
+  // Quick path: bare prose, no JSON cues.
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('```') && !trimmed.includes('"body"')) {
+    return text;
+  }
+  const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  const candidate = fenceMatch ? fenceMatch[1].trim() : trimmed;
+  const objMatch = candidate.match(/\{[\s\S]*\}/);
+  if (!objMatch) return text;
+  try {
+    const parsed = JSON.parse(objMatch[0]);
+    if (parsed && typeof parsed.body === 'string') return parsed.body.trim();
+  } catch {
+    // Fall through and return original.
+  }
+  return text;
+}
+
 // Resolve a persona ID + verdict tier to the badge label for the note reveal.
 // Returns null when the tier is 4 (announced in body), unknown, or the
 // persona ID isn't in the map — caller should hide the badge in that case.

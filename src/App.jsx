@@ -3,7 +3,7 @@ import { getPhoto, uploadPhoto, updateCaption, deletePhoto, deleteAccount, listY
 import { isPushSupported, isPushSubscribedLocal, maybePromptForPush } from './push';
 import { extractEXIF, formatExif, compressFile, makeThumb } from './exif';
 import { supabase } from './supabase.js';
-import { splitBrief, migrateVoiceId, verdictLabel } from './personas';
+import { splitBrief, migrateVoiceId, verdictLabel, repairEditorNote } from './personas';
 import { initAnalytics, identify, resetIdentity, track } from './analytics';
 const ComposeScreen = lazy(() => import('./compose/ComposeScreen.jsx'));
 import ScoutWordmark from './ScoutWordmark.jsx';
@@ -468,7 +468,7 @@ export default function App() {
       // Prefer the v2 editor note (attached by the Compose flow) over the
       // v1 feedback field; both render inside the same Field Note block.
       const note = data?.editorNote || data?.feedback || null;
-      if (note) setFeedback(note);
+      if (note) setFeedback(repairEditorNote(note));
       // Evening-edition gate: the reveal auto-fires only for today, and
       // only after 20:00 local. Past dates never auto-reveal — tapping
       // an archive tile opens the lightbox, not the note. The banner on
@@ -753,7 +753,7 @@ export default function App() {
         // submission — no note, no 20:00 reveal.
         if (aiEnabled && sel === todayStr) {
           getFeedback(sel).then(result => {
-            if (result?.feedback) setFeedback(result.feedback);
+            if (result?.feedback) setFeedback(repairEditorNote(result.feedback));
           });
         }
       }
@@ -1424,7 +1424,7 @@ export default function App() {
                   // Prefer the v2 editor note if present; fall back to
                   // the v1 feedback field for legacy photos.
                   const note2 = m.editorNote || m.feedback || null;
-                  if (note2) setFeedback(note2);
+                  if (note2) setFeedback(repairEditorNote(note2));
                   if (note2 && new Date().getHours() >= 20 && !localStorage.getItem(`scout-note-seen-${todayStr}`)) {
                     setNoteReveal(todayStr);
                     setNoteRevealShown(0);
