@@ -55,11 +55,11 @@ export const PERSONAS = [
   },
   {
     id: 'walsh',
-    name: 'Eileen Walsh',
+    name: 'Eileen Woo',
     title: 'Editor at Large',
     publication: 'photography quarterly',
     initial: 'E',
-    portrait: '/personas/walsh.png',
+    portrait: '/personas/woo.png',
     short: 'Spare. Considered. Silent.',
     sample: 'the frame rests. received.',
     sampleBrief: 'What is in the room. Then what is also there.',
@@ -89,7 +89,7 @@ export function migrateVoiceId() {
 // ── Signature parsing ───────────────────────────────────────────────────────
 
 // Each persona has a unique sign-off pattern. Novak signs at the end with
-// "Novak —" (name-first, em-dash after). Rob and Walsh sign "— X" in the
+// "Novak —" (name-first, em-dash after). Rob and Woo sign "— X" in the
 // traditional byline order. We also keep a few legacy patterns so old
 // filed briefs render correctly in the archive.
 const SIGNATURE_MATCHERS = [

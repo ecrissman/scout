@@ -1483,7 +1483,7 @@ export default function App() {
               {(() => {
                 // Verdict-driven badge. Tiers 1–3 render the persona's word
                 // (Novak: NEEDS WORK / FILED / NOT BAD; Rob: HOLD / IN THE
-                // STACK / RUN IT; Walsh: SIT WITH IT / RECEIVED / SEEN).
+                // STACK / RUN IT; Woo: SIT WITH IT / RECEIVED / SEEN).
                 // Tier 4 hides the badge — the verdict is announced in the
                 // note body per docs/personas/MATRIX.md §1.
                 const stamp = verdictLabel(dayMeta?.editorVoice, dayMeta?.verdictTier);

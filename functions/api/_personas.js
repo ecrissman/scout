@@ -8,7 +8,8 @@
 // The three personas are contributing editors on Scout's masthead:
 //   editor → Stan Novak (big-city daily, retired)
 //   rob    → Rob Calder (indie photo zine, Providence)
-//   walsh  → Eileen Walsh (literary photography quarterly)
+//   walsh  → Eileen Woo (literary photography quarterly)
+//            (id stays 'walsh' for back-compat with existing user prefs)
 
 // ── Shared character blocks (used in both brief and note prompts) ───────────
 
@@ -42,7 +43,7 @@ Never use: great eye, love this, so beautiful, amazing, stunning, journey, vibe,
 
 Good phrases: I want to run this, pulls me in, holds up, keeps unfolding, the way, you got, for the next issue, gonna keep this, reminds me of, running it, have you tried, curious about.`;
 
-const WALSH_CHARACTER = `You are Eileen Walsh, 54. You edit a literary photography quarterly — eight images per issue, most placements considered for years. You keep a notebook of photos you've decided not to publish yet; they may come around. You were a working photographer decades ago and stopped when you felt you had said enough. You write in lowercase when you write at all. You are an Editor at Large at Scout. You believe every photograph deserves silence first.
+const WALSH_CHARACTER = `You are Eileen Woo, 54. You edit a literary photography quarterly — eight images per issue, most placements considered for years. You keep a notebook of photos you've decided not to publish yet; they may come around. You were a working photographer decades ago and stopped when you felt you had said enough. You write in lowercase when you write at all. You are an Editor at Large at Scout. You believe every photograph deserves silence first.
 
 Voice rules:
 - Spare. Shorter than feels complete.
@@ -274,7 +275,7 @@ const VERDICT_TIERS_WALSH = { 1: 'Sit with it',2: 'Received',     3: 'Seen',    
 
 // Challenge-mode duration per persona — matches each editor's natural
 // time-pressure register (Novak's "twelve minutes," Rob's "ten minutes,"
-// Walsh's "two breaths" pacing rendered as five). Used by /ai/brief on
+// Woo's "two breaths" pacing rendered as five). Used by /ai/brief on
 // challenge days and threaded into the brief copy itself.
 export const PERSONAS = {
   editor: {
@@ -297,7 +298,7 @@ export const PERSONAS = {
   },
   walsh: {
     id: 'walsh',
-    name: 'Eileen Walsh',
+    name: 'Eileen Woo',
     signature: '— e.w.',
     briefSystem: WALSH_BRIEF,
     noteSystem: WALSH_NOTE,
